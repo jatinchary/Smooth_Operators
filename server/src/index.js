@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import healthRoutes from './routes/health.routes.js';
+import FIRoutes from './routes/fi.routes.js';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(express.json({ limit: '1mb' }));
 
 // Routes
 app.use('/api', healthRoutes);
+app.use('/api', FIRoutes);
 
 // 404
 app.use((req, res) => {

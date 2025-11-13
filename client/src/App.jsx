@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiGet } from './api.js';
+import { apiGet, apiPost } from './api.js';
 
 export default function App() {
   const [health, setHealth] = useState(null);
@@ -10,6 +10,26 @@ export default function App() {
       .then(setHealth)
       .catch((e) => setError(e.message));
   }, []);
+
+  async function handleFetchDealerProduct() {
+    try {
+      const dealerId = '2737'; // replace with the desired dealer ID
+      const data = await apiPost('/api/ex1/dealer-product', { dealerId });
+      console.log('EX1DealerProduct response:', data);
+    } catch (e) {
+      console.error('EX1DealerProduct error:', e);
+    }
+  }
+
+  async function handleFetchProviderList() {
+    try {
+      const dealerId = '2737'; // replace with the desired dealer ID
+      const data = await apiPost('/api/ex1/provider-list', { dealerId });
+      console.log('EX1ProviderList response:', data);
+    } catch (e) {
+      console.error('EX1ProviderList error:', e);
+    }
+  }
 
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', padding: '2rem', lineHeight: 1.5 }}>
@@ -24,6 +44,18 @@ export default function App() {
 {JSON.stringify(health, null, 2)}
           </pre>
         )}
+      </section>
+      <section style={{ marginTop: '1rem' }}>
+        <h2>EX1 Dealer Product</h2>
+        <button onClick={handleFetchDealerProduct}>
+          Fetch Dealer Product (logs to console)
+        </button>
+      </section>
+      <section style={{ marginTop: '1rem' }}>
+        <h2>EX1 Provider List</h2>
+        <button onClick={handleFetchProviderList}>
+          Fetch Provider List (logs to console)
+        </button>
       </section>
       <footer style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#555' }}>
         Update <code>VITE_API_BASE_URL</code> in <code>.env</code> if your API runs elsewhere.
