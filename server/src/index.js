@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import healthRoutes from './routes/health.routes.js';
 import FIRoutes from './routes/fi.routes.js';
+import { initializeFiAuthScheduler } from './services/fiAuth.service.js';
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use((err, req, res, next) => {
 });
 
 const port = parseInt(process.env.PORT || '4000', 10);
+initializeFiAuthScheduler();
 app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`);
 });
