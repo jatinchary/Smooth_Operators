@@ -1,31 +1,84 @@
-# Server (Node.js + Express)
+# Database Service
 
-This is a minimal Express API.
+This service provides a singleton MySQL database connection that can be used throughout the application.
 
-## Scripts
+## Setup
 
-- `npm run dev`: start API with file watching (Node 18+)
-- `npm start`: start API
+1. Ensure you have `DB_CONNECTION_STRING` in your `.env` file
+2. Place your SSL certificate (`dbCert.pem`) in the server root directory
+3. The database connection is automatically initialized when the server starts
 
-## Environment
+## Usage
 
-Set via a `.env` file (not committed) or shell env:
+### Import the service
 
-- `PORT` (default: `4000`)
-- `CORS_ORIGIN` (default: `http://localhost:5173`)
+```javascript
+import { query, getDatabaseConnection } from './services/database.service.js';
+```
 
-## Endpoints
+### Execute queries
 
-- `GET /api/health` → `{ status: "ok", service: "api", timestamp }`
+```javascript
+// Simple query with parameters
+const result = await query('SELECT * FROM users WHERE id = ?', [userId]);
+console.log(result.rows); // Array of result rows
+console.log(result.fields); // Column information
 
-## Security
+// Complex query
+const result = await query(`
+  SELECT u.name, p.title
+  FROM users u
+  JOIN posts p ON u.id = p.user_id
+  WHERE u.active = ?
+`, [true]);
+```
 
-- Uses `helmet` for common security headers (CSP disabled by default; customize as needed)
-- CORS restricted via `CORS_ORIGIN`
-- Avoid logging PII or secrets
+### Get raw connection (for transactions, etc.)
 
-## Notes
+```javascript
+const connection = await getDatabaseConnection();
 
-- Add your routes under `src/` and mount them in `src/index.js`
+// Use connection pool directly
+await connection.execute('INSERT INTO users SET ?', { name: 'John', email: 'john@example.com' });
+```
 
+### Transaction support
 
+```javascript
+import { beginTransaction } from './services/database.service.js';
+
+const conn = await beginTransaction();
+try {
+  await conn.execute('INSERT INTO users SET ?', { name: 'John' });
+  await conn.execute('INSERT INTO profiles SET ?', { user_id: 1, bio: 'Hello' });
+  await conn.commit();
+} catch (error) {
+  await conn.rollback();
+  throw error;
+} finally {
+  conn.release();
+}
+```
+
+## Health Check
+
+The `/api/health` endpoint now includes database health status:
+
+```json
+{
+  "status": "ok",
+  "service": "api",
+  "timestamp": "2025-11-15T...",
+  "database": {
+    "status": "healthy",
+    "connected": true
+  }
+}
+```
+
+## Connection Details
+
+- **Host**: Parsed from DB_CONNECTION_STRING
+- **SSL**: Enabled with certificate from `dbCert.pem`
+- **Connection Pool**: 10 connections maximum
+- **Timeouts**: 60 seconds for acquire and query timeouts
