@@ -5,6 +5,40 @@ import StepContainer from './StepContainer'
 import MaterialInput from '../MaterialInput'
 import MaterialSelect from '../MaterialSelect'
 
+const countryOptions = [
+  { value: 'United States', label: 'United States' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Germany', label: 'Germany' },
+  { value: 'France', label: 'France' },
+  { value: 'Italy', label: 'Italy' },
+  { value: 'Spain', label: 'Spain' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'New Zealand', label: 'New Zealand' },
+  { value: 'Brazil', label: 'Brazil' },
+  { value: 'Argentina', label: 'Argentina' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'China', label: 'China' },
+  { value: 'India', label: 'India' },
+  { value: 'Singapore', label: 'Singapore' },
+  { value: 'South Korea', label: 'South Korea' },
+  { value: 'Netherlands', label: 'Netherlands' },
+  { value: 'Sweden', label: 'Sweden' },
+  { value: 'Norway', label: 'Norway' },
+  { value: 'Denmark', label: 'Denmark' },
+  { value: 'Switzerland', label: 'Switzerland' },
+  { value: 'Ireland', label: 'Ireland' },
+  { value: 'Belgium', label: 'Belgium' },
+  { value: 'Austria', label: 'Austria' },
+  { value: 'Poland', label: 'Poland' },
+  { value: 'Portugal', label: 'Portugal' },
+  { value: 'Greece', label: 'Greece' },
+  { value: 'Czech Republic', label: 'Czech Republic' },
+  { value: 'South Africa', label: 'South Africa' },
+  { value: 'Other', label: 'Other' },
+]
+
 export default function Step1GeneralInfo() {
   const dispatch = useDispatch()
   const generalInfo = useSelector((state) => state.config.generalInfo)
@@ -33,7 +67,7 @@ export default function Step1GeneralInfo() {
     dispatch(updateGeneralInfo(formData))
   }
 
-  const isValid = formData.dealershipName && formData.dealerCode && formData.email
+  const isValid = formData.legalName && formData.dbaName && formData.email
 
   return (
     <StepContainer
@@ -43,38 +77,91 @@ export default function Step1GeneralInfo() {
       canGoNext={isValid}
     >
       <div className="space-y-6">
-        {/* Dealership Name */}
-        <MaterialInput
-          label="Dealership Name"
-          type="text"
-          name="dealershipName"
-          value={formData.dealershipName}
-          onChange={handleChange}
-          required
-        />
+        {/* Legal and DBA Names */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MaterialInput
+            label="Legal Name"
+            type="text"
+            name="legalName"
+            value={formData.legalName}
+            onChange={handleChange}
+            required
+          />
+          <MaterialInput
+            label="DBA Name"
+            type="text"
+            name="dbaName"
+            value={formData.dbaName}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        {/* Dealer Code */}
-        <MaterialInput
-          label="Dealer Code"
-          type="text"
-          name="dealerCode"
-          value={formData.dealerCode}
-          onChange={handleChange}
-          required
-        />
+        {/* Website and Email */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MaterialInput
+            label="Website"
+            type="url"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+          />
+          <MaterialInput
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
         {/* Address */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <MaterialInput
-              label="Address"
+              label="Address 1"
               type="text"
-              name="address"
-              value={formData.address}
+              name="address1"
+              value={formData.address1}
               onChange={handleChange}
             />
           </div>
-          
+          <div className="md:col-span-2">
+            <MaterialInput
+              label="Address 2"
+              type="text"
+              name="address2"
+              value={formData.address2}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Phone, FAX, Country */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <MaterialInput
+              label="Phone"
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+            />
+            <MaterialInput
+              label="FAX"
+              type="text"
+              name="fax"
+              value={formData.fax}
+              onChange={handleChange}
+            />
+            <MaterialSelect
+              label="Country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              options={countryOptions}
+            />
+          </div>
+
           <div>
             <MaterialInput
               label="City"
@@ -157,25 +244,7 @@ export default function Step1GeneralInfo() {
           </div>
         </div>
 
-        {/* Contact Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MaterialInput
-            label="Phone"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-          
-          <MaterialInput
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {/* Contact Info moved above within Address */}
       </div>
     </StepContainer>
   )
