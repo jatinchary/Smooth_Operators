@@ -34,7 +34,8 @@ export default function Step1GeneralInfo() {
     dispatch(updateGeneralInfo(formData))
   }
 
-  const isValid = formData.dealershipName && formData.dealerCode && formData.email
+  // Require at least Legal Name and Email
+  const isValid = formData.legalName && formData.email
 
   return (
     <StepContainer
@@ -44,51 +45,115 @@ export default function Step1GeneralInfo() {
       canGoNext={isValid}
     >
       <div className="space-y-6">
-        {/* Dealership Name */}
-        <TextField
-          label="Dealership Name"
-          name="dealershipName"
-          value={formData.dealershipName}
-          onChange={handleChange}
-          required
-          fullWidth
-          variant="outlined"
-        />
-
-        {/* Dealer Code */}
-        <TextField
-          label="Dealer Code"
-          name="dealerCode"
-          value={formData.dealerCode}
-          onChange={handleChange}
-          required
-          fullWidth
-          variant="outlined"
-        />
-
-        {/* Address */}
-        <TextField
-          label="Address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          fullWidth
-          variant="outlined"
-        />
-
-        {/* City, State, Zip */}
+        {/* Row 1: Legal Name, DBA Name */}
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={6}>
             <TextField
-              label="City"
-              name="city"
-              value={formData.city}
+              label="Legal Name"
+              name="legalName"
+              value={formData.legalName || ''}
+              onChange={handleChange}
+              required
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="DBA Name"
+              name="dbaName"
+              value={formData.dbaName || ''}
               onChange={handleChange}
               fullWidth
               variant="outlined"
             />
           </Grid>
-          
+        </Grid>
+
+        {/* Row 2: Website, Email */}
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Website"
+              type="url"
+              name="website"
+              value={formData.website || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email || ''}
+              onChange={handleChange}
+              required
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+        </Grid>
+
+        {/* Row 3: Country, Phone, Fax */}
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Country"
+              name="country"
+              value={formData.country || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="Phone"
+              type="tel"
+              name="phone"
+              value={formData.phone || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="FAX"
+              name="fax"
+              value={formData.fax || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+        </Grid>
+
+        {/* Row 4: Address 1 */}
+        <TextField
+          label="Address 1"
+          name="address1"
+          value={formData.address1 || ''}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+        />
+
+        {/* Row 5: Address 2 */}
+        <TextField
+          label="Address 2"
+          name="address2"
+          value={formData.address2 || ''}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+        />
+
+        {/* Row 6: State, City, ZIP Code */}
+        <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
             <TextField
               select
@@ -164,44 +229,25 @@ export default function Step1GeneralInfo() {
               <MenuItem value="WY">WY</MenuItem>
             </TextField>
           </Grid>
-          
           <Grid item xs={12} md={4}>
             <TextField
-              label="Zip"
+              label="City"
+              name="city"
+              value={formData.city || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label="ZIP Code"
               name="zipCode"
-              value={formData.zipCode}
+              value={formData.zipCode || ''}
               onChange={handleChange}
               inputProps={{ maxLength: 5 }}
               error={!!errors.zipCode}
               helperText={errors.zipCode}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-        </Grid>
-
-        {/* Contact Info */}
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Phone"
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
               fullWidth
               variant="outlined"
             />
