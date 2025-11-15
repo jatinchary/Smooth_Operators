@@ -6,6 +6,19 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Urbanist', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Staatliches', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      fontWeight: {
+        thin: '100',
+        light: '300',
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+        extrabold: '800',
+      },
       colors: {
         // Dark theme colors
         dark: {
@@ -22,6 +35,7 @@ export default {
           'primary-dark': '#2563eb',
           secondary: '#06b6d4',
           accent: '#8b5cf6',
+          focus: '#E7E9BB',
         },
       },
       backgroundImage: {

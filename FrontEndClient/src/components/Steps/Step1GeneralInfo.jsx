@@ -1,17 +1,32 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateGeneralInfo } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
+import MaterialInput from '../MaterialInput'
+import MaterialSelect from '../MaterialSelect'
 
 export default function Step1GeneralInfo() {
   const dispatch = useDispatch()
   const generalInfo = useSelector((state) => state.config.generalInfo)
   
   const [formData, setFormData] = useState(generalInfo)
+  const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }))
+    }
+    
+    // Validate ZIP code
+    if (name === 'zipCode' && value) {
+      if (!/^\d{5}$/.test(value) && value.length === 5) {
+        setErrors((prev) => ({ ...prev, zipCode: 'Not a valid zip' }))
+      }
+    }
   }
 
   const handleNext = () => {
@@ -29,126 +44,137 @@ export default function Step1GeneralInfo() {
     >
       <div className="space-y-6">
         {/* Dealership Name */}
-        <div>
-          <label className="block text-dark-text font-medium mb-2">
-            Dealership Name *
-          </label>
-          <input
-            type="text"
-            name="dealershipName"
-            value={formData.dealershipName}
-            onChange={handleChange}
-            placeholder="Enter dealership name"
-            className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-          />
-        </div>
+        <MaterialInput
+          label="Dealership Name"
+          type="text"
+          name="dealershipName"
+          value={formData.dealershipName}
+          onChange={handleChange}
+          required
+        />
 
         {/* Dealer Code */}
-        <div>
-          <label className="block text-dark-text font-medium mb-2">
-            Dealer Code *
-          </label>
-          <input
-            type="text"
-            name="dealerCode"
-            value={formData.dealerCode}
-            onChange={handleChange}
-            placeholder="e.g., DLR12345"
-            className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-          />
-        </div>
+        <MaterialInput
+          label="Dealer Code"
+          type="text"
+          name="dealerCode"
+          value={formData.dealerCode}
+          onChange={handleChange}
+          required
+        />
 
         {/* Address */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-dark-text font-medium mb-2">
-              Address
-            </label>
-            <input
+            <MaterialInput
+              label="Address"
               type="text"
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="Street address"
-              className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
             />
           </div>
           
           <div>
-            <label className="block text-dark-text font-medium mb-2">
-              City
-            </label>
-            <input
+            <MaterialInput
+              label="City"
               type="text"
               name="city"
               value={formData.city}
               onChange={handleChange}
-              placeholder="City"
-              className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
             />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                State
-              </label>
-              <input
-                type="text"
-                name="state"
-                value={formData.state}
-                onChange={handleChange}
-                placeholder="ST"
-                maxLength={2}
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-              />
-            </div>
+            <MaterialSelect
+              label="State"
+              name="state"
+              value={formData.state}
+              onChange={handleChange}
+              options={[
+                { value: 'AL', label: 'AL' },
+                { value: 'AK', label: 'AK' },
+                { value: 'AZ', label: 'AZ' },
+                { value: 'AR', label: 'AR' },
+                { value: 'CA', label: 'CA' },
+                { value: 'CO', label: 'CO' },
+                { value: 'CT', label: 'CT' },
+                { value: 'DE', label: 'DE' },
+                { value: 'FL', label: 'FL' },
+                { value: 'GA', label: 'GA' },
+                { value: 'HI', label: 'HI' },
+                { value: 'ID', label: 'ID' },
+                { value: 'IL', label: 'IL' },
+                { value: 'IN', label: 'IN' },
+                { value: 'IA', label: 'IA' },
+                { value: 'KS', label: 'KS' },
+                { value: 'KY', label: 'KY' },
+                { value: 'LA', label: 'LA' },
+                { value: 'ME', label: 'ME' },
+                { value: 'MD', label: 'MD' },
+                { value: 'MA', label: 'MA' },
+                { value: 'MI', label: 'MI' },
+                { value: 'MN', label: 'MN' },
+                { value: 'MS', label: 'MS' },
+                { value: 'MO', label: 'MO' },
+                { value: 'MT', label: 'MT' },
+                { value: 'NE', label: 'NE' },
+                { value: 'NV', label: 'NV' },
+                { value: 'NH', label: 'NH' },
+                { value: 'NJ', label: 'NJ' },
+                { value: 'NM', label: 'NM' },
+                { value: 'NY', label: 'NY' },
+                { value: 'NC', label: 'NC' },
+                { value: 'ND', label: 'ND' },
+                { value: 'OH', label: 'OH' },
+                { value: 'OK', label: 'OK' },
+                { value: 'OR', label: 'OR' },
+                { value: 'PA', label: 'PA' },
+                { value: 'RI', label: 'RI' },
+                { value: 'SC', label: 'SC' },
+                { value: 'SD', label: 'SD' },
+                { value: 'TN', label: 'TN' },
+                { value: 'TX', label: 'TX' },
+                { value: 'UT', label: 'UT' },
+                { value: 'VT', label: 'VT' },
+                { value: 'VA', label: 'VA' },
+                { value: 'WA', label: 'WA' },
+                { value: 'WV', label: 'WV' },
+                { value: 'WI', label: 'WI' },
+                { value: 'WY', label: 'WY' },
+              ]}
+            />
             
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                ZIP Code
-              </label>
-              <input
-                type="text"
-                name="zipCode"
-                value={formData.zipCode}
-                onChange={handleChange}
-                placeholder="12345"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label="Zip"
+              type="text"
+              name="zipCode"
+              value={formData.zipCode}
+              onChange={handleChange}
+              maxLength={5}
+              error={errors.zipCode}
+            />
           </div>
         </div>
 
         {/* Contact Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-dark-text font-medium mb-2">
-              Phone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="(555) 123-4567"
-              className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-            />
-          </div>
+          <MaterialInput
+            label="Phone"
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+          />
           
-          <div>
-            <label className="block text-dark-text font-medium mb-2">
-              Email *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="contact@dealership.com"
-              className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-            />
-          </div>
+          <MaterialInput
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
         </div>
       </div>
     </StepContainer>
