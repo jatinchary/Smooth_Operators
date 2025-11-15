@@ -25,6 +25,7 @@ export default {
           bg: '#1a1d25',
           surface: '#252932',
           'surface-light': '#2d3240',
+          'surface-warm': '#2a2d26',
           border: '#3d4354',
           text: '#e5e7eb',
           'text-secondary': '#9ca3af',

@@ -53,7 +53,7 @@ export default function StepContainer({
             px-8 py-3 rounded-lg font-semibold transition-all duration-200
             ${stepNumber === 1
               ? 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-              : 'bg-dark-surface text-dark-text hover:bg-dark-surface-light border border-dark-border'
+              : 'bg-gradient-primary text-dark-bg hover:scale-105'
             }
           `}
         >

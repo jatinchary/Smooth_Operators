@@ -35,7 +35,7 @@ export default function Step5Review() {
         {/* General Information Review */}
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
-            <Building className="w-6 h-6 text-brand-primary" />
+            <Building className="w-6 h-6 text-brand-focus" />
             <h3 className="text-xl font-semibold text-dark-text">General Information</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,7 +53,7 @@ export default function Step5Review() {
         {/* Finance Providers Review */}
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
-            <CreditCard className="w-6 h-6 text-brand-primary" />
+            <CreditCard className="w-6 h-6 text-brand-focus" />
             <h3 className="text-xl font-semibold text-dark-text">Finance Providers</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -63,7 +63,7 @@ export default function Step5Review() {
           
           {(config.financeProviders.primaryProvider === 'RouteOne' || 
             config.financeProviders.primaryProvider === 'Both') && (
-            <div className="mt-4 pl-4 border-l-2 border-brand-primary">
+            <div className="mt-4 pl-4 border-l-2 border-brand-focus">
               <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
                 RouteOne
                 {config.financeProviders.routeOneConfig.isConfigured && (
@@ -105,7 +105,7 @@ export default function Step5Review() {
         {/* Products Review */}
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
-            <CreditCard className="w-6 h-6 text-brand-primary" />
+            <CreditCard className="w-6 h-6 text-brand-focus" />
             <h3 className="text-xl font-semibold text-dark-text">Products</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -119,7 +119,7 @@ export default function Step5Review() {
         {/* DMS Integration Review */}
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
-            <Server className="w-6 h-6 text-brand-primary" />
+            <Server className="w-6 h-6 text-brand-focus" />
             <h3 className="text-xl font-semibold text-dark-text">DMS Integration</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

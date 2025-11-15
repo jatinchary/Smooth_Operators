@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
 import { updateFinanceProviders } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
+import MaterialInput from '../MaterialInput'
+import MaterialSelect from '../MaterialSelect'
 import { Lock, ChevronDown, Settings, Download } from 'lucide-react'
 
 const providers = ['RouteOne', 'DealerTrack', 'Both']
@@ -166,25 +168,13 @@ export default function Step2FinanceProviders() {
     >
       <div className="space-y-8">
         {/* Primary Finance Provider */}
-        <div>
-          <label className="block text-dark-text font-medium mb-3">
-            Primary Finance Provider
-          </label>
-          <div className="relative">
-            <select
-              value={formData.primaryProvider}
-              onChange={(e) => handleProviderChange(e.target.value)}
-              className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text appearance-none focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all cursor-pointer"
-            >
-              {providers.map((provider) => (
-                <option key={provider} value={provider}>
-                  {provider}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-text-secondary pointer-events-none" />
-          </div>
-        </div>
+        <MaterialSelect
+          label="Primary Finance Provider"
+          name="primaryProvider"
+          value={formData.primaryProvider}
+          onChange={(e) => handleProviderChange(e.target.value)}
+          options={providers.map(provider => ({ value: provider, label: provider }))}
+        />
 
         {/* Via LP Toggle */}
         <div className="flex items-center justify-between p-4 bg-dark-bg rounded-lg border border-dark-border">
@@ -208,7 +198,7 @@ export default function Step2FinanceProviders() {
 
         {/* RouteOne Configuration */}
         {showRouteOne && (
-          <div className="border-l-4 border-brand-primary pl-6 space-y-4">
+          <div className="border-l-4 border-brand-focus pl-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold text-dark-text flex items-center gap-2">
                 RouteOne Configuration
@@ -220,49 +210,30 @@ export default function Step2FinanceProviders() {
               )}
             </div>
             
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                <Lock className="inline w-4 h-4 mr-2" />
-                Dealer ID
-              </label>
-              <input
-                type="text"
-                name="dealerId"
-                value={formData.routeOneConfig.dealerId}
-                onChange={handleRouteOneChange}
-                placeholder="e.g., US12345"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label="Dealer ID"
+              type="text"
+              name="dealerId"
+              value={formData.routeOneConfig.dealerId}
+              onChange={handleRouteOneChange}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-dark-text font-medium mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.routeOneConfig.username}
-                  onChange={handleRouteOneChange}
-                  placeholder="API Username"
-                  className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-                />
-              </div>
+              <MaterialInput
+                label="Username"
+                type="text"
+                name="username"
+                value={formData.routeOneConfig.username}
+                onChange={handleRouteOneChange}
+              />
               
-              <div>
-                <label className="block text-dark-text font-medium mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.routeOneConfig.password}
-                  onChange={handleRouteOneChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-                />
-              </div>
+              <MaterialInput
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.routeOneConfig.password}
+                onChange={handleRouteOneChange}
+              />
             </div>
 
             <button
@@ -297,33 +268,21 @@ export default function Step2FinanceProviders() {
               )}
             </div>
             
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                Dealer ID
-              </label>
-              <input
-                type="text"
-                name="dealerId"
-                value={formData.dealerTrackConfig.dealerId}
-                onChange={handleDealerTrackChange}
-                placeholder="e.g., US54321"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-secondary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label="Dealer ID"
+              type="text"
+              name="dealerId"
+              value={formData.dealerTrackConfig.dealerId}
+              onChange={handleDealerTrackChange}
+            />
 
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                API Key
-              </label>
-              <input
-                type="password"
-                name="apiKey"
-                value={formData.dealerTrackConfig.apiKey}
-                onChange={handleDealerTrackChange}
-                placeholder="Enter API key"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-secondary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label="API Key"
+              type="password"
+              name="apiKey"
+              value={formData.dealerTrackConfig.apiKey}
+              onChange={handleDealerTrackChange}
+            />
 
             <button
               type="button"
@@ -372,7 +331,7 @@ export default function Step2FinanceProviders() {
                         type="checkbox"
                         checked={formData.dmsLenders?.some(l => l.id === lender.id) || false}
                         onChange={() => handleDMSLenderToggle(lender.id)}
-                        className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                        className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                       />
                       <div>
                         <span className="text-dark-text font-medium">{lender.name}</span>
@@ -421,7 +380,7 @@ export default function Step2FinanceProviders() {
                       type="checkbox"
                       checked={formData.creditAppLenders?.some(l => l.id === lender.id) || false}
                       onChange={() => handleCreditAppLenderToggle(lender.id)}
-                      className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                     />
                     <span className="text-dark-text">{lender.name}</span>
                   </label>

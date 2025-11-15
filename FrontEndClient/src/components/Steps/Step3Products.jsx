@@ -10,6 +10,7 @@ import {
   updateProductConfiguration,
 } from '../../store/slices/productsSlice'
 import StepContainer from './StepContainer'
+import MaterialInput from '../MaterialInput'
 import { Package, Download, Settings, ChevronDown } from 'lucide-react'
 
 // Mock API functions - replace with actual API calls
@@ -135,18 +136,18 @@ export default function Step3Products() {
               className={`
                 p-6 rounded-lg border-2 transition-all duration-200 text-left
                 ${productsState.productIntegration === 'F&I'
-                  ? 'border-brand-primary bg-gradient-card'
-                  : 'border-dark-border hover:border-dark-text-secondary'
+                  ? 'border-brand-focus bg-gradient-card'
+                  : 'border-dark-border hover:border-brand-focus'
                 }
               `}
             >
               <div className="flex items-center gap-3">
                 <div className={`
                   w-5 h-5 rounded-full border-2 flex items-center justify-center
-                  ${productsState.productIntegration === 'F&I' ? 'border-brand-primary' : 'border-dark-border'}
+                  ${productsState.productIntegration === 'F&I' ? 'border-brand-focus' : 'border-dark-border'}
                 `}>
                   {productsState.productIntegration === 'F&I' && (
-                    <div className="w-3 h-3 rounded-full bg-brand-primary"></div>
+                    <div className="w-3 h-3 rounded-full bg-brand-focus"></div>
                   )}
                 </div>
                 <span className="text-lg font-semibold text-dark-text">F&I</span>
@@ -159,18 +160,18 @@ export default function Step3Products() {
               className={`
                 p-6 rounded-lg border-2 transition-all duration-200 text-left
                 ${productsState.productIntegration === 'PEN'
-                  ? 'border-brand-primary bg-gradient-card'
-                  : 'border-dark-border hover:border-dark-text-secondary'
+                  ? 'border-brand-focus bg-gradient-card'
+                  : 'border-dark-border hover:border-brand-focus'
                 }
               `}
             >
               <div className="flex items-center gap-3">
                 <div className={`
                   w-5 h-5 rounded-full border-2 flex items-center justify-center
-                  ${productsState.productIntegration === 'PEN' ? 'border-brand-primary' : 'border-dark-border'}
+                  ${productsState.productIntegration === 'PEN' ? 'border-brand-focus' : 'border-dark-border'}
                 `}>
                   {productsState.productIntegration === 'PEN' && (
-                    <div className="w-3 h-3 rounded-full bg-brand-primary"></div>
+                    <div className="w-3 h-3 rounded-full bg-brand-focus"></div>
                   )}
                 </div>
                 <span className="text-lg font-semibold text-dark-text">PEN</span>
@@ -180,18 +181,13 @@ export default function Step3Products() {
         </div>
 
         {/* Dealer ID */}
-        <div>
-          <label className="block text-dark-text font-medium mb-2">
-            Dealer ID *
-          </label>
-          <input
-            type="text"
-            value={productsState.dealerId}
-            onChange={handleDealerIdChange}
-            placeholder="Enter Dealer ID"
-            className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-          />
-        </div>
+        <MaterialInput
+          label="Dealer ID"
+          type="text"
+          value={productsState.dealerId}
+          onChange={handleDealerIdChange}
+          required
+        />
 
         {/* Credentials based on selection */}
         <div className="border-t border-dark-border pt-6">
@@ -199,41 +195,31 @@ export default function Step3Products() {
             {productsState.productIntegration} Credentials
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                {productsState.productIntegration} Username *
-              </label>
-              <input
-                type="text"
-                name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
-                value={
-                  productsState.productIntegration === 'F&I'
-                    ? productsState.credentials.fiUsername
-                    : productsState.credentials.penUsername
-                }
-                onChange={handleCredentialChange}
-                placeholder="Username"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label={`${productsState.productIntegration} Username`}
+              type="text"
+              name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
+              value={
+                productsState.productIntegration === 'F&I'
+                  ? productsState.credentials.fiUsername
+                  : productsState.credentials.penUsername
+              }
+              onChange={handleCredentialChange}
+              required
+            />
             
-            <div>
-              <label className="block text-dark-text font-medium mb-2">
-                {productsState.productIntegration} Password *
-              </label>
-              <input
-                type="password"
-                name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
-                value={
-                  productsState.productIntegration === 'F&I'
-                    ? productsState.credentials.fiPassword
-                    : productsState.credentials.penPassword
-                }
-                onChange={handleCredentialChange}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
-              />
-            </div>
+            <MaterialInput
+              label={`${productsState.productIntegration} Password`}
+              type="password"
+              name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
+              value={
+                productsState.productIntegration === 'F&I'
+                  ? productsState.credentials.fiPassword
+                  : productsState.credentials.penPassword
+              }
+              onChange={handleCredentialChange}
+              required
+            />
           </div>
         </div>
 
@@ -272,7 +258,7 @@ export default function Step3Products() {
                       type="checkbox"
                       checked={productsState.selectedVendors.includes(vendor.id)}
                       onChange={() => dispatch(toggleVendor(vendor.id))}
-                      className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                     />
                     <span className="text-dark-text">{vendor.name}</span>
                   </label>
@@ -317,7 +303,7 @@ export default function Step3Products() {
                       type="checkbox"
                       checked={productsState.selectedProducts.includes(product.id)}
                       onChange={() => dispatch(toggleProduct(product.id))}
-                      className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                     />
                     <div>
                       <span className="text-dark-text font-medium">{product.name}</span>
@@ -365,7 +351,7 @@ export default function Step3Products() {
                             type="checkbox"
                             checked={config?.dealTypes?.includes(dealType) || false}
                             onChange={() => handleDealTypeToggle(product.id, dealType)}
-                            className="w-4 h-4 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                            className="w-4 h-4 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                           />
                           <span className="text-dark-text text-sm">{dealType}</span>
                         </label>
@@ -388,7 +374,7 @@ export default function Step3Products() {
                             type="checkbox"
                             checked={config?.vehicleTypes?.includes(vehicleType) || false}
                             onChange={() => handleVehicleTypeToggle(product.id, vehicleType)}
-                            className="w-4 h-4 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                            className="w-4 h-4 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
                           />
                           <span className="text-dark-text text-sm">{vehicleType}</span>
                         </label>
