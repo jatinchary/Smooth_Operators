@@ -44,19 +44,20 @@ export default function DashboardLayout({ children }) {
                   key={step.id}
                   onClick={() => handleStepClick(step.id)}
                   className={`
-                    w-full text-left px-6 py-4 rounded-lg transition-all duration-200
+                    w-full text-left px-6 py-4 rounded-xl state-layer
                     flex items-center justify-between group cursor-pointer
+                    [transition:all_var(--md-sys-motion-duration-short4)_var(--md-sys-motion-easing-emphasized)]
                     ${isActive 
-                      ? 'bg-gradient-primary text-dark-bg shadow-glow font-semibold' 
+                      ? 'bg-gradient-primary text-dark-bg elevation-1 font-semibold' 
                       : isCompleted
-                      ? 'bg-dark-surface-light text-dark-text hover:bg-dark-border'
+                      ? 'bg-dark-surface-light text-dark-text hover:bg-dark-border hover:elevation-1'
                       : 'text-dark-text-secondary hover:bg-dark-surface-light'
                     }
                   `}
                 >
                   <span className={`font-medium ${isActive ? 'text-dark-bg' : ''}`}>{step.title}</span>
                   {isCompleted && !isActive && (
-                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <CheckCircle className="w-5 h-5 text-brand-focus" />
                   )}
                 </button>
               )

@@ -3,9 +3,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
 import { updateFinanceProviders } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
-import MaterialInput from '../MaterialInput'
-import MaterialSelect from '../MaterialSelect'
-import { Lock, ChevronDown, Settings, Download } from 'lucide-react'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
+import Grid from '@mui/material/Grid'
+import { Lock, Settings, Download } from 'lucide-react'
 
 const providers = ['RouteOne', 'DealerTrack', 'Both']
 
@@ -168,33 +173,56 @@ export default function Step2FinanceProviders() {
     >
       <div className="space-y-8">
         {/* Primary Finance Provider */}
-        <MaterialSelect
+        <TextField
+          select
           label="Primary Finance Provider"
           name="primaryProvider"
-          value={formData.primaryProvider}
+          value={formData.primaryProvider || ''}
           onChange={(e) => handleProviderChange(e.target.value)}
-          options={providers.map(provider => ({ value: provider, label: provider }))}
-        />
+          fullWidth
+          variant="outlined"
+          SelectProps={{
+            displayEmpty: true,
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        >
+          {providers.map((provider) => (
+            <MenuItem key={provider} value={provider}>
+              {provider}
+            </MenuItem>
+          ))}
+        </TextField>
 
         {/* Via LP Toggle */}
-        <div className="flex items-center justify-between p-4 bg-dark-bg rounded-lg border border-dark-border">
-          <span className="text-dark-text font-medium">Via LP</span>
-          <button
-            type="button"
-            onClick={handleViaLPToggle}
-            className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-              ${formData.viaLP ? 'bg-gradient-primary' : 'bg-dark-surface-light'}
-            `}
-          >
-            <span
-              className={`
-                inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                ${formData.viaLP ? 'translate-x-6' : 'translate-x-1'}
-              `}
+        <FormControlLabel
+          control={
+            <Switch
+              checked={formData.viaLP}
+              onChange={handleViaLPToggle}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#E7E9BB',
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: '#E7E9BB',
+                },
+              }}
             />
-          </button>
-        </div>
+          }
+          label="Via LP"
+          sx={{ 
+            padding: '16px',
+            backgroundColor: '#1a1d25',
+            borderRadius: '8px',
+            border: '1px solid #3d4354',
+            width: '100%',
+            margin: 0,
+            justifyContent: 'space-between',
+            marginLeft: 0,
+          }}
+        />
 
         {/* RouteOne Configuration */}
         {showRouteOne && (
@@ -210,47 +238,48 @@ export default function Step2FinanceProviders() {
               )}
             </div>
             
-            <MaterialInput
+            <TextField
               label="Dealer ID"
-              type="text"
               name="dealerId"
               value={formData.routeOneConfig.dealerId}
               onChange={handleRouteOneChange}
+              fullWidth
+              variant="outlined"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MaterialInput
-                label="Username"
-                type="text"
-                name="username"
-                value={formData.routeOneConfig.username}
-                onChange={handleRouteOneChange}
-              />
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Username"
+                  name="username"
+                  value={formData.routeOneConfig.username}
+                  onChange={handleRouteOneChange}
+                  fullWidth
+                  variant="outlined"
+                />
+              </Grid>
               
-              <MaterialInput
-                label="Password"
-                type="password"
-                name="password"
-                value={formData.routeOneConfig.password}
-                onChange={handleRouteOneChange}
-              />
-            </div>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.routeOneConfig.password}
+                  onChange={handleRouteOneChange}
+                  fullWidth
+                  variant="outlined"
+                />
+              </Grid>
+            </Grid>
 
-            <button
-              type="button"
+            <Button
               onClick={handleRouteOneSetup}
               disabled={!isRouteOneValid || formData.routeOneConfig.isConfigured}
-              className={`
-                px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-                ${isRouteOneValid && !formData.routeOneConfig.isConfigured
-                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
-                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-                }
-              `}
+              variant="contained"
+              startIcon={<Settings className="w-4 h-4" />}
             >
-              <Settings className="w-4 h-4" />
               {formData.routeOneConfig.isConfigured ? 'Configuration Complete' : 'Configuration Setup'}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -268,37 +297,33 @@ export default function Step2FinanceProviders() {
               )}
             </div>
             
-            <MaterialInput
+            <TextField
               label="Dealer ID"
-              type="text"
               name="dealerId"
               value={formData.dealerTrackConfig.dealerId}
               onChange={handleDealerTrackChange}
+              fullWidth
+              variant="outlined"
             />
 
-            <MaterialInput
+            <TextField
               label="API Key"
               type="password"
               name="apiKey"
               value={formData.dealerTrackConfig.apiKey}
               onChange={handleDealerTrackChange}
+              fullWidth
+              variant="outlined"
             />
 
-            <button
-              type="button"
+            <Button
               onClick={handleDealerTrackSetup}
               disabled={!isDealerTrackValid || formData.dealerTrackConfig.isConfigured}
-              className={`
-                px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-                ${isDealerTrackValid && !formData.dealerTrackConfig.isConfigured
-                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
-                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-                }
-              `}
+              variant="contained"
+              startIcon={<Settings className="w-4 h-4" />}
             >
-              <Settings className="w-4 h-4" />
               {formData.dealerTrackConfig.isConfigured ? 'Configuration Complete' : 'Configuration Setup'}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -306,14 +331,13 @@ export default function Step2FinanceProviders() {
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark-text">Import DMS Lenders ID from Credit App Lenders</h3>
-            <button
-              type="button"
+            <Button
               onClick={handleImportDMSLenders}
-              className="px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 bg-gradient-primary text-dark-bg hover:shadow-glow"
+              variant="contained"
+              startIcon={<Download className="w-4 h-4" />}
             >
-              <Download className="w-4 h-4" />
               Import DMS Lenders
-            </button>
+            </Button>
           </div>
 
           {showDMSLenders && (
@@ -322,23 +346,25 @@ export default function Step2FinanceProviders() {
                 <div className="text-dark-text-secondary py-4">Loading DMS lenders...</div>
               ) : (
                 dmsLenders?.map((lender) => (
-                  <label
+                  <div
                     key={lender.id}
-                    className="flex items-center justify-between p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
                   >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={formData.dmsLenders?.some(l => l.id === lender.id) || false}
-                        onChange={() => handleDMSLenderToggle(lender.id)}
-                        className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
-                      />
-                      <div>
-                        <span className="text-dark-text font-medium">{lender.name}</span>
-                        <span className="text-dark-text-secondary text-sm ml-2">({lender.dmsId})</span>
-                      </div>
-                    </div>
-                  </label>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.dmsLenders?.some(l => l.id === lender.id) || false}
+                          onChange={() => handleDMSLenderToggle(lender.id)}
+                        />
+                      }
+                      label={
+                        <div>
+                          <span className="text-dark-text font-medium">{lender.name}</span>
+                          <span className="text-dark-text-secondary text-sm ml-2">({lender.dmsId})</span>
+                        </div>
+                      }
+                    />
+                  </div>
                 ))
               )}
             </div>
@@ -349,21 +375,14 @@ export default function Step2FinanceProviders() {
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark-text">Associated Credit App Lenders with Dealerships</h3>
-            <button
-              type="button"
+            <Button
               onClick={handleImportCreditAppLenders}
               disabled={(formData.dmsLenders?.length || 0) === 0}
-              className={`
-                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-                ${(formData.dmsLenders?.length || 0) > 0
-                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
-                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-                }
-              `}
+              variant="contained"
+              startIcon={<Download className="w-4 h-4" />}
             >
-              <Download className="w-4 h-4" />
               Import Credit App Lenders
-            </button>
+            </Button>
           </div>
 
           {showCreditAppLenders && (
@@ -372,18 +391,20 @@ export default function Step2FinanceProviders() {
                 <div className="text-dark-text-secondary py-4">Loading credit app lenders...</div>
               ) : (
                 creditAppLenders?.map((lender) => (
-                  <label
+                  <div
                     key={lender.id}
-                    className="flex items-center gap-3 p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
                   >
-                    <input
-                      type="checkbox"
-                      checked={formData.creditAppLenders?.some(l => l.id === lender.id) || false}
-                      onChange={() => handleCreditAppLenderToggle(lender.id)}
-                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.creditAppLenders?.some(l => l.id === lender.id) || false}
+                          onChange={() => handleCreditAppLenderToggle(lender.id)}
+                        />
+                      }
+                      label={lender.name}
                     />
-                    <span className="text-dark-text">{lender.name}</span>
-                  </label>
+                  </div>
                 ))
               )}
             </div>

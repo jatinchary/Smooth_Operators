@@ -1,5 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { setCurrentStep, markStepComplete } from '../../store/slices/configSlice'
+import Button from '@mui/material/Button'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 export default function StepContainer({ 
   stepNumber, 
@@ -40,44 +42,32 @@ export default function StepContainer({
       </div>
 
       {/* Step Content */}
-      <div className="bg-dark-surface rounded-2xl p-8 shadow-xl border border-dark-border">
+      <div className="bg-dark-surface rounded-3xl p-8 elevation-2 border border-dark-border/50">
         {children}
       </div>
 
       {/* Navigation Buttons */}
       <div className="flex justify-between items-center mt-8">
-        <button
+        <Button
           onClick={handlePrevious}
           disabled={stepNumber === 1}
-          className={`
-            px-8 py-3 rounded-lg font-semibold transition-all duration-200
-            ${stepNumber === 1
-              ? 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-              : 'bg-gradient-primary text-dark-bg hover:scale-105'
-            }
-          `}
+          variant="contained"
+          size="large"
+          sx={{ px: 4 }}
         >
           Previous
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={handleNext}
           disabled={!canGoNext}
-          className={`
-            px-8 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2
-            ${canGoNext
-              ? 'bg-gradient-primary text-dark-bg hover:shadow-glow hover:scale-105'
-              : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-            }
-          `}
+          variant="contained"
+          size="large"
+          endIcon={stepNumber !== 5 && <ChevronRightIcon />}
+          sx={{ px: 4 }}
         >
           {stepNumber === 5 ? 'Submit' : 'Next Step'}
-          {stepNumber !== 5 && (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          )}
-        </button>
+        </Button>
       </div>
     </div>
   )

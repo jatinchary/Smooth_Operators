@@ -6,6 +6,17 @@ export default {
   ],
   theme: {
     extend: {
+      borderRadius: {
+        'none': '0',
+        'sm': '8px',
+        DEFAULT: '8px',
+        'md': '8px',
+        'lg': '8px',
+        'xl': '8px',
+        '2xl': '8px',
+        '3xl': '8px',
+        'full': '9999px',
+      },
       fontFamily: {
         sans: ['Urbanist', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
         heading: ['Staatliches', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],

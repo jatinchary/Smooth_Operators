@@ -10,7 +10,13 @@ import {
   updateProductConfiguration,
 } from '../../store/slices/productsSlice'
 import StepContainer from './StepContainer'
-import MaterialInput from '../MaterialInput'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
 import { Package, Download, Settings, ChevronDown } from 'lucide-react'
 
 // Mock API functions - replace with actual API calls
@@ -126,67 +132,57 @@ export default function Step3Products() {
         {/* Product Integration Selection */}
         <div>
           <label className="block text-dark-text font-medium mb-3 flex items-center gap-2">
-            <Package className="w-5 h-5" />
+            <Package className="w-5 h-5" style={{ color: 'rgb(231 233 187 / var(--tw-text-opacity))' }} />
             Choose your product integration
           </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() => handleIntegrationChange('F&I')}
-              className={`
-                p-6 rounded-lg border-2 transition-all duration-200 text-left
-                ${productsState.productIntegration === 'F&I'
-                  ? 'border-brand-focus bg-gradient-card'
-                  : 'border-dark-border hover:border-brand-focus'
-                }
-              `}
-            >
-              <div className="flex items-center gap-3">
+          <RadioGroup
+            value={productsState.productIntegration}
+            onChange={(e) => handleIntegrationChange(e.target.value)}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
                 <div className={`
-                  w-5 h-5 rounded-full border-2 flex items-center justify-center
-                  ${productsState.productIntegration === 'F&I' ? 'border-brand-focus' : 'border-dark-border'}
+                  p-6 rounded-lg border transition-all duration-200
+                  ${productsState.productIntegration === 'F&I'
+                    ? 'border-brand-focus bg-gradient-card'
+                    : 'border-dark-border hover:border-brand-focus'
+                  }
                 `}>
-                  {productsState.productIntegration === 'F&I' && (
-                    <div className="w-3 h-3 rounded-full bg-brand-focus"></div>
-                  )}
+                  <FormControlLabel
+                    value="F&I"
+                    control={<Radio />}
+                    label={<span className="text-lg font-semibold">F&I</span>}
+                  />
                 </div>
-                <span className="text-lg font-semibold text-dark-text">F&I</span>
-              </div>
-            </button>
+              </Grid>
 
-            <button
-              type="button"
-              onClick={() => handleIntegrationChange('PEN')}
-              className={`
-                p-6 rounded-lg border-2 transition-all duration-200 text-left
-                ${productsState.productIntegration === 'PEN'
-                  ? 'border-brand-focus bg-gradient-card'
-                  : 'border-dark-border hover:border-brand-focus'
-                }
-              `}
-            >
-              <div className="flex items-center gap-3">
+              <Grid item xs={12} md={6}>
                 <div className={`
-                  w-5 h-5 rounded-full border-2 flex items-center justify-center
-                  ${productsState.productIntegration === 'PEN' ? 'border-brand-focus' : 'border-dark-border'}
+                  p-6 rounded-lg border transition-all duration-200
+                  ${productsState.productIntegration === 'PEN'
+                    ? 'border-brand-focus bg-gradient-card'
+                    : 'border-dark-border hover:border-brand-focus'
+                  }
                 `}>
-                  {productsState.productIntegration === 'PEN' && (
-                    <div className="w-3 h-3 rounded-full bg-brand-focus"></div>
-                  )}
+                  <FormControlLabel
+                    value="PEN"
+                    control={<Radio />}
+                    label={<span className="text-lg font-semibold">PEN</span>}
+                  />
                 </div>
-                <span className="text-lg font-semibold text-dark-text">PEN</span>
-              </div>
-            </button>
-          </div>
+              </Grid>
+            </Grid>
+          </RadioGroup>
         </div>
 
         {/* Dealer ID */}
-        <MaterialInput
+        <TextField
           label="Dealer ID"
-          type="text"
           value={productsState.dealerId}
           onChange={handleDealerIdChange}
           required
+          fullWidth
+          variant="outlined"
         />
 
         {/* Credentials based on selection */}
@@ -194,54 +190,54 @@ export default function Step3Products() {
           <h3 className="text-lg font-semibold text-dark-text mb-4">
             {productsState.productIntegration} Credentials
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MaterialInput
-              label={`${productsState.productIntegration} Username`}
-              type="text"
-              name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
-              value={
-                productsState.productIntegration === 'F&I'
-                  ? productsState.credentials.fiUsername
-                  : productsState.credentials.penUsername
-              }
-              onChange={handleCredentialChange}
-              required
-            />
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label={`${productsState.productIntegration} Username`}
+                name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
+                value={
+                  productsState.productIntegration === 'F&I'
+                    ? productsState.credentials.fiUsername
+                    : productsState.credentials.penUsername
+                }
+                onChange={handleCredentialChange}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
             
-            <MaterialInput
-              label={`${productsState.productIntegration} Password`}
-              type="password"
-              name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
-              value={
-                productsState.productIntegration === 'F&I'
-                  ? productsState.credentials.fiPassword
-                  : productsState.credentials.penPassword
-              }
-              onChange={handleCredentialChange}
-              required
-            />
-          </div>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label={`${productsState.productIntegration} Password`}
+                type="password"
+                name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
+                value={
+                  productsState.productIntegration === 'F&I'
+                    ? productsState.credentials.fiPassword
+                    : productsState.credentials.penPassword
+                }
+                onChange={handleCredentialChange}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
         </div>
 
         {/* Choose Vendors */}
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark-text">Choose Vendors</h3>
-            <button
-              type="button"
+            <Button
               onClick={handleImportVendors}
               disabled={!isValid}
-              className={`
-                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-                ${isValid
-                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
-                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-                }
-              `}
+              variant="contained"
+              startIcon={<Download className="w-4 h-4" />}
             >
-              <Download className="w-4 h-4" />
               Import Vendors
-            </button>
+            </Button>
           </div>
 
           {showVendors && (
@@ -250,18 +246,20 @@ export default function Step3Products() {
                 <div className="text-dark-text-secondary py-4">Loading vendors...</div>
               ) : (
                 vendors?.map((vendor) => (
-                  <label
+                  <div
                     key={vendor.id}
-                    className="flex items-center gap-3 p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
                   >
-                    <input
-                      type="checkbox"
-                      checked={productsState.selectedVendors.includes(vendor.id)}
-                      onChange={() => dispatch(toggleVendor(vendor.id))}
-                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={productsState.selectedVendors.includes(vendor.id)}
+                          onChange={() => dispatch(toggleVendor(vendor.id))}
+                        />
+                      }
+                      label={vendor.name}
                     />
-                    <span className="text-dark-text">{vendor.name}</span>
-                  </label>
+                  </div>
                 ))
               )}
             </div>
@@ -272,21 +270,14 @@ export default function Step3Products() {
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark-text">Choose Products to Import</h3>
-            <button
-              type="button"
+            <Button
               onClick={handleImportProducts}
               disabled={!isValid || productsState.selectedVendors.length === 0}
-              className={`
-                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
-                ${isValid && productsState.selectedVendors.length > 0
-                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
-                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
-                }
-              `}
+              variant="contained"
+              startIcon={<Download className="w-4 h-4" />}
             >
-              <Download className="w-4 h-4" />
               Import Products
-            </button>
+            </Button>
           </div>
 
           {showProducts && (
@@ -295,21 +286,25 @@ export default function Step3Products() {
                 <div className="text-dark-text-secondary py-4">Loading products...</div>
               ) : (
                 products?.map((product) => (
-                  <label
+                  <div
                     key={product.id}
-                    className="flex items-center gap-3 p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
                   >
-                    <input
-                      type="checkbox"
-                      checked={productsState.selectedProducts.includes(product.id)}
-                      onChange={() => dispatch(toggleProduct(product.id))}
-                      className="w-5 h-5 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={productsState.selectedProducts.includes(product.id)}
+                          onChange={() => dispatch(toggleProduct(product.id))}
+                        />
+                      }
+                      label={
+                        <div>
+                          <span className="text-dark-text font-medium">{product.name}</span>
+                          <span className="text-dark-text-secondary text-sm ml-2">({product.category})</span>
+                        </div>
+                      }
                     />
-                    <div>
-                      <span className="text-dark-text font-medium">{product.name}</span>
-                      <span className="text-dark-text-secondary text-sm ml-2">({product.category})</span>
-                    </div>
-                  </label>
+                  </div>
                 ))
               )}
             </div>
@@ -319,7 +314,7 @@ export default function Step3Products() {
         {/* Configure Product Deal Type and Vehicle Types */}
         <div className="border-t border-dark-border pt-6">
           <h3 className="text-lg font-semibold text-dark-text mb-4 flex items-center gap-2">
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5" style={{ color: 'rgb(231 233 187 / var(--tw-text-opacity))' }} />
             Configure Product Deal Type and Vehicle Types
           </h3>
           
@@ -341,20 +336,20 @@ export default function Step3Products() {
                     <label className="block text-sm text-dark-text-secondary mb-2">
                       Deal Types
                     </label>
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-4">
                       {dealTypeOptions.map((dealType) => (
-                        <label
+                        <FormControlLabel
                           key={dealType}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={config?.dealTypes?.includes(dealType) || false}
-                            onChange={() => handleDealTypeToggle(product.id, dealType)}
-                            className="w-4 h-4 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
-                          />
-                          <span className="text-dark-text text-sm">{dealType}</span>
-                        </label>
+                          control={
+                            <Checkbox
+                              checked={config?.dealTypes?.includes(dealType) || false}
+                              onChange={() => handleDealTypeToggle(product.id, dealType)}
+                              size="small"
+                            />
+                          }
+                          label={<span className="text-sm">{dealType}</span>}
+                          sx={{ margin: 0 }}
+                        />
                       ))}
                     </div>
                   </div>
@@ -364,20 +359,20 @@ export default function Step3Products() {
                     <label className="block text-sm text-dark-text-secondary mb-2">
                       Vehicle Types
                     </label>
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-4">
                       {vehicleTypeOptions.map((vehicleType) => (
-                        <label
+                        <FormControlLabel
                           key={vehicleType}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={config?.vehicleTypes?.includes(vehicleType) || false}
-                            onChange={() => handleVehicleTypeToggle(product.id, vehicleType)}
-                            className="w-4 h-4 rounded border-dark-border text-brand-focus focus:ring-brand-focus"
-                          />
-                          <span className="text-dark-text text-sm">{vehicleType}</span>
-                        </label>
+                          control={
+                            <Checkbox
+                              checked={config?.vehicleTypes?.includes(vehicleType) || false}
+                              onChange={() => handleVehicleTypeToggle(product.id, vehicleType)}
+                              size="small"
+                            />
+                          }
+                          label={<span className="text-sm">{vehicleType}</span>}
+                          sx={{ margin: 0 }}
+                        />
                       ))}
                     </div>
                   </div>

@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateGeneralInfo } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
-import MaterialInput from '../MaterialInput'
-import MaterialSelect from '../MaterialSelect'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Grid from '@mui/material/Grid'
 
 export default function Step1GeneralInfo() {
   const dispatch = useDispatch()
@@ -44,138 +45,168 @@ export default function Step1GeneralInfo() {
     >
       <div className="space-y-6">
         {/* Dealership Name */}
-        <MaterialInput
+        <TextField
           label="Dealership Name"
-          type="text"
           name="dealershipName"
           value={formData.dealershipName}
           onChange={handleChange}
           required
+          fullWidth
+          variant="outlined"
         />
 
         {/* Dealer Code */}
-        <MaterialInput
+        <TextField
           label="Dealer Code"
-          type="text"
           name="dealerCode"
           value={formData.dealerCode}
           onChange={handleChange}
           required
+          fullWidth
+          variant="outlined"
         />
 
         {/* Address */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <MaterialInput
-              label="Address"
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div>
-            <MaterialInput
+        <TextField
+          label="Address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+        />
+
+        {/* City, State, Zip */}
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TextField
               label="City"
-              type="text"
               name="city"
               value={formData.city}
               onChange={handleChange}
+              fullWidth
+              variant="outlined"
             />
-          </div>
+          </Grid>
           
-          <div className="grid grid-cols-2 gap-4">
-            <MaterialSelect
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
               label="State"
               name="state"
-              value={formData.state}
+              value={formData.state || ''}
               onChange={handleChange}
-              options={[
-                { value: 'AL', label: 'AL' },
-                { value: 'AK', label: 'AK' },
-                { value: 'AZ', label: 'AZ' },
-                { value: 'AR', label: 'AR' },
-                { value: 'CA', label: 'CA' },
-                { value: 'CO', label: 'CO' },
-                { value: 'CT', label: 'CT' },
-                { value: 'DE', label: 'DE' },
-                { value: 'FL', label: 'FL' },
-                { value: 'GA', label: 'GA' },
-                { value: 'HI', label: 'HI' },
-                { value: 'ID', label: 'ID' },
-                { value: 'IL', label: 'IL' },
-                { value: 'IN', label: 'IN' },
-                { value: 'IA', label: 'IA' },
-                { value: 'KS', label: 'KS' },
-                { value: 'KY', label: 'KY' },
-                { value: 'LA', label: 'LA' },
-                { value: 'ME', label: 'ME' },
-                { value: 'MD', label: 'MD' },
-                { value: 'MA', label: 'MA' },
-                { value: 'MI', label: 'MI' },
-                { value: 'MN', label: 'MN' },
-                { value: 'MS', label: 'MS' },
-                { value: 'MO', label: 'MO' },
-                { value: 'MT', label: 'MT' },
-                { value: 'NE', label: 'NE' },
-                { value: 'NV', label: 'NV' },
-                { value: 'NH', label: 'NH' },
-                { value: 'NJ', label: 'NJ' },
-                { value: 'NM', label: 'NM' },
-                { value: 'NY', label: 'NY' },
-                { value: 'NC', label: 'NC' },
-                { value: 'ND', label: 'ND' },
-                { value: 'OH', label: 'OH' },
-                { value: 'OK', label: 'OK' },
-                { value: 'OR', label: 'OR' },
-                { value: 'PA', label: 'PA' },
-                { value: 'RI', label: 'RI' },
-                { value: 'SC', label: 'SC' },
-                { value: 'SD', label: 'SD' },
-                { value: 'TN', label: 'TN' },
-                { value: 'TX', label: 'TX' },
-                { value: 'UT', label: 'UT' },
-                { value: 'VT', label: 'VT' },
-                { value: 'VA', label: 'VA' },
-                { value: 'WA', label: 'WA' },
-                { value: 'WV', label: 'WV' },
-                { value: 'WI', label: 'WI' },
-                { value: 'WY', label: 'WY' },
-              ]}
-            />
-            
-            <MaterialInput
+              fullWidth
+              variant="outlined"
+              SelectProps={{
+                displayEmpty: true,
+                renderValue: (selected) => {
+                  if (!selected) {
+                    return <span style={{ color: '#9ca3af' }}>Select State</span>;
+                  }
+                  return selected;
+                },
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            >
+              <MenuItem value="" disabled>Select State</MenuItem>
+              <MenuItem value="AL">AL</MenuItem>
+              <MenuItem value="AK">AK</MenuItem>
+              <MenuItem value="AZ">AZ</MenuItem>
+              <MenuItem value="AR">AR</MenuItem>
+              <MenuItem value="CA">CA</MenuItem>
+              <MenuItem value="CO">CO</MenuItem>
+              <MenuItem value="CT">CT</MenuItem>
+              <MenuItem value="DE">DE</MenuItem>
+              <MenuItem value="FL">FL</MenuItem>
+              <MenuItem value="GA">GA</MenuItem>
+              <MenuItem value="HI">HI</MenuItem>
+              <MenuItem value="ID">ID</MenuItem>
+              <MenuItem value="IL">IL</MenuItem>
+              <MenuItem value="IN">IN</MenuItem>
+              <MenuItem value="IA">IA</MenuItem>
+              <MenuItem value="KS">KS</MenuItem>
+              <MenuItem value="KY">KY</MenuItem>
+              <MenuItem value="LA">LA</MenuItem>
+              <MenuItem value="ME">ME</MenuItem>
+              <MenuItem value="MD">MD</MenuItem>
+              <MenuItem value="MA">MA</MenuItem>
+              <MenuItem value="MI">MI</MenuItem>
+              <MenuItem value="MN">MN</MenuItem>
+              <MenuItem value="MS">MS</MenuItem>
+              <MenuItem value="MO">MO</MenuItem>
+              <MenuItem value="MT">MT</MenuItem>
+              <MenuItem value="NE">NE</MenuItem>
+              <MenuItem value="NV">NV</MenuItem>
+              <MenuItem value="NH">NH</MenuItem>
+              <MenuItem value="NJ">NJ</MenuItem>
+              <MenuItem value="NM">NM</MenuItem>
+              <MenuItem value="NY">NY</MenuItem>
+              <MenuItem value="NC">NC</MenuItem>
+              <MenuItem value="ND">ND</MenuItem>
+              <MenuItem value="OH">OH</MenuItem>
+              <MenuItem value="OK">OK</MenuItem>
+              <MenuItem value="OR">OR</MenuItem>
+              <MenuItem value="PA">PA</MenuItem>
+              <MenuItem value="RI">RI</MenuItem>
+              <MenuItem value="SC">SC</MenuItem>
+              <MenuItem value="SD">SD</MenuItem>
+              <MenuItem value="TN">TN</MenuItem>
+              <MenuItem value="TX">TX</MenuItem>
+              <MenuItem value="UT">UT</MenuItem>
+              <MenuItem value="VT">VT</MenuItem>
+              <MenuItem value="VA">VA</MenuItem>
+              <MenuItem value="WA">WA</MenuItem>
+              <MenuItem value="WV">WV</MenuItem>
+              <MenuItem value="WI">WI</MenuItem>
+              <MenuItem value="WY">WY</MenuItem>
+            </TextField>
+          </Grid>
+          
+          <Grid item xs={12} md={4}>
+            <TextField
               label="Zip"
-              type="text"
               name="zipCode"
               value={formData.zipCode}
               onChange={handleChange}
-              maxLength={5}
-              error={errors.zipCode}
+              inputProps={{ maxLength: 5 }}
+              error={!!errors.zipCode}
+              helperText={errors.zipCode}
+              fullWidth
+              variant="outlined"
             />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
 
         {/* Contact Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MaterialInput
-            label="Phone"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Phone"
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
           
-          <MaterialInput
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+        </Grid>
       </div>
     </StepContainer>
   )

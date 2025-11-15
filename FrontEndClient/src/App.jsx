@@ -1,4 +1,7 @@
 import { useSelector } from 'react-redux'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import theme from './theme'
 import DashboardLayout from './components/Layout/DashboardLayout'
 import Step1GeneralInfo from './components/Steps/Step1GeneralInfo'
 import Step2FinanceProviders from './components/Steps/Step2FinanceProviders'
@@ -27,9 +30,12 @@ function App() {
   }
 
   return (
-    <DashboardLayout>
-      {renderStep()}
-    </DashboardLayout>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <DashboardLayout>
+        {renderStep()}
+      </DashboardLayout>
+    </ThemeProvider>
   )
 }
 

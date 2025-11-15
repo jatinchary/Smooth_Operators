@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateDMSIntegrations } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
-import MaterialInput from '../MaterialInput'
-import MaterialSelect from '../MaterialSelect'
-import { Server, ChevronDown } from 'lucide-react'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import { Server } from 'lucide-react'
 
 const dmsSystems = [
   { value: '', label: 'Select DMS System' },
@@ -63,57 +65,87 @@ export default function Step4DMSIntegrations() {
         </div>
 
         {/* DMS System Selection */}
-        <MaterialSelect
+        <TextField
+          select
           label="DMS System"
           name="dmsSystem"
-          value={formData.dmsSystem}
+          value={formData.dmsSystem || ''}
           onChange={handleChange}
-          options={dmsSystems}
           required
-        />
+          fullWidth
+          variant="outlined"
+          SelectProps={{
+            displayEmpty: true,
+            renderValue: (selected) => {
+              if (!selected) {
+                return <span style={{ color: '#9ca3af' }}>Select DMS System</span>;
+              }
+              const system = dmsSystems.find(s => s.value === selected);
+              return system?.label || selected;
+            },
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        >
+          {dmsSystems.map((system) => (
+            <MenuItem key={system.value} value={system.value} disabled={!system.value}>
+              {system.label}
+            </MenuItem>
+          ))}
+        </TextField>
 
         {/* API Endpoint */}
-        <MaterialInput
+        <TextField
           label="API Endpoint"
           type="url"
           name="apiEndpoint"
           value={formData.apiEndpoint}
           onChange={handleChange}
           required
+          fullWidth
+          variant="outlined"
         />
 
         {/* Credentials */}
         <div className="border-t border-dark-border pt-6 space-y-4">
           <h3 className="text-lg font-semibold text-dark-text">API Credentials</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MaterialInput
-              label="Username"
-              type="text"
-              name="username"
-              value={formData.credentials.username}
-              onChange={handleCredentialChange}
-              required
-            />
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Username"
+                name="username"
+                value={formData.credentials.username}
+                onChange={handleCredentialChange}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
             
-            <MaterialInput
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.credentials.password}
-              onChange={handleCredentialChange}
-              required
-            />
-          </div>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.credentials.password}
+                onChange={handleCredentialChange}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
         </div>
 
         {/* Test Connection Button */}
-        <button
-          type="button"
-          className="w-full md:w-auto px-6 py-3 bg-gradient-primary text-dark-bg rounded-lg font-medium hover:shadow-glow hover:scale-105 transition-all duration-200"
+        <Button
+          variant="contained"
+          sx={{ width: { xs: '100%', md: 'auto' } }}
         >
           Test Connection
-        </button>
+        </Button>
       </div>
     </StepContainer>
   )
