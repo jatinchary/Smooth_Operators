@@ -1,0 +1,407 @@
+import { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useQuery } from '@tanstack/react-query'
+import {
+  setProductIntegration,
+  setDealerId,
+  updateCredentials,
+  toggleVendor,
+  toggleProduct,
+  updateProductConfiguration,
+} from '../../store/slices/productsSlice'
+import StepContainer from './StepContainer'
+import { Package, Download, Settings, ChevronDown } from 'lucide-react'
+
+// Mock API functions - replace with actual API calls
+const fetchVendors = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  return [
+    { id: 'vendor1', name: 'Vendor A - Premium Insurance' },
+    { id: 'vendor2', name: 'Vendor B - Extended Warranty' },
+    { id: 'vendor3', name: 'Vendor C - GAP Coverage' },
+    { id: 'vendor4', name: 'Vendor D - Paint Protection' },
+    { id: 'vendor5', name: 'Vendor E - Tire & Wheel' },
+  ]
+}
+
+const fetchProducts = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  return [
+    { id: 'prod1', name: 'Premium Extended Warranty', category: 'Warranty' },
+    { id: 'prod2', name: 'GAP Insurance', category: 'Insurance' },
+    { id: 'prod3', name: 'Paint & Fabric Protection', category: 'Protection' },
+    { id: 'prod4', name: 'Tire & Wheel Coverage', category: 'Protection' },
+    { id: 'prod5', name: 'Maintenance Package', category: 'Maintenance' },
+    { id: 'prod6', name: 'Road Hazard Protection', category: 'Protection' },
+  ]
+}
+
+const dealTypeOptions = ['Cash', 'Finance', 'Lease']
+const vehicleTypeOptions = ['New', 'Used']
+
+// Static products for configuration display
+const staticProducts = [
+  { id: 'config1', name: 'Extended Warranty' },
+  { id: 'config2', name: 'GAP Insurance' },
+  { id: 'config3', name: 'Paint Protection' },
+  { id: 'config4', name: 'Tire & Wheel' },
+]
+
+export default function Step3Products() {
+  const dispatch = useDispatch()
+  const productsState = useSelector((state) => state.products)
+  
+  const [showVendors, setShowVendors] = useState(false)
+  const [showProducts, setShowProducts] = useState(false)
+
+  // Fetch vendors
+  const { data: vendors, isLoading: vendorsLoading } = useQuery({
+    queryKey: ['vendors'],
+    queryFn: fetchVendors,
+    enabled: showVendors,
+  })
+
+  // Fetch products
+  const { data: products, isLoading: productsLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+    enabled: showProducts,
+  })
+
+  const handleIntegrationChange = (value) => {
+    dispatch(setProductIntegration(value))
+  }
+
+  const handleDealerIdChange = (e) => {
+    dispatch(setDealerId(e.target.value))
+  }
+
+  const handleCredentialChange = (e) => {
+    const { name, value } = e.target
+    dispatch(updateCredentials({ [name]: value }))
+  }
+
+  const handleImportVendors = () => {
+    setShowVendors(true)
+  }
+
+  const handleImportProducts = () => {
+    setShowProducts(true)
+  }
+
+  const handleDealTypeToggle = (productId, dealType) => {
+    const config = productsState.productConfigurations.find(c => c.productId === productId)
+    const currentDealTypes = config?.dealTypes || []
+    
+    const newDealTypes = currentDealTypes.includes(dealType)
+      ? currentDealTypes.filter(dt => dt !== dealType)
+      : [...currentDealTypes, dealType]
+    
+    dispatch(updateProductConfiguration({ productId, dealTypes: newDealTypes }))
+  }
+
+  const handleVehicleTypeToggle = (productId, vehicleType) => {
+    const config = productsState.productConfigurations.find(c => c.productId === productId)
+    const currentVehicleTypes = config?.vehicleTypes || []
+    
+    const newVehicleTypes = currentVehicleTypes.includes(vehicleType)
+      ? currentVehicleTypes.filter(vt => vt !== vehicleType)
+      : [...currentVehicleTypes, vehicleType]
+    
+    dispatch(updateProductConfiguration({ productId, vehicleTypes: newVehicleTypes }))
+  }
+
+  const isValid = productsState.dealerId && 
+    ((productsState.productIntegration === 'F&I' && productsState.credentials.fiUsername && productsState.credentials.fiPassword) ||
+     (productsState.productIntegration === 'PEN' && productsState.credentials.penUsername && productsState.credentials.penPassword))
+
+  return (
+    <StepContainer
+      stepNumber={3}
+      title="Products"
+      canGoNext={isValid}
+    >
+      <div className="space-y-8">
+        {/* Product Integration Selection */}
+        <div>
+          <label className="block text-dark-text font-medium mb-3 flex items-center gap-2">
+            <Package className="w-5 h-5" />
+            Choose your product integration
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => handleIntegrationChange('F&I')}
+              className={`
+                p-6 rounded-lg border-2 transition-all duration-200 text-left
+                ${productsState.productIntegration === 'F&I'
+                  ? 'border-brand-primary bg-gradient-card'
+                  : 'border-dark-border hover:border-dark-text-secondary'
+                }
+              `}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`
+                  w-5 h-5 rounded-full border-2 flex items-center justify-center
+                  ${productsState.productIntegration === 'F&I' ? 'border-brand-primary' : 'border-dark-border'}
+                `}>
+                  {productsState.productIntegration === 'F&I' && (
+                    <div className="w-3 h-3 rounded-full bg-brand-primary"></div>
+                  )}
+                </div>
+                <span className="text-lg font-semibold text-dark-text">F&I</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleIntegrationChange('PEN')}
+              className={`
+                p-6 rounded-lg border-2 transition-all duration-200 text-left
+                ${productsState.productIntegration === 'PEN'
+                  ? 'border-brand-primary bg-gradient-card'
+                  : 'border-dark-border hover:border-dark-text-secondary'
+                }
+              `}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`
+                  w-5 h-5 rounded-full border-2 flex items-center justify-center
+                  ${productsState.productIntegration === 'PEN' ? 'border-brand-primary' : 'border-dark-border'}
+                `}>
+                  {productsState.productIntegration === 'PEN' && (
+                    <div className="w-3 h-3 rounded-full bg-brand-primary"></div>
+                  )}
+                </div>
+                <span className="text-lg font-semibold text-dark-text">PEN</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Dealer ID */}
+        <div>
+          <label className="block text-dark-text font-medium mb-2">
+            Dealer ID *
+          </label>
+          <input
+            type="text"
+            value={productsState.dealerId}
+            onChange={handleDealerIdChange}
+            placeholder="Enter Dealer ID"
+            className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
+          />
+        </div>
+
+        {/* Credentials based on selection */}
+        <div className="border-t border-dark-border pt-6">
+          <h3 className="text-lg font-semibold text-dark-text mb-4">
+            {productsState.productIntegration} Credentials
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-dark-text font-medium mb-2">
+                {productsState.productIntegration} Username *
+              </label>
+              <input
+                type="text"
+                name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
+                value={
+                  productsState.productIntegration === 'F&I'
+                    ? productsState.credentials.fiUsername
+                    : productsState.credentials.penUsername
+                }
+                onChange={handleCredentialChange}
+                placeholder="Username"
+                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-dark-text font-medium mb-2">
+                {productsState.productIntegration} Password *
+              </label>
+              <input
+                type="password"
+                name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
+                value={
+                  productsState.productIntegration === 'F&I'
+                    ? productsState.credentials.fiPassword
+                    : productsState.credentials.penPassword
+                }
+                onChange={handleCredentialChange}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-dark-text placeholder-dark-text-secondary focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Choose Vendors */}
+        <div className="border-t border-dark-border pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-dark-text">Choose Vendors</h3>
+            <button
+              type="button"
+              onClick={handleImportVendors}
+              disabled={!isValid}
+              className={`
+                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
+                ${isValid
+                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
+                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
+                }
+              `}
+            >
+              <Download className="w-4 h-4" />
+              Import Vendors
+            </button>
+          </div>
+
+          {showVendors && (
+            <div className="space-y-2">
+              {vendorsLoading ? (
+                <div className="text-dark-text-secondary py-4">Loading vendors...</div>
+              ) : (
+                vendors?.map((vendor) => (
+                  <label
+                    key={vendor.id}
+                    className="flex items-center gap-3 p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={productsState.selectedVendors.includes(vendor.id)}
+                      onChange={() => dispatch(toggleVendor(vendor.id))}
+                      className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                    />
+                    <span className="text-dark-text">{vendor.name}</span>
+                  </label>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Choose Products */}
+        <div className="border-t border-dark-border pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-dark-text">Choose Products to Import</h3>
+            <button
+              type="button"
+              onClick={handleImportProducts}
+              disabled={!isValid || productsState.selectedVendors.length === 0}
+              className={`
+                px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2
+                ${isValid && productsState.selectedVendors.length > 0
+                  ? 'bg-gradient-primary text-dark-bg hover:shadow-glow'
+                  : 'bg-dark-surface-light text-dark-text-secondary cursor-not-allowed'
+                }
+              `}
+            >
+              <Download className="w-4 h-4" />
+              Import Products
+            </button>
+          </div>
+
+          {showProducts && (
+            <div className="space-y-2">
+              {productsLoading ? (
+                <div className="text-dark-text-secondary py-4">Loading products...</div>
+              ) : (
+                products?.map((product) => (
+                  <label
+                    key={product.id}
+                    className="flex items-center gap-3 p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light cursor-pointer transition-all"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={productsState.selectedProducts.includes(product.id)}
+                      onChange={() => dispatch(toggleProduct(product.id))}
+                      className="w-5 h-5 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                    />
+                    <div>
+                      <span className="text-dark-text font-medium">{product.name}</span>
+                      <span className="text-dark-text-secondary text-sm ml-2">({product.category})</span>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Configure Product Deal Type and Vehicle Types */}
+        <div className="border-t border-dark-border pt-6">
+          <h3 className="text-lg font-semibold text-dark-text mb-4 flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Configure Product Deal Type and Vehicle Types
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {staticProducts.map((product) => {
+              const config = productsState.productConfigurations.find(
+                (c) => c.productId === product.id
+              )
+              
+              return (
+                <div
+                  key={product.id}
+                  className="bg-dark-bg rounded-lg p-4 border border-dark-border"
+                >
+                  <h4 className="font-semibold text-dark-text mb-4">{product.name}</h4>
+                  
+                  {/* Deal Types */}
+                  <div className="mb-4">
+                    <label className="block text-sm text-dark-text-secondary mb-2">
+                      Deal Types
+                    </label>
+                    <div className="space-y-2">
+                      {dealTypeOptions.map((dealType) => (
+                        <label
+                          key={dealType}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={config?.dealTypes?.includes(dealType) || false}
+                            onChange={() => handleDealTypeToggle(product.id, dealType)}
+                            className="w-4 h-4 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                          />
+                          <span className="text-dark-text text-sm">{dealType}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Vehicle Types */}
+                  <div>
+                    <label className="block text-sm text-dark-text-secondary mb-2">
+                      Vehicle Types
+                    </label>
+                    <div className="space-y-2">
+                      {vehicleTypeOptions.map((vehicleType) => (
+                        <label
+                          key={vehicleType}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={config?.vehicleTypes?.includes(vehicleType) || false}
+                            onChange={() => handleVehicleTypeToggle(product.id, vehicleType)}
+                            className="w-4 h-4 rounded border-dark-border text-brand-primary focus:ring-brand-primary"
+                          />
+                          <span className="text-dark-text text-sm">{vehicleType}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </StepContainer>
+  )
+}
+

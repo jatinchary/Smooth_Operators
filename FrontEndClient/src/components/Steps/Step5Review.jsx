@@ -1,0 +1,144 @@
+import { useSelector } from 'react-redux'
+import StepContainer from './StepContainer'
+import { CheckCircle, Building, CreditCard, Server } from 'lucide-react'
+
+export default function Step5Review() {
+  const config = useSelector((state) => state.config)
+  const products = useSelector((state) => state.products)
+
+  const handleSubmit = () => {
+    console.log('Submitting configuration:', config)
+    alert('Configuration submitted successfully!')
+  }
+
+  return (
+    <StepContainer
+      stepNumber={5}
+      title="Review & Submit"
+      onNext={handleSubmit}
+      canGoNext={true}
+    >
+      <div className="space-y-6">
+        {/* Success Message */}
+        <div className="bg-gradient-card border border-green-500/30 rounded-lg p-6 flex items-start gap-4">
+          <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-1" />
+          <div>
+            <h3 className="text-lg font-semibold text-dark-text mb-2">
+              Configuration Complete!
+            </h3>
+            <p className="text-dark-text-secondary">
+              Please review your settings below before submitting.
+            </p>
+          </div>
+        </div>
+
+        {/* General Information Review */}
+        <div className="bg-dark-bg rounded-lg p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Building className="w-6 h-6 text-brand-primary" />
+            <h3 className="text-xl font-semibold text-dark-text">General Information</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Dealership Name" value={config.generalInfo.dealershipName} />
+            <InfoItem label="Dealer Code" value={config.generalInfo.dealerCode} />
+            <InfoItem label="Address" value={config.generalInfo.address} />
+            <InfoItem label="City" value={config.generalInfo.city} />
+            <InfoItem label="State" value={config.generalInfo.state} />
+            <InfoItem label="ZIP Code" value={config.generalInfo.zipCode} />
+            <InfoItem label="Phone" value={config.generalInfo.phone} />
+            <InfoItem label="Email" value={config.generalInfo.email} />
+          </div>
+        </div>
+
+        {/* Finance Providers Review */}
+        <div className="bg-dark-bg rounded-lg p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <CreditCard className="w-6 h-6 text-brand-primary" />
+            <h3 className="text-xl font-semibold text-dark-text">Finance Providers</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Primary Provider" value={config.financeProviders.primaryProvider} />
+            <InfoItem label="Via LP" value={config.financeProviders.viaLP ? 'Yes' : 'No'} />
+          </div>
+          
+          {(config.financeProviders.primaryProvider === 'RouteOne' || 
+            config.financeProviders.primaryProvider === 'Both') && (
+            <div className="mt-4 pl-4 border-l-2 border-brand-primary">
+              <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
+                RouteOne
+                {config.financeProviders.routeOneConfig.isConfigured && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                    Configured
+                  </span>
+                )}
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoItem label="Dealer ID" value={config.financeProviders.routeOneConfig.dealerId} />
+                <InfoItem label="Username" value={config.financeProviders.routeOneConfig.username} />
+              </div>
+            </div>
+          )}
+          
+          {(config.financeProviders.primaryProvider === 'DealerTrack' || 
+            config.financeProviders.primaryProvider === 'Both') && (
+            <div className="mt-4 pl-4 border-l-2 border-brand-secondary">
+              <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
+                DealerTrack
+                {config.financeProviders.dealerTrackConfig.isConfigured && (
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
+                    Configured
+                  </span>
+                )}
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoItem label="Dealer ID" value={config.financeProviders.dealerTrackConfig.dealerId} />
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <InfoItem label="DMS Lenders" value={`${config.financeProviders.dmsLenders?.length || 0} lender(s)`} />
+            <InfoItem label="Credit App Lenders" value={`${config.financeProviders.creditAppLenders?.length || 0} lender(s)`} />
+          </div>
+        </div>
+
+        {/* Products Review */}
+        <div className="bg-dark-bg rounded-lg p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <CreditCard className="w-6 h-6 text-brand-primary" />
+            <h3 className="text-xl font-semibold text-dark-text">Products</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Product Integration" value={products.productIntegration} />
+            <InfoItem label="Dealer ID" value={products.dealerId} />
+            <InfoItem label="Selected Vendors" value={`${products.selectedVendors.length} vendor(s)`} />
+            <InfoItem label="Selected Products" value={`${products.selectedProducts.length} product(s)`} />
+          </div>
+        </div>
+
+        {/* DMS Integration Review */}
+        <div className="bg-dark-bg rounded-lg p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Server className="w-6 h-6 text-brand-primary" />
+            <h3 className="text-xl font-semibold text-dark-text">DMS Integration</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="DMS System" value={config.dmsIntegrations.dmsSystem} />
+            <InfoItem label="API Endpoint" value={config.dmsIntegrations.apiEndpoint} />
+            <InfoItem label="Username" value={config.dmsIntegrations.credentials.username} />
+          </div>
+        </div>
+      </div>
+    </StepContainer>
+  )
+}
+
+function InfoItem({ label, value }) {
+  return (
+    <div>
+      <dt className="text-sm text-dark-text-secondary mb-1">{label}</dt>
+      <dd className="text-dark-text font-medium">{value || '-'}</dd>
+    </div>
+  )
+}
+
