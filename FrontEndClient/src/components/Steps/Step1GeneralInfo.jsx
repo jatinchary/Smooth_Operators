@@ -89,7 +89,7 @@ export default function Step1GeneralInfo() {
             />
           </Grid>
           
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <TextField
               select
               label="State"
@@ -211,4 +211,3 @@ export default function Step1GeneralInfo() {
     </StepContainer>
   )
 }
-

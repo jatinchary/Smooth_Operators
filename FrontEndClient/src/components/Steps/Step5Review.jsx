@@ -39,14 +39,18 @@ export default function Step5Review() {
             <h3 className="text-xl font-semibold text-dark-text">General Information</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Dealership Name" value={config.generalInfo.dealershipName} />
-            <InfoItem label="Dealer Code" value={config.generalInfo.dealerCode} />
-            <InfoItem label="Address" value={config.generalInfo.address} />
+            <InfoItem label="Legal Name" value={config.generalInfo.legalName} />
+            <InfoItem label="DBA Name" value={config.generalInfo.dbaName} />
+            <InfoItem label="Website" value={config.generalInfo.website} />
+            <InfoItem label="Phone" value={config.generalInfo.phone} />
+            <InfoItem label="FAX" value={config.generalInfo.fax} />
+            <InfoItem label="Email" value={config.generalInfo.email} />
+            <InfoItem label="Address 1" value={config.generalInfo.address1} />
+            <InfoItem label="Address 2" value={config.generalInfo.address2} />
             <InfoItem label="City" value={config.generalInfo.city} />
             <InfoItem label="State" value={config.generalInfo.state} />
             <InfoItem label="ZIP Code" value={config.generalInfo.zipCode} />
-            <InfoItem label="Phone" value={config.generalInfo.phone} />
-            <InfoItem label="Email" value={config.generalInfo.email} />
+            <InfoItem label="Country" value={config.generalInfo.country} />
           </div>
         </div>
 
