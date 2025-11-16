@@ -1,15 +1,15 @@
-import { useSelector } from 'react-redux'
-import StepContainer from './StepContainer'
-import { CheckCircle, Building, CreditCard, Server } from 'lucide-react'
+import { useSelector } from "react-redux";
+import StepContainer from "./StepContainer";
+import { CheckCircle, Building, CreditCard, Server } from "lucide-react";
 
 export default function Step5Review() {
-  const config = useSelector((state) => state.config)
-  const products = useSelector((state) => state.products)
+  const config = useSelector((state) => state.config);
+  const products = useSelector((state) => state.products);
 
   const handleSubmit = () => {
-    console.log('Submitting configuration:', config)
-    alert('Configuration submitted successfully!')
-  }
+    console.log("Submitting configuration:", config);
+    alert("Configuration submitted successfully!");
+  };
 
   return (
     <StepContainer
@@ -36,7 +36,9 @@ export default function Step5Review() {
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
             <Building className="w-6 h-6 text-brand-focus" />
-            <h3 className="text-xl font-semibold text-dark-text">General Information</h3>
+            <h3 className="text-xl font-semibold text-dark-text">
+              General Information
+            </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Legal Name" value={config.generalInfo.legalName} />
@@ -58,15 +60,23 @@ export default function Step5Review() {
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
             <CreditCard className="w-6 h-6 text-brand-focus" />
-            <h3 className="text-xl font-semibold text-dark-text">Finance Providers</h3>
+            <h3 className="text-xl font-semibold text-dark-text">
+              Finance Providers
+            </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Primary Provider" value={config.financeProviders.primaryProvider} />
-            <InfoItem label="Via LP" value={config.financeProviders.viaLP ? 'Yes' : 'No'} />
+            <InfoItem
+              label="Primary Provider"
+              value={config.financeProviders.primaryProvider}
+            />
+            <InfoItem
+              label="Via Lending Platform"
+              value={config.financeProviders.viaLP ? "Yes" : "No"}
+            />
           </div>
-          
-          {(config.financeProviders.primaryProvider === 'RouteOne' || 
-            config.financeProviders.primaryProvider === 'Both') && (
+
+          {(config.financeProviders.primaryProvider === "RouteOne" ||
+            config.financeProviders.primaryProvider === "Both") && (
             <div className="mt-4 pl-4 border-l-2 border-brand-focus">
               <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
                 RouteOne
@@ -77,14 +87,20 @@ export default function Step5Review() {
                 )}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem label="Dealer ID" value={config.financeProviders.routeOneConfig.dealerId} />
-                <InfoItem label="Username" value={config.financeProviders.routeOneConfig.username} />
+                <InfoItem
+                  label="Dealer ID"
+                  value={config.financeProviders.routeOneConfig.dealerId}
+                />
+                <InfoItem
+                  label="Username"
+                  value={config.financeProviders.routeOneConfig.username}
+                />
               </div>
             </div>
           )}
-          
-          {(config.financeProviders.primaryProvider === 'DealerTrack' || 
-            config.financeProviders.primaryProvider === 'Both') && (
+
+          {(config.financeProviders.primaryProvider === "DealerTrack" ||
+            config.financeProviders.primaryProvider === "Both") && (
             <div className="mt-4 pl-4 border-l-2 border-brand-secondary">
               <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
                 DealerTrack
@@ -95,14 +111,27 @@ export default function Step5Review() {
                 )}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem label="Dealer ID" value={config.financeProviders.dealerTrackConfig.dealerId} />
+                <InfoItem
+                  label="Dealer ID"
+                  value={config.financeProviders.dealerTrackConfig.dealerId}
+                />
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <InfoItem label="DMS Lenders" value={`${config.financeProviders.dmsLenders?.length || 0} lender(s)`} />
-            <InfoItem label="Credit App Lenders" value={`${config.financeProviders.creditAppLenders?.length || 0} lender(s)`} />
+            <InfoItem
+              label="DMS Lenders"
+              value={`${
+                config.financeProviders.dmsLenders?.length || 0
+              } lender(s)`}
+            />
+            <InfoItem
+              label="Credit App Lenders"
+              value={`${
+                config.financeProviders.creditAppLenders?.length || 0
+              } lender(s)`}
+            />
           </div>
         </div>
 
@@ -113,10 +142,19 @@ export default function Step5Review() {
             <h3 className="text-xl font-semibold text-dark-text">Products</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Product Integration" value={products.productIntegration} />
+            <InfoItem
+              label="Product Integration"
+              value={products.productIntegration}
+            />
             <InfoItem label="Dealer ID" value={products.dealerId} />
-            <InfoItem label="Selected Vendors" value={`${products.selectedVendors.length} vendor(s)`} />
-            <InfoItem label="Selected Products" value={`${products.selectedProducts.length} product(s)`} />
+            <InfoItem
+              label="Selected Vendors"
+              value={`${products.selectedVendors.length} vendor(s)`}
+            />
+            <InfoItem
+              label="Selected Products"
+              value={`${products.selectedProducts.length} product(s)`}
+            />
           </div>
         </div>
 
@@ -124,25 +162,35 @@ export default function Step5Review() {
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
             <Server className="w-6 h-6 text-brand-focus" />
-            <h3 className="text-xl font-semibold text-dark-text">DMS Integration</h3>
+            <h3 className="text-xl font-semibold text-dark-text">
+              DMS Integration
+            </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="DMS System" value={config.dmsIntegrations.dmsSystem} />
-            <InfoItem label="API Endpoint" value={config.dmsIntegrations.apiEndpoint} />
-            <InfoItem label="Username" value={config.dmsIntegrations.credentials.username} />
+            <InfoItem
+              label="DMS System"
+              value={config.dmsIntegrations.dmsSystem}
+            />
+            <InfoItem
+              label="API Endpoint"
+              value={config.dmsIntegrations.apiEndpoint}
+            />
+            <InfoItem
+              label="Username"
+              value={config.dmsIntegrations.credentials.username}
+            />
           </div>
         </div>
       </div>
     </StepContainer>
-  )
+  );
 }
 
 function InfoItem({ label, value }) {
   return (
     <div>
       <dt className="text-sm text-dark-text-secondary mb-1">{label}</dt>
-      <dd className="text-dark-text font-medium">{value || '-'}</dd>
+      <dd className="text-dark-text font-medium">{value || "-"}</dd>
     </div>
-  )
+  );
 }
-
