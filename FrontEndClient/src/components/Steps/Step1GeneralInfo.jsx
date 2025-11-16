@@ -7,7 +7,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
-import Menu from '@mui/material/Menu'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert'
@@ -19,16 +18,52 @@ export default function Step1GeneralInfo() {
   
   const [formData, setFormData] = useState(generalInfo)
   const [errors, setErrors] = useState({})
-  const [dealershipMenuAnchor, setDealershipMenuAnchor] = useState(null)
   const [dealershipOptions, setDealershipOptions] = useState([])
   const [dealershipsError, setDealershipsError] = useState('')
   const [isLoadingDealerships, setIsLoadingDealerships] = useState(false)
   const [isImportingDealership, setIsImportingDealership] = useState(false)
   const [selectedDealershipName, setSelectedDealershipName] = useState('')
+  const [selectedDealershipId, setSelectedDealershipId] = useState('')
 
   useEffect(() => {
     setFormData(generalInfo)
   }, [generalInfo])
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadDealerships = async () => {
+      setIsLoadingDealerships(true)
+      setDealershipsError('')
+      try {
+        const options = await fetchDealershipOptions()
+        if (isMounted) {
+          setDealershipOptions(options)
+        }
+      } catch (error) {
+        console.error('Failed to load dealerships', error)
+        if (isMounted) {
+          setDealershipsError(error.message || 'Failed to load dealerships')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingDealerships(false)
+        }
+      }
+    }
+
+    loadDealerships()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selectedDealershipId && dealershipOptions.length > 0) {
+      setSelectedDealershipId(String(dealershipOptions[0].id))
+    }
+  }, [dealershipOptions, selectedDealershipId])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -47,39 +82,21 @@ export default function Step1GeneralInfo() {
     }
   }
 
-  const handleOpenDealershipMenu = async (event) => {
-    setDealershipMenuAnchor(event.currentTarget)
-    setDealershipsError('')
-
-    if (dealershipOptions.length === 0 && !isLoadingDealerships) {
-      setIsLoadingDealerships(true)
-      try {
-        const options = await fetchDealershipOptions()
-        setDealershipOptions(options)
-      } catch (error) {
-        console.error('Failed to load dealerships', error)
-        setDealershipsError(error.message || 'Failed to load dealerships')
-      } finally {
-        setIsLoadingDealerships(false)
-      }
+  const handleImportDealership = async () => {
+    if (!selectedDealershipId) {
+      setDealershipsError('Select a dealership to import')
+      return
     }
-  }
 
-  const handleCloseDealershipMenu = () => {
-    setDealershipMenuAnchor(null)
-  }
-
-  const handleSelectDealership = async (dealershipId) => {
     const selectedOption = dealershipOptions.find(
-      (option) => String(option.id) === String(dealershipId)
+      (option) => String(option.id) === String(selectedDealershipId)
     )
 
     setIsImportingDealership(true)
-    setDealershipMenuAnchor(null)
     setDealershipsError('')
 
     try {
-      const details = await fetchDealershipDetails(dealershipId)
+      const details = await fetchDealershipDetails(selectedDealershipId)
       setFormData(details)
       dispatch(updateGeneralInfo(details))
       setErrors({})
@@ -106,48 +123,61 @@ export default function Step1GeneralInfo() {
       onNext={handleNext}
       canGoNext={isValid}
       headerActions={
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+        >
+          <TextField
+            select
+            label="Select Dealership"
+            value={selectedDealershipId}
+            onChange={(event) => {
+              setSelectedDealershipId(event.target.value)
+              setDealershipsError('')
+            }}
+            size="small"
+            sx={{ minWidth: 220 }}
+            disabled={isLoadingDealerships}
+            SelectProps={{
+              displayEmpty: true,
+            }}
+          >
+            {isLoadingDealerships ? (
+              <MenuItem value="" disabled>
+                <CircularProgress size={18} sx={{ mr: 2 }} />
+                Loading dealerships...
+              </MenuItem>
+            ) : dealershipOptions.length > 0 ? (
+              dealershipOptions.map((dealer) => (
+                <MenuItem key={dealer.id} value={String(dealer.id)}>
+                  {dealer.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="" disabled>
+                {dealershipsError || 'No dealerships found'}
+              </MenuItem>
+            )}
+          </TextField>
           <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleOpenDealershipMenu}
-            disabled={isImportingDealership}
+            variant="contained"
+            onClick={handleImportDealership}
+            disabled={
+              isImportingDealership ||
+              isLoadingDealerships ||
+              !selectedDealershipId ||
+              dealershipOptions.length === 0
+            }
+            size="large"
+            sx={{ px: 4 }}
             startIcon={isImportingDealership ? <CircularProgress size={18} /> : null}
           >
-            Import Dealers
+            Import Dealership
           </Button>
-          {selectedDealershipName && (
-            <Typography variant="body2" color="text.secondary">
-              Populated from {selectedDealershipName}
-            </Typography>
-          )}
         </Stack>
       }
     >
-      <Menu
-        anchorEl={dealershipMenuAnchor}
-        open={Boolean(dealershipMenuAnchor)}
-        onClose={handleCloseDealershipMenu}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        {isLoadingDealerships ? (
-          <MenuItem disabled>
-            <CircularProgress size={20} sx={{ mr: 2 }} />
-            Loading dealers...
-          </MenuItem>
-        ) : dealershipOptions.length > 0 ? (
-          dealershipOptions.map((dealer) => (
-            <MenuItem key={dealer.id} onClick={() => handleSelectDealership(dealer.id)}>
-              {dealer.name}
-            </MenuItem>
-          ))
-        ) : dealershipsError ? (
-          <MenuItem disabled>{dealershipsError}</MenuItem>
-        ) : (
-          <MenuItem disabled>No dealerships found</MenuItem>
-        )}
-      </Menu>
-
       <div className="space-y-6">
         {dealershipsError && (
           <Alert severity="error" onClose={() => setDealershipsError('')}>

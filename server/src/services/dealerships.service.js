@@ -151,7 +151,6 @@ function normalizeDealershipRow(row) {
 export async function listDealerships() {
   await ensureDealershipsTable();
   const { rows } = await query(LIST_DEALERSHIPS_SQL);
-  console.log('rows', rows)
   return rows.map(normalizeDealershipRow);
 }
 
