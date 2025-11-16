@@ -17,6 +17,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 import { Package, Download, Settings } from "lucide-react";
+import InputAdornment from "@mui/material/InputAdornment";
 
 // API function to fetch vendors
 const fetchVendors = async (dealerId) => {
@@ -82,6 +83,7 @@ export default function Step3Products() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageInput, setPageInput] = useState("");
   const itemsPerPage = 10; // Show 10 vendors per page
 
   // Fetch vendors
@@ -116,22 +118,43 @@ export default function Step3Products() {
   const handleImportVendors = () => {
     setShowVendors(true);
     setCurrentPage(1); // Reset to first page when importing vendors
+    setPageInput(""); // Clear page input
   };
 
   // Pagination handlers
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    setPageInput(""); // Clear input when using buttons
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+      setPageInput(""); // Clear input
     }
   };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+      setPageInput(""); // Clear input
+    }
+  };
+
+  // Page input handlers
+  const handlePageInputChange = (e) => {
+    setPageInput(e.target.value);
+  };
+
+  const handlePageInputSubmit = (e) => {
+    e.preventDefault();
+    const pageNum = Number.parseInt(pageInput, 10);
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum);
+      setPageInput("");
+    } else {
+      // Reset input if invalid
+      setPageInput("");
     }
   };
 
@@ -303,40 +326,75 @@ export default function Step3Products() {
                         Previous
                       </Button>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
                         {/* Page numbers */}
-                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                          .filter((page) => {
-                            // Show first page, last page, current page, and pages around current
-                            return (
-                              page === 1 ||
-                              page === totalPages ||
-                              (page >= currentPage - 1 &&
-                                page <= currentPage + 1)
-                            );
-                          })
-                          .map((page, index, array) => (
-                            <div key={page} className="flex items-center">
-                              {/* Add ellipsis if there's a gap */}
-                              {index > 0 && array[index - 1] !== page - 1 && (
-                                <span className="text-dark-text-secondary mx-2">
-                                  ...
-                                </span>
-                              )}
-                              <Button
-                                variant={
-                                  currentPage === page
-                                    ? "contained"
-                                    : "outlined"
-                                }
-                                onClick={() => handlePageChange(page)}
-                                size="small"
-                                className="min-w-0 w-10"
-                              >
-                                {page}
-                              </Button>
-                            </div>
-                          ))}
+                        <div className="flex items-center gap-2">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter((page) => {
+                              // Show first page, last page, current page, and pages around current
+                              return (
+                                page === 1 ||
+                                page === totalPages ||
+                                (page >= currentPage - 1 &&
+                                  page <= currentPage + 1)
+                              );
+                            })
+                            .map((page, index, array) => (
+                              <div key={page} className="flex items-center">
+                                {/* Add ellipsis if there's a gap */}
+                                {index > 0 && array[index - 1] !== page - 1 && (
+                                  <span className="text-dark-text-secondary mx-2">
+                                    ...
+                                  </span>
+                                )}
+                                <Button
+                                  variant={
+                                    currentPage === page
+                                      ? "contained"
+                                      : "outlined"
+                                  }
+                                  onClick={() => handlePageChange(page)}
+                                  size="small"
+                                  className="min-w-0 w-10"
+                                >
+                                  {page}
+                                </Button>
+                              </div>
+                            ))}
+                        </div>
+
+                        {/* Page input */}
+                        <form
+                          onSubmit={handlePageInputSubmit}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="text-sm text-dark-text-secondary">
+                            Go to:
+                          </span>
+                          <TextField
+                            size="small"
+                            value={pageInput}
+                            onChange={handlePageInputChange}
+                            onBlur={handlePageInputSubmit}
+                            placeholder={`${currentPage}`}
+                            inputProps={{
+                              min: 1,
+                              max: totalPages,
+                              style: { textAlign: "center", width: "50px" },
+                            }}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <span className="text-xs text-dark-text-secondary">
+                                    / {totalPages}
+                                  </span>
+                                </InputAdornment>
+                              ),
+                            }}
+                            variant="outlined"
+                            className="w-20"
+                          />
+                        </form>
                       </div>
 
                       <Button
