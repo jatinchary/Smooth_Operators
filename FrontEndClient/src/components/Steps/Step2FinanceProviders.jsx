@@ -88,18 +88,64 @@ export default function Step2FinanceProviders() {
     }));
   };
 
-  const handleRouteOneSetup = () => {
-    setFormData((prev) => ({
-      ...prev,
-      routeOneConfig: { ...prev.routeOneConfig, isConfigured: true },
-    }));
+  const handleRouteOneSetup = async () => {
+    try {
+      const response = await fetch("/api/setup-finance-provider", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealerId: formData.routeOneConfig.dealerId,
+          provider: "route-one",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Setup failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("RouteOne setup response:", data);
+
+      setFormData((prev) => ({
+        ...prev,
+        routeOneConfig: { ...prev.routeOneConfig, isConfigured: true },
+      }));
+    } catch (error) {
+      console.error("RouteOne setup error:", error);
+      alert("Failed to setup RouteOne configuration. Please try again.");
+    }
   };
 
-  const handleDealerTrackSetup = () => {
-    setFormData((prev) => ({
-      ...prev,
-      dealerTrackConfig: { ...prev.dealerTrackConfig, isConfigured: true },
-    }));
+  const handleDealerTrackSetup = async () => {
+    try {
+      const response = await fetch("/api/setup-finance-provider", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealerId: formData.dealerTrackConfig.dealerId,
+          provider: "dealertrack",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Setup failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("DealerTrack setup response:", data);
+
+      setFormData((prev) => ({
+        ...prev,
+        dealerTrackConfig: { ...prev.dealerTrackConfig, isConfigured: true },
+      }));
+    } catch (error) {
+      console.error("DealerTrack setup error:", error);
+      alert("Failed to setup DealerTrack configuration. Please try again.");
+    }
   };
 
   const handleImportDMSLenders = () => {
@@ -309,7 +355,7 @@ export default function Step2FinanceProviders() {
             >
               {formData.dealerTrackConfig.isConfigured
                 ? "Configuration Complete"
-                : "Configuration Setup"}
+                : "Setup Configuration"}
             </Button>
           </div>
         )}
