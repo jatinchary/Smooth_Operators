@@ -1,14 +1,47 @@
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import StepContainer from "./StepContainer";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
 import { CheckCircle, Building, CreditCard, Server } from "lucide-react";
 
 export default function Step5Review() {
   const config = useSelector((state) => state.config);
   const products = useSelector((state) => state.products);
+  const [toastState, setToastState] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-  const handleSubmit = () => {
-    console.log("Submitting configuration:", config);
-    alert("Configuration submitted successfully!");
+  const showToast = (severity, message) => {
+    setToastState({
+      open: true,
+      severity,
+      message,
+    });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setToastState((prev) => ({ ...prev, open: false }));
+  };
+
+  const ToastTransition = (props) => <Slide {...props} direction="left" />;
+
+  const handleSubmit = async () => {
+    try {
+      console.log("Submitting configuration:", config);
+      // Simulate API call - replace with actual submission
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      showToast('success', 'Configuration submitted successfully!');
+    } catch (error) {
+      const errorMsg = error?.message || 'Failed to submit configuration. Please try again.';
+      showToast('error', errorMsg);
+    }
   };
 
   return (
@@ -178,6 +211,22 @@ export default function Step5Review() {
           </div>
         </div>
       </div>
+      <Snackbar
+        open={toastState.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={ToastTransition}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastState.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {toastState.message}
+        </Alert>
+      </Snackbar>
     </StepContainer>
   );
 }

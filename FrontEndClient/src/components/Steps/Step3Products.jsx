@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -13,7 +14,9 @@ import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
 import { Package } from "lucide-react";
 import VendorManagement from "./ProductImport/VendorManagement";
 import ProductImport from "./ProductImport/ProductImport";
@@ -23,6 +26,28 @@ import { logProductsSummary } from "./helpers/productsApi";
 export default function Step3Products() {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products);
+  const [toastState, setToastState] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
+  const showToast = (severity, message) => {
+    setToastState({
+      open: true,
+      severity,
+      message,
+    });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setToastState((prev) => ({ ...prev, open: false }));
+  };
+
+  const ToastTransition = (props) => <Slide {...props} direction="left" />;
 
   const handleIntegrationChange = (value) => {
     dispatch(setProductIntegration(value));
@@ -34,6 +59,13 @@ export default function Step3Products() {
 
   const logMutation = useMutation({
     mutationFn: (payload) => logProductsSummary(payload),
+    onSuccess: () => {
+      showToast('success', 'Products summary sent to the server log successfully.');
+    },
+    onError: (error) => {
+      const errorMsg = error?.message || 'Failed to log the products summary. Please try again.';
+      showToast('error', errorMsg);
+    },
   });
 
   const handleLogProducts = () => {
@@ -183,27 +215,6 @@ export default function Step3Products() {
         <ProductConfiguration />
 
         <div className="border-t border-dark-border pt-6 space-y-4">
-          {logMutation.isError && (
-            <Alert
-              severity="error"
-              onClose={() => logMutation.reset()}
-              sx={{ maxWidth: 600 }}
-            >
-              {logMutation.error?.message ||
-                "Failed to log the products summary. Please try again."}
-            </Alert>
-          )}
-
-          {logMutation.isSuccess && (
-            <Alert
-              severity="success"
-              onClose={() => logMutation.reset()}
-              sx={{ maxWidth: 600 }}
-            >
-              Products summary sent to the server log.
-            </Alert>
-          )}
-
           <Stack
             direction={{ xs: "column", sm: "row" }}
             justifyContent="flex-end"
@@ -225,6 +236,22 @@ export default function Step3Products() {
           </Stack>
         </div>
       </div>
+      <Snackbar
+        open={toastState.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={ToastTransition}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastState.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {toastState.message}
+        </Alert>
+      </Snackbar>
     </StepContainer>
   );
 }

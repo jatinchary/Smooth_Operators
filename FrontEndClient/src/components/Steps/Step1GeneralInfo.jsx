@@ -165,7 +165,9 @@ export default function Step1GeneralInfo() {
 
   const handleImportDealership = async () => {
     if (!selectedDealershipId) {
-      setDealershipsError("Select a dealership to import");
+      const errorMsg = "Select a dealership to import";
+      setDealershipsError(errorMsg);
+      showToast('error', errorMsg);
       return;
     }
 
@@ -187,10 +189,12 @@ export default function Step1GeneralInfo() {
       dispatch(updateGeneralInfo(updatedFormData));
       setErrors({});
       setSelectedDealershipName(selectedOption?.name || "");
+      showToast('success', `Dealership "${selectedOption?.name || 'selected'}" imported successfully.`);
     } catch (error) {
       console.error('Failed to import dealership', error)
-      setDealershipsError(error.message || 'Failed to import dealership')
-      showToast('error', `Error importing dealership: ${error.message || 'Unknown error'}`)
+      const errorMsg = error.message || 'Failed to import dealership';
+      setDealershipsError(errorMsg);
+      showToast('error', `Error importing dealership: ${errorMsg}`);
     } finally {
       setIsImportingDealership(false);
     }
@@ -203,8 +207,10 @@ export default function Step1GeneralInfo() {
       (stateAbbr ? STATE_ABBREVIATION_TO_ID[stateAbbr] ?? null : null)
 
     if (!stateId) {
-      setSaveDealershipError('Select a valid state before saving the dealership.')
-      return
+      const errorMsg = 'Select a valid state before saving the dealership.';
+      setSaveDealershipError(errorMsg);
+      showToast('error', errorMsg);
+      return;
     }
 
     const payload = {
@@ -378,8 +384,8 @@ export default function Step1GeneralInfo() {
         )}
 
         {/* Row 1: Legal Name, DBA Name */}
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={2} justifyContent="space-between">
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               label="Legal Name"
               name="legalName"
@@ -390,7 +396,7 @@ export default function Step1GeneralInfo() {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               label="DBA Name"
               name="dbaName"
@@ -467,8 +473,8 @@ export default function Step1GeneralInfo() {
         />
 
         {/* Row 3: Country, State, City, ZIP Code */}
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
+        <Grid container spacing={2} justifyContent="space-between">
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               label="Country"
               name="country"
@@ -478,7 +484,7 @@ export default function Step1GeneralInfo() {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               select
               label="State"
@@ -557,7 +563,7 @@ export default function Step1GeneralInfo() {
               <MenuItem value="WY">WY</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               label="City"
               name="city"
@@ -567,7 +573,7 @@ export default function Step1GeneralInfo() {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               label="ZIP Code"
               name="zipCode"

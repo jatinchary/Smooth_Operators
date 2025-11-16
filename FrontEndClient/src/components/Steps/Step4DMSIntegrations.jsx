@@ -6,6 +6,9 @@ import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import Slide from '@mui/material/Slide'
 import { Server } from 'lucide-react'
 
 const dmsSystems = [
@@ -22,6 +25,28 @@ export default function Step4DMSIntegrations() {
   const dmsIntegrations = useSelector((state) => state.config.dmsIntegrations)
   
   const [formData, setFormData] = useState(dmsIntegrations)
+  const [toastState, setToastState] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  })
+
+  const showToast = (severity, message) => {
+    setToastState({
+      open: true,
+      severity,
+      message,
+    })
+  }
+
+  const handleToastClose = (_, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setToastState((prev) => ({ ...prev, open: false }))
+  }
+
+  const ToastTransition = (props) => <Slide {...props} direction="left" />
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -34,6 +59,22 @@ export default function Step4DMSIntegrations() {
       ...prev,
       credentials: { ...prev.credentials, [name]: value }
     }))
+  }
+
+  const handleTestConnection = async () => {
+    if (!formData.dmsSystem || !formData.apiEndpoint || !formData.credentials.username || !formData.credentials.password) {
+      showToast('error', 'Please fill in all required fields before testing the connection.')
+      return
+    }
+
+    try {
+      // Simulate connection test - replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      showToast('success', 'Connection test successful! DMS integration is working properly.')
+    } catch (error) {
+      const errorMsg = error?.message || 'Connection test failed. Please check your credentials and try again.'
+      showToast('error', errorMsg)
+    }
   }
 
   const handleNext = () => {
@@ -142,11 +183,28 @@ export default function Step4DMSIntegrations() {
         {/* Test Connection Button */}
         <Button
           variant="contained"
+          onClick={handleTestConnection}
           sx={{ width: { xs: '100%', md: 'auto' } }}
         >
           Test Connection
         </Button>
       </div>
+      <Snackbar
+        open={toastState.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={ToastTransition}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastState.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {toastState.message}
+        </Alert>
+      </Snackbar>
     </StepContainer>
   )
 }

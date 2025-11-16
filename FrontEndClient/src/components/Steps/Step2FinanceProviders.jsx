@@ -10,6 +10,9 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
 import { Settings, Download } from "lucide-react";
 
 const providers = ["RouteOne", "DealerTrack", "Both"];
@@ -40,6 +43,28 @@ export default function Step2FinanceProviders() {
     dealerTrackConfig: {},
   });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
+  const [toastState, setToastState] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
+  const showToast = (severity, message) => {
+    setToastState({
+      open: true,
+      severity,
+      message,
+    });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setToastState((prev) => ({ ...prev, open: false }));
+  };
+
+  const ToastTransition = (props) => <Slide {...props} direction="left" />;
 
   // Fetch DMS Lenders
   const { data: dmsLenders, isLoading: dmsLendersLoading } = useQuery({
@@ -71,9 +96,14 @@ export default function Step2FinanceProviders() {
   const handleRouteOneSetup = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      alert(
-        "Dealership ID not selected in General Info. Please go back and select a dealership."
-      );
+      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast('error', errorMsg);
+      return;
+    }
+
+    if (!formData.routeOneConfig.dealerId) {
+      const errorMsg = "Please enter a Dealer ID for RouteOne.";
+      showToast('error', errorMsg);
       return;
     }
 
@@ -102,18 +132,25 @@ export default function Step2FinanceProviders() {
         ...prev,
         routeOneConfig: { ...(prev.routeOneConfig || {}), isConfigured: true },
       }));
+      showToast('success', 'RouteOne configuration setup successfully!');
     } catch (error) {
       console.error("RouteOne setup error:", error);
-      alert("Failed to setup RouteOne configuration. Please try again.");
+      const errorMsg = error.message || 'Failed to setup RouteOne configuration. Please try again.';
+      showToast('error', errorMsg);
     }
   };
 
   const handleDealerTrackSetup = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      alert(
-        "Dealership ID not selected in General Info. Please go back and select a dealership."
-      );
+      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast('error', errorMsg);
+      return;
+    }
+
+    if (!formData.dealerTrackConfig.dealerId || !formData.dealerTrackConfig.apiKey) {
+      const errorMsg = "Please enter both Dealer ID and API Key for DealerTrack.";
+      showToast('error', errorMsg);
       return;
     }
 
@@ -145,22 +182,24 @@ export default function Step2FinanceProviders() {
           isConfigured: true,
         },
       }));
+      showToast('success', 'DealerTrack configuration setup successfully!');
     } catch (error) {
       console.error("DealerTrack setup error:", error);
-      alert("Failed to setup DealerTrack configuration. Please try again.");
+      const errorMsg = error.message || 'Failed to setup DealerTrack configuration. Please try again.';
+      showToast('error', errorMsg);
     }
   };
 
   const handleImportDMSLenders = () => {
     setShowDMSLenders(true);
+    showToast('success', 'DMS Lenders list loaded successfully.');
   };
 
   const handleImportCreditAppLenders = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      alert(
-        "Dealership ID not selected in General Info. Please go back and select a dealership."
-      );
+      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast('error', errorMsg);
       return;
     }
 
@@ -175,12 +214,14 @@ export default function Step2FinanceProviders() {
       provider = "route-one"; // Default to RouteOne for Both
       interfaceOrgId = formData.routeOneConfig.dealerId;
     } else {
-      alert("No provider selected");
+      const errorMsg = "No provider selected";
+      showToast('error', errorMsg);
       return;
     }
 
     if (!interfaceOrgId) {
-      alert("Provider dealer ID not configured");
+      const errorMsg = "Provider dealer ID not configured";
+      showToast('error', errorMsg);
       return;
     }
 
@@ -202,10 +243,11 @@ export default function Step2FinanceProviders() {
       }
 
       await response.json(); // Just to consume response
-      alert("Credit app lenders imported successfully!");
+      showToast('success', 'Credit app lenders imported successfully!');
     } catch (error) {
       console.error("Import credit app lenders error:", error);
-      alert("Failed to import credit app lenders. Please try again.");
+      const errorMsg = error.message || 'Failed to import credit app lenders. Please try again.';
+      showToast('error', errorMsg);
     }
   };
 
@@ -477,6 +519,22 @@ export default function Step2FinanceProviders() {
           </div>
         </div>
       </div>
+      <Snackbar
+        open={toastState.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={ToastTransition}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastState.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {toastState.message}
+        </Alert>
+      </Snackbar>
     </StepContainer>
   );
 }
