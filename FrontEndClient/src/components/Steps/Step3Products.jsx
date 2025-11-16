@@ -80,6 +80,10 @@ export default function Step3Products() {
   const [showVendors, setShowVendors] = useState(false);
   const [showProducts, setShowProducts] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Show 10 vendors per page
+
   // Fetch vendors
   const { data: vendors, isLoading: vendorsLoading } = useQuery({
     queryKey: ["vendors", productsState.dealerId],
@@ -94,6 +98,13 @@ export default function Step3Products() {
     enabled: showProducts,
   });
 
+  // Pagination logic for vendors
+  const totalVendors = vendors?.length || 0;
+  const totalPages = Math.ceil(totalVendors / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedVendors = vendors?.slice(startIndex, endIndex);
+
   const handleIntegrationChange = (value) => {
     dispatch(setProductIntegration(value));
   };
@@ -104,6 +115,24 @@ export default function Step3Products() {
 
   const handleImportVendors = () => {
     setShowVendors(true);
+    setCurrentPage(1); // Reset to first page when importing vendors
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   const handleImportProducts = () => {
@@ -227,30 +256,100 @@ export default function Step3Products() {
           </div>
 
           {showVendors && (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {vendorsLoading ? (
                 <div className="text-dark-text-secondary py-4">
                   Loading vendors...
                 </div>
               ) : (
-                vendors?.map((vendor) => (
-                  <div
-                    key={vendor.id}
-                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={productsState.selectedVendors.includes(
-                            vendor.id
-                          )}
-                          onChange={() => dispatch(toggleVendor(vendor.id))}
-                        />
-                      }
-                      label={vendor.name}
-                    />
+                <>
+                  {/* Vendor count display */}
+                  <div className="text-sm text-dark-text-secondary">
+                    Showing {startIndex + 1}-{Math.min(endIndex, totalVendors)}{" "}
+                    of {totalVendors} vendors
                   </div>
-                ))
+
+                  {/* Paginated vendors list */}
+                  <div className="space-y-2">
+                    {paginatedVendors?.map((vendor) => (
+                      <div
+                        key={vendor.id}
+                        className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={productsState.selectedVendors.includes(
+                                vendor.id
+                              )}
+                              onChange={() => dispatch(toggleVendor(vendor.id))}
+                            />
+                          }
+                          label={vendor.name}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between pt-4 border-t border-dark-border">
+                      <Button
+                        variant="outlined"
+                        onClick={handlePreviousPage}
+                        disabled={currentPage === 1}
+                        size="small"
+                      >
+                        Previous
+                      </Button>
+
+                      <div className="flex items-center gap-2">
+                        {/* Page numbers */}
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((page) => {
+                            // Show first page, last page, current page, and pages around current
+                            return (
+                              page === 1 ||
+                              page === totalPages ||
+                              (page >= currentPage - 1 &&
+                                page <= currentPage + 1)
+                            );
+                          })
+                          .map((page, index, array) => (
+                            <div key={page} className="flex items-center">
+                              {/* Add ellipsis if there's a gap */}
+                              {index > 0 && array[index - 1] !== page - 1 && (
+                                <span className="text-dark-text-secondary mx-2">
+                                  ...
+                                </span>
+                              )}
+                              <Button
+                                variant={
+                                  currentPage === page
+                                    ? "contained"
+                                    : "outlined"
+                                }
+                                onClick={() => handlePageChange(page)}
+                                size="small"
+                                className="min-w-0 w-10"
+                              >
+                                {page}
+                              </Button>
+                            </div>
+                          ))}
+                      </div>
+
+                      <Button
+                        variant="outlined"
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                        size="small"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
