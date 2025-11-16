@@ -1,138 +1,137 @@
-import { useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useQuery } from '@tanstack/react-query'
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 import {
   setProductIntegration,
   setDealerId,
-  updateCredentials,
   toggleVendor,
   toggleProduct,
   updateProductConfiguration,
-} from '../../store/slices/productsSlice'
-import StepContainer from './StepContainer'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import { Package, Download, Settings, ChevronDown } from 'lucide-react'
+} from "../../store/slices/productsSlice";
+import StepContainer from "./StepContainer";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
+import { Package, Download, Settings, ChevronDown } from "lucide-react";
 
 // Mock API functions - replace with actual API calls
 const fetchVendors = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500));
   return [
-    { id: 'vendor1', name: 'Vendor A - Premium Insurance' },
-    { id: 'vendor2', name: 'Vendor B - Extended Warranty' },
-    { id: 'vendor3', name: 'Vendor C - GAP Coverage' },
-    { id: 'vendor4', name: 'Vendor D - Paint Protection' },
-    { id: 'vendor5', name: 'Vendor E - Tire & Wheel' },
-  ]
-}
+    { id: "vendor1", name: "Vendor A - Premium Insurance" },
+    { id: "vendor2", name: "Vendor B - Extended Warranty" },
+    { id: "vendor3", name: "Vendor C - GAP Coverage" },
+    { id: "vendor4", name: "Vendor D - Paint Protection" },
+    { id: "vendor5", name: "Vendor E - Tire & Wheel" },
+  ];
+};
 
 const fetchProducts = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500));
   return [
-    { id: 'prod1', name: 'Premium Extended Warranty', category: 'Warranty' },
-    { id: 'prod2', name: 'GAP Insurance', category: 'Insurance' },
-    { id: 'prod3', name: 'Paint & Fabric Protection', category: 'Protection' },
-    { id: 'prod4', name: 'Tire & Wheel Coverage', category: 'Protection' },
-    { id: 'prod5', name: 'Maintenance Package', category: 'Maintenance' },
-    { id: 'prod6', name: 'Road Hazard Protection', category: 'Protection' },
-  ]
-}
+    { id: "prod1", name: "Premium Extended Warranty", category: "Warranty" },
+    { id: "prod2", name: "GAP Insurance", category: "Insurance" },
+    { id: "prod3", name: "Paint & Fabric Protection", category: "Protection" },
+    { id: "prod4", name: "Tire & Wheel Coverage", category: "Protection" },
+    { id: "prod5", name: "Maintenance Package", category: "Maintenance" },
+    { id: "prod6", name: "Road Hazard Protection", category: "Protection" },
+  ];
+};
 
-const dealTypeOptions = ['Cash', 'Finance', 'Lease']
-const vehicleTypeOptions = ['New', 'Used']
+const dealTypeOptions = ["Cash", "Finance", "Lease"];
+const vehicleTypeOptions = ["New", "Used"];
 
 // Static products for configuration display
 const staticProducts = [
-  { id: 'config1', name: 'Extended Warranty' },
-  { id: 'config2', name: 'GAP Insurance' },
-  { id: 'config3', name: 'Paint Protection' },
-  { id: 'config4', name: 'Tire & Wheel' },
-]
+  { id: "config1", name: "Extended Warranty" },
+  { id: "config2", name: "GAP Insurance" },
+  { id: "config3", name: "Paint Protection" },
+  { id: "config4", name: "Tire & Wheel" },
+];
 
 export default function Step3Products() {
-  const dispatch = useDispatch()
-  const productsState = useSelector((state) => state.products)
-  
-  const [showVendors, setShowVendors] = useState(false)
-  const [showProducts, setShowProducts] = useState(false)
+  const dispatch = useDispatch();
+  const productsState = useSelector((state) => state.products);
+
+  const [showVendors, setShowVendors] = useState(false);
+  const [showProducts, setShowProducts] = useState(false);
 
   // Fetch vendors
   const { data: vendors, isLoading: vendorsLoading } = useQuery({
-    queryKey: ['vendors'],
+    queryKey: ["vendors"],
     queryFn: fetchVendors,
     enabled: showVendors,
-  })
+  });
 
   // Fetch products
   const { data: products, isLoading: productsLoading } = useQuery({
-    queryKey: ['products'],
+    queryKey: ["products"],
     queryFn: fetchProducts,
     enabled: showProducts,
-  })
+  });
 
   const handleIntegrationChange = (value) => {
-    dispatch(setProductIntegration(value))
-  }
+    dispatch(setProductIntegration(value));
+  };
 
   const handleDealerIdChange = (e) => {
-    dispatch(setDealerId(e.target.value))
-  }
-
-  const handleCredentialChange = (e) => {
-    const { name, value } = e.target
-    dispatch(updateCredentials({ [name]: value }))
-  }
+    dispatch(setDealerId(e.target.value));
+  };
 
   const handleImportVendors = () => {
-    setShowVendors(true)
-  }
+    setShowVendors(true);
+  };
 
   const handleImportProducts = () => {
-    setShowProducts(true)
-  }
+    setShowProducts(true);
+  };
 
   const handleDealTypeToggle = (productId, dealType) => {
-    const config = productsState.productConfigurations.find(c => c.productId === productId)
-    const currentDealTypes = config?.dealTypes || []
-    
+    const config = productsState.productConfigurations.find(
+      (c) => c.productId === productId
+    );
+    const currentDealTypes = config?.dealTypes || [];
+
     const newDealTypes = currentDealTypes.includes(dealType)
-      ? currentDealTypes.filter(dt => dt !== dealType)
-      : [...currentDealTypes, dealType]
-    
-    dispatch(updateProductConfiguration({ productId, dealTypes: newDealTypes }))
-  }
+      ? currentDealTypes.filter((dt) => dt !== dealType)
+      : [...currentDealTypes, dealType];
+
+    dispatch(
+      updateProductConfiguration({ productId, dealTypes: newDealTypes })
+    );
+  };
 
   const handleVehicleTypeToggle = (productId, vehicleType) => {
-    const config = productsState.productConfigurations.find(c => c.productId === productId)
-    const currentVehicleTypes = config?.vehicleTypes || []
-    
-    const newVehicleTypes = currentVehicleTypes.includes(vehicleType)
-      ? currentVehicleTypes.filter(vt => vt !== vehicleType)
-      : [...currentVehicleTypes, vehicleType]
-    
-    dispatch(updateProductConfiguration({ productId, vehicleTypes: newVehicleTypes }))
-  }
+    const config = productsState.productConfigurations.find(
+      (c) => c.productId === productId
+    );
+    const currentVehicleTypes = config?.vehicleTypes || [];
 
-  const isValid = productsState.dealerId && 
-    ((productsState.productIntegration === 'F&I' && productsState.credentials.fiUsername && productsState.credentials.fiPassword) ||
-     (productsState.productIntegration === 'PEN' && productsState.credentials.penUsername && productsState.credentials.penPassword))
+    const newVehicleTypes = currentVehicleTypes.includes(vehicleType)
+      ? currentVehicleTypes.filter((vt) => vt !== vehicleType)
+      : [...currentVehicleTypes, vehicleType];
+
+    dispatch(
+      updateProductConfiguration({ productId, vehicleTypes: newVehicleTypes })
+    );
+  };
+
+  const isValid = productsState.dealerId;
 
   return (
-    <StepContainer
-      stepNumber={3}
-      title="Products"
-      canGoNext={isValid}
-    >
+    <StepContainer stepNumber={3} title="Products" canGoNext={isValid}>
       <div className="space-y-8">
         {/* Product Integration Selection */}
         <div>
           <label className="block text-dark-text font-medium mb-3 flex items-center gap-2">
-            <Package className="w-5 h-5" style={{ color: 'rgb(231 233 187 / var(--tw-text-opacity))' }} />
+            <Package
+              className="w-5 h-5"
+              style={{ color: "rgb(231 233 187 / var(--tw-text-opacity))" }}
+            />
             Choose your product integration
           </label>
           <RadioGroup
@@ -141,13 +140,16 @@ export default function Step3Products() {
           >
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <div className={`
+                <div
+                  className={`
                   p-6 rounded-lg border transition-all duration-200
-                  ${productsState.productIntegration === 'F&I'
-                    ? 'border-brand-focus bg-gradient-card'
-                    : 'border-dark-border hover:border-brand-focus'
+                  ${
+                    productsState.productIntegration === "F&I"
+                      ? "border-brand-focus bg-gradient-card"
+                      : "border-dark-border hover:border-brand-focus"
                   }
-                `}>
+                `}
+                >
                   <FormControlLabel
                     value="F&I"
                     control={<Radio />}
@@ -157,13 +159,16 @@ export default function Step3Products() {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <div className={`
+                <div
+                  className={`
                   p-6 rounded-lg border transition-all duration-200
-                  ${productsState.productIntegration === 'PEN'
-                    ? 'border-brand-focus bg-gradient-card'
-                    : 'border-dark-border hover:border-brand-focus'
+                  ${
+                    productsState.productIntegration === "PEN"
+                      ? "border-brand-focus bg-gradient-card"
+                      : "border-dark-border hover:border-brand-focus"
                   }
-                `}>
+                `}
+                >
                   <FormControlLabel
                     value="PEN"
                     control={<Radio />}
@@ -185,51 +190,12 @@ export default function Step3Products() {
           variant="outlined"
         />
 
-        {/* Credentials based on selection */}
-        <div className="border-t border-dark-border pt-6">
-          <h3 className="text-lg font-semibold text-dark-text mb-4">
-            {productsState.productIntegration} Credentials
-          </h3>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label={`${productsState.productIntegration} Username`}
-                name={productsState.productIntegration === 'F&I' ? 'fiUsername' : 'penUsername'}
-                value={
-                  productsState.productIntegration === 'F&I'
-                    ? productsState.credentials.fiUsername
-                    : productsState.credentials.penUsername
-                }
-                onChange={handleCredentialChange}
-                required
-                fullWidth
-                variant="outlined"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                label={`${productsState.productIntegration} Password`}
-                type="password"
-                name={productsState.productIntegration === 'F&I' ? 'fiPassword' : 'penPassword'}
-                value={
-                  productsState.productIntegration === 'F&I'
-                    ? productsState.credentials.fiPassword
-                    : productsState.credentials.penPassword
-                }
-                onChange={handleCredentialChange}
-                required
-                fullWidth
-                variant="outlined"
-              />
-            </Grid>
-          </Grid>
-        </div>
-
         {/* Choose Vendors */}
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-dark-text">Choose Vendors</h3>
+            <h3 className="text-lg font-semibold text-dark-text">
+              Choose Vendors
+            </h3>
             <Button
               onClick={handleImportVendors}
               disabled={!isValid}
@@ -243,7 +209,9 @@ export default function Step3Products() {
           {showVendors && (
             <div className="space-y-2">
               {vendorsLoading ? (
-                <div className="text-dark-text-secondary py-4">Loading vendors...</div>
+                <div className="text-dark-text-secondary py-4">
+                  Loading vendors...
+                </div>
               ) : (
                 vendors?.map((vendor) => (
                   <div
@@ -253,7 +221,9 @@ export default function Step3Products() {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={productsState.selectedVendors.includes(vendor.id)}
+                          checked={productsState.selectedVendors.includes(
+                            vendor.id
+                          )}
                           onChange={() => dispatch(toggleVendor(vendor.id))}
                         />
                       }
@@ -269,7 +239,9 @@ export default function Step3Products() {
         {/* Choose Products */}
         <div className="border-t border-dark-border pt-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-dark-text">Choose Products to Import</h3>
+            <h3 className="text-lg font-semibold text-dark-text">
+              Choose Products to Import
+            </h3>
             <Button
               onClick={handleImportProducts}
               disabled={!isValid || productsState.selectedVendors.length === 0}
@@ -283,7 +255,9 @@ export default function Step3Products() {
           {showProducts && (
             <div className="space-y-2">
               {productsLoading ? (
-                <div className="text-dark-text-secondary py-4">Loading products...</div>
+                <div className="text-dark-text-secondary py-4">
+                  Loading products...
+                </div>
               ) : (
                 products?.map((product) => (
                   <div
@@ -293,14 +267,20 @@ export default function Step3Products() {
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={productsState.selectedProducts.includes(product.id)}
+                          checked={productsState.selectedProducts.includes(
+                            product.id
+                          )}
                           onChange={() => dispatch(toggleProduct(product.id))}
                         />
                       }
                       label={
                         <div>
-                          <span className="text-dark-text font-medium">{product.name}</span>
-                          <span className="text-dark-text-secondary text-sm ml-2">({product.category})</span>
+                          <span className="text-dark-text font-medium">
+                            {product.name}
+                          </span>
+                          <span className="text-dark-text-secondary text-sm ml-2">
+                            ({product.category})
+                          </span>
                         </div>
                       }
                     />
@@ -314,23 +294,28 @@ export default function Step3Products() {
         {/* Configure Product Deal Type and Vehicle Types */}
         <div className="border-t border-dark-border pt-6">
           <h3 className="text-lg font-semibold text-dark-text mb-4 flex items-center gap-2">
-            <Settings className="w-5 h-5" style={{ color: 'rgb(231 233 187 / var(--tw-text-opacity))' }} />
+            <Settings
+              className="w-5 h-5"
+              style={{ color: "rgb(231 233 187 / var(--tw-text-opacity))" }}
+            />
             Configure Product Deal Type and Vehicle Types
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {staticProducts.map((product) => {
               const config = productsState.productConfigurations.find(
                 (c) => c.productId === product.id
-              )
-              
+              );
+
               return (
                 <div
                   key={product.id}
                   className="bg-dark-bg rounded-lg p-4 border border-dark-border"
                 >
-                  <h4 className="font-semibold text-dark-text mb-4">{product.name}</h4>
-                  
+                  <h4 className="font-semibold text-dark-text mb-4">
+                    {product.name}
+                  </h4>
+
                   {/* Deal Types */}
                   <div className="mb-4">
                     <label className="block text-sm text-dark-text-secondary mb-2">
@@ -342,8 +327,12 @@ export default function Step3Products() {
                           key={dealType}
                           control={
                             <Checkbox
-                              checked={config?.dealTypes?.includes(dealType) || false}
-                              onChange={() => handleDealTypeToggle(product.id, dealType)}
+                              checked={
+                                config?.dealTypes?.includes(dealType) || false
+                              }
+                              onChange={() =>
+                                handleDealTypeToggle(product.id, dealType)
+                              }
                               size="small"
                             />
                           }
@@ -365,8 +354,13 @@ export default function Step3Products() {
                           key={vehicleType}
                           control={
                             <Checkbox
-                              checked={config?.vehicleTypes?.includes(vehicleType) || false}
-                              onChange={() => handleVehicleTypeToggle(product.id, vehicleType)}
+                              checked={
+                                config?.vehicleTypes?.includes(vehicleType) ||
+                                false
+                              }
+                              onChange={() =>
+                                handleVehicleTypeToggle(product.id, vehicleType)
+                              }
                               size="small"
                             />
                           }
@@ -377,12 +371,11 @@ export default function Step3Products() {
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </StepContainer>
-  )
+  );
 }
-
