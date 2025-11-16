@@ -261,7 +261,7 @@ export default function Step2FinanceProviders() {
             >
               {formData.routeOneConfig.isConfigured
                 ? "Configuration Complete"
-                : "Configuration Setup"}
+                : "Setup Configuration"}
             </Button>
           </div>
         )}
