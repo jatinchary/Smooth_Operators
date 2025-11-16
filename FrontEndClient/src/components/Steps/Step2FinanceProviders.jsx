@@ -45,7 +45,10 @@ export default function Step2FinanceProviders() {
     (state) => state.config.financeProviders
   );
 
-  const [formData, setFormData] = useState(financeProviders);
+  const [formData, setFormData] = useState({
+    ...financeProviders,
+    viaLP: true,
+  });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
   const [showCreditAppLenders, setShowCreditAppLenders] = useState(false);
 
@@ -66,10 +69,6 @@ export default function Step2FinanceProviders() {
 
   const handleProviderChange = (provider) => {
     setFormData((prev) => ({ ...prev, primaryProvider: provider }));
-  };
-
-  const handleViaLPToggle = () => {
-    setFormData((prev) => ({ ...prev, viaLP: !prev.viaLP }));
   };
 
   const handleRouteOneChange = (e) => {
@@ -249,8 +248,8 @@ export default function Step2FinanceProviders() {
         <FormControlLabel
           control={
             <Switch
-              checked={formData.viaLP}
-              onChange={handleViaLPToggle}
+              checked={true}
+              disabled={true}
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": {
                   color: "#E7E9BB",
