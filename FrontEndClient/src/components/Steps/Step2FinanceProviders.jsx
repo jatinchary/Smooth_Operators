@@ -10,7 +10,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
-import { Lock, Settings, Download } from "lucide-react";
+import { Settings, Download } from "lucide-react";
 
 const providers = ["RouteOne", "DealerTrack", "Both"];
 
@@ -26,19 +26,6 @@ const fetchDMSLenders = async () => {
   ];
 };
 
-const fetchCreditAppLenders = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return [
-    { id: "ca1", name: "Chase Auto Finance" },
-    { id: "ca2", name: "Wells Fargo Dealer Services" },
-    { id: "ca3", name: "Ally Financial" },
-    { id: "ca4", name: "Capital One Auto Finance" },
-    { id: "ca5", name: "Bank of America" },
-    { id: "ca6", name: "TD Auto Finance" },
-    { id: "ca7", name: "GM Financial" },
-  ];
-};
-
 export default function Step2FinanceProviders() {
   const dispatch = useDispatch();
   const financeProviders = useSelector(
@@ -49,9 +36,10 @@ export default function Step2FinanceProviders() {
   const [formData, setFormData] = useState({
     ...financeProviders,
     viaLP: true,
+    routeOneConfig: {},
+    dealerTrackConfig: {},
   });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
-  const [showCreditAppLenders, setShowCreditAppLenders] = useState(false);
 
   // Fetch DMS Lenders
   const { data: dmsLenders, isLoading: dmsLendersLoading } = useQuery({
@@ -59,14 +47,6 @@ export default function Step2FinanceProviders() {
     queryFn: fetchDMSLenders,
     enabled: showDMSLenders,
   });
-
-  // Fetch Credit App Lenders
-  const { data: creditAppLenders, isLoading: creditAppLendersLoading } =
-    useQuery({
-      queryKey: ["creditAppLenders"],
-      queryFn: fetchCreditAppLenders,
-      enabled: showCreditAppLenders,
-    });
 
   const handleProviderChange = (provider) => {
     setFormData((prev) => ({ ...prev, primaryProvider: provider }));
@@ -76,7 +56,7 @@ export default function Step2FinanceProviders() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      routeOneConfig: { ...prev.routeOneConfig, [name]: value },
+      routeOneConfig: { ...(prev.routeOneConfig || {}), [name]: value },
     }));
   };
 
@@ -84,7 +64,7 @@ export default function Step2FinanceProviders() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      dealerTrackConfig: { ...prev.dealerTrackConfig, [name]: value },
+      dealerTrackConfig: { ...(prev.dealerTrackConfig || {}), [name]: value },
     }));
   };
 
@@ -111,7 +91,7 @@ export default function Step2FinanceProviders() {
 
       setFormData((prev) => ({
         ...prev,
-        routeOneConfig: { ...prev.routeOneConfig, isConfigured: true },
+        routeOneConfig: { ...(prev.routeOneConfig || {}), isConfigured: true },
       }));
     } catch (error) {
       console.error("RouteOne setup error:", error);
@@ -142,7 +122,10 @@ export default function Step2FinanceProviders() {
 
       setFormData((prev) => ({
         ...prev,
-        dealerTrackConfig: { ...prev.dealerTrackConfig, isConfigured: true },
+        dealerTrackConfig: {
+          ...(prev.dealerTrackConfig || {}),
+          isConfigured: true,
+        },
       }));
     } catch (error) {
       console.error("DealerTrack setup error:", error);
@@ -154,8 +137,50 @@ export default function Step2FinanceProviders() {
     setShowDMSLenders(true);
   };
 
-  const handleImportCreditAppLenders = () => {
-    setShowCreditAppLenders(true);
+  const handleImportCreditAppLenders = async () => {
+    let provider, interfaceOrgId;
+    if (formData.primaryProvider === "RouteOne") {
+      provider = "route-one";
+      interfaceOrgId = formData.routeOneConfig.dealerId;
+    } else if (formData.primaryProvider === "DealerTrack") {
+      provider = "dealertrack";
+      interfaceOrgId = formData.dealerTrackConfig.dealerId;
+    } else if (formData.primaryProvider === "Both") {
+      provider = "route-one"; // Default to RouteOne for Both
+      interfaceOrgId = formData.routeOneConfig.dealerId;
+    } else {
+      alert("No provider selected");
+      return;
+    }
+
+    if (!interfaceOrgId) {
+      alert("Provider dealer ID not configured");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/import-credit-app-lenders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealershipId: 7, // Hardcoded for now
+          provider,
+          interfaceOrgId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Import failed: ${response.statusText}`);
+      }
+
+      await response.json(); // Just to consume response
+      alert("Credit app lenders imported successfully!");
+    } catch (error) {
+      console.error("Import credit app lenders error:", error);
+      alert("Failed to import credit app lenders. Please try again.");
+    }
   };
 
   const handleDMSLenderToggle = (lenderId) => {
@@ -173,26 +198,6 @@ export default function Step2FinanceProviders() {
         return {
           ...prev,
           dmsLenders: [...currentLenders, lender],
-        };
-      }
-    });
-  };
-
-  const handleCreditAppLenderToggle = (lenderId) => {
-    setFormData((prev) => {
-      const currentLenders = prev.creditAppLenders || [];
-      const exists = currentLenders.find((l) => l.id === lenderId);
-
-      if (exists) {
-        return {
-          ...prev,
-          creditAppLenders: currentLenders.filter((l) => l.id !== lenderId),
-        };
-      } else {
-        const lender = creditAppLenders.find((l) => l.id === lenderId);
-        return {
-          ...prev,
-          creditAppLenders: [...currentLenders, lender],
         };
       }
     });
@@ -444,39 +449,6 @@ export default function Step2FinanceProviders() {
               Import Credit App Lenders
             </Button>
           </div>
-
-          {showCreditAppLenders && (
-            <div className="space-y-2">
-              {creditAppLendersLoading ? (
-                <div className="text-dark-text-secondary py-4">
-                  Loading credit app lenders...
-                </div>
-              ) : (
-                creditAppLenders?.map((lender) => (
-                  <div
-                    key={lender.id}
-                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={
-                            formData.creditAppLenders?.some(
-                              (l) => l.id === lender.id
-                            ) || false
-                          }
-                          onChange={() =>
-                            handleCreditAppLenderToggle(lender.id)
-                          }
-                        />
-                      }
-                      label={lender.name}
-                    />
-                  </div>
-                ))
-              )}
-            </div>
-          )}
         </div>
       </div>
     </StepContainer>

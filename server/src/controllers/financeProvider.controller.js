@@ -293,3 +293,164 @@ export async function setupFinanceProvider(req, res) {
     return res.status(500).json({ error: "Unexpected server error" });
   }
 }
+
+export async function importCreditAppLenders(req, res) {
+  try {
+    const { dealershipId, provider, interfaceOrgId } = req.body || {};
+
+    if (!dealershipId) {
+      return res.status(400).json({ error: "dealershipId is required" });
+    }
+
+    if (!provider) {
+      return res.status(400).json({ error: "provider is required" });
+    }
+
+    if (!["route-one", "dealertrack"].includes(provider)) {
+      return res.status(400).json({
+        error: "Invalid provider. Must be 'route-one' or 'dealertrack'",
+      });
+    }
+
+    if (!interfaceOrgId) {
+      return res.status(400).json({ error: "interfaceOrgId is required" });
+    }
+
+    if (!LENDING_BASE_PATH) {
+      return res
+        .status(500)
+        .json({ error: "Lending Platform base path not configured" });
+    }
+
+    let lendingToken = await getLendingToken();
+    if (!lendingToken) {
+      return res
+        .status(500)
+        .json({ error: "Lending Platform token unavailable" });
+    }
+
+    console.log("dealershipId", dealershipId);
+
+    // Query orgId from database
+    const orgResult = await query(
+      `SELECT value as orgId FROM entity_configuration 
+       WHERE configurable_type = 'dealership' 
+       AND configurable_id = ? 
+       AND "key" = 'lending_platform_id'`,
+      [dealershipId]
+    );
+
+    if (!orgResult.rows || !orgResult.rows.length) {
+      return res.status(404).json({ error: "orgId not found for dealership" });
+    }
+
+    const orgId = orgResult.rows[0].orgId;
+
+    const interfaceType = provider === "route-one" ? "RouteOne" : "DealerTrack";
+    const url = `${LENDING_BASE_PATH}/orgs/${orgId}/associations/${interfaceType}?interfaceOrgId=${interfaceOrgId}`;
+
+    const payload = {}; // Empty payload for import
+
+    async function doRequest(token) {
+      const requestId = uuidv4();
+      const startTime = Date.now();
+
+      const requestMeta = {
+        method: "POST",
+        url,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer [REDACTED]",
+        },
+        bodySize: JSON.stringify(payload).length,
+        body: JSON.stringify(payload),
+        startTime,
+      };
+
+      const loggedFetch = () =>
+        fetch(url, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+      const upstreamRes = await logOutgoingRequest(
+        loggedFetch,
+        "lending-platform",
+        requestId,
+        requestMeta
+      );
+
+      const text = await upstreamRes.text();
+      const isJson =
+        upstreamRes.headers
+          .get("content-type")
+          ?.toLowerCase()
+          .includes("application/json") ?? false;
+      const responsePayload = isJson ? JSON.parse(text) : { raw: text };
+
+      return { upstreamRes, payload: responsePayload };
+    }
+
+    // First attempt
+    let { upstreamRes, payload: responsePayload } = await doRequest(
+      lendingToken
+    );
+
+    if (upstreamRes.ok && !payloadIndicatesInvalidToken(responsePayload)) {
+      console.log(
+        `Successfully imported credit app lenders for ${provider} dealer interfaceOrgId: ${interfaceOrgId}`
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: `Credit app lenders imported for ${provider}`,
+        data: responsePayload, // Assume this contains the lenders list
+      });
+    }
+
+    // If invalid token, try refresh and retry once
+    if (
+      payloadIndicatesInvalidToken(responsePayload) ||
+      upstreamRes.status === 401 ||
+      upstreamRes.status === 403
+    ) {
+      const refreshed = await refreshLendingToken();
+      if (refreshed) {
+        ({ upstreamRes, payload: responsePayload } = await doRequest(
+          refreshed
+        ));
+        if (upstreamRes.ok && !payloadIndicatesInvalidToken(responsePayload)) {
+          console.log(
+            `Successfully imported credit app lenders for ${provider} after token refresh`
+          );
+
+          return res.status(200).json({
+            success: true,
+            message: `Credit app lenders imported for ${provider}`,
+            data: responsePayload,
+          });
+        }
+      }
+    }
+
+    // Fallthrough: bubble upstream error
+    console.error(
+      `Lending Platform API error for import ${provider}:`,
+      responsePayload
+    );
+    return res.status(upstreamRes.status || 500).json({
+      error: "Lending Platform import failed",
+      status: upstreamRes.status || 500,
+      details: responsePayload,
+    });
+  } catch (err) {
+    console.error("Error in importCreditAppLenders:", err);
+    return res.status(500).json({ error: "Unexpected server error" });
+  }
+}
