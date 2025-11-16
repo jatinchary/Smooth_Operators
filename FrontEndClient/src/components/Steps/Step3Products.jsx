@@ -297,7 +297,8 @@ export default function Step3Products() {
                     {paginatedVendors?.map((vendor) => (
                       <div
                         key={vendor.id}
-                        className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
+                        className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all cursor-pointer"
+                        onClick={() => dispatch(toggleVendor(vendor.id))}
                       >
                         <FormControlLabel
                           control={
@@ -305,7 +306,10 @@ export default function Step3Products() {
                               checked={productsState.selectedVendors.includes(
                                 vendor.id
                               )}
-                              onChange={() => dispatch(toggleVendor(vendor.id))}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                dispatch(toggleVendor(vendor.id));
+                              }}
                             />
                           }
                           label={vendor.name}
@@ -439,7 +443,8 @@ export default function Step3Products() {
                 products?.map((product) => (
                   <div
                     key={product.id}
-                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
+                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all cursor-pointer"
+                    onClick={() => dispatch(toggleProduct(product.id))}
                   >
                     <FormControlLabel
                       control={
@@ -447,7 +452,10 @@ export default function Step3Products() {
                           checked={productsState.selectedProducts.includes(
                             product.id
                           )}
-                          onChange={() => dispatch(toggleProduct(product.id))}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            dispatch(toggleProduct(product.id));
+                          }}
                         />
                       }
                       label={
