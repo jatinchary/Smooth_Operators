@@ -161,10 +161,7 @@ export default function Step2FinanceProviders() {
     formData.primaryProvider === "DealerTrack" ||
     formData.primaryProvider === "Both";
 
-  const isRouteOneValid =
-    formData.routeOneConfig.dealerId &&
-    formData.routeOneConfig.username &&
-    formData.routeOneConfig.password;
+  const isRouteOneValid = formData.routeOneConfig.dealerId;
   const isDealerTrackValid =
     formData.dealerTrackConfig.dealerId && formData.dealerTrackConfig.apiKey;
 
@@ -253,31 +250,6 @@ export default function Step2FinanceProviders() {
               fullWidth
               variant="outlined"
             />
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Username"
-                  name="username"
-                  value={formData.routeOneConfig.username}
-                  onChange={handleRouteOneChange}
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  label="Password"
-                  type="password"
-                  name="password"
-                  value={formData.routeOneConfig.password}
-                  onChange={handleRouteOneChange}
-                  fullWidth
-                  variant="outlined"
-                />
-              </Grid>
-            </Grid>
 
             <Button
               onClick={handleRouteOneSetup}
