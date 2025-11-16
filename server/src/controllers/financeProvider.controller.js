@@ -2,10 +2,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+import { v4 as uuidv4 } from "uuid";
 import {
   getLendingToken,
   refreshLendingToken,
 } from "../services/lendingAuth.service.js";
+import { logOutgoingRequest } from "../services/logging.service.js";
 
 const LENDING_BASE_PATH = process.env.LENDING_PLATFORM_LENDING_BASE_PATH;
 
@@ -94,6 +96,7 @@ export async function setupFinanceProvider(req, res) {
       fax: generalInfo.fax || "",
       website: generalInfo.website || "",
       modifyusername: "System", // Hardcoded, adjust as needed
+      isTest: true,
       interfaces: [
         {
           interfaceType: interfaceType,
@@ -104,15 +107,39 @@ export async function setupFinanceProvider(req, res) {
     };
 
     async function doRequest(token) {
-      const upstreamRes = await fetch(url, {
+      const requestId = uuidv4();
+      const startTime = Date.now();
+
+      const requestMeta = {
         method: "POST",
+        url,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: "Bearer [REDACTED]",
         },
+        bodySize: JSON.stringify(payload).length,
         body: JSON.stringify(payload),
-      });
+        startTime,
+      };
+
+      const loggedFetch = () =>
+        fetch(url, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+      const upstreamRes = await logOutgoingRequest(
+        loggedFetch,
+        "lending-platform",
+        requestId,
+        requestMeta
+      );
 
       const text = await upstreamRes.text();
       const isJson =
