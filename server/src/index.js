@@ -7,10 +7,12 @@ import FIRoutes from "./routes/fi.routes.js";
 import dealershipRoutes from "./routes/dealerships.routes.js";
 import productRoutes from "./routes/products.routes.js";
 import financeProviderRoutes from "./routes/financeProvider.routes.js";
+import tekionRoutes from "./routes/tekion.routes.js";
 import { initializeLendingAuthScheduler } from "./services/lendingAuth.service.js";
 import { initializeFiAuthScheduler } from "./services/fiAuth.service.js";
 import { initializeDatabase } from "./services/database.service.js";
 import { requestLoggingMiddleware } from "./services/logging.service.js";
+import { initializeTekionAuthScheduler } from "./services/DMS/Tekion/tekionAuth.service.js";
 
 dotenv.config();
 
@@ -44,6 +46,7 @@ app.use("/api", FIRoutes);
 app.use("/api", dealershipRoutes);
 app.use("/api", productRoutes);
 app.use("/api", financeProviderRoutes);
+app.use("/api", tekionRoutes);
 
 // 404
 app.use((req, res) => {
@@ -67,6 +70,9 @@ initializeFiAuthScheduler();
 
 // Initialize Lending auth scheduler
 initializeLendingAuthScheduler();
+
+// Initialize Tekion auth scheduler
+initializeTekionAuthScheduler();
 
 app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`);
