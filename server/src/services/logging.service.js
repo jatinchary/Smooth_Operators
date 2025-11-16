@@ -41,7 +41,9 @@ const logger = winston.createLogger({
   ],
 });
 
-// Add console transport for development
+// Console transport disabled - logs are written to files only
+// Uncomment below to enable console logging in development
+/*
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
@@ -58,6 +60,7 @@ if (process.env.NODE_ENV !== "production") {
     })
   );
 }
+*/
 
 // Request logging middleware
 export const requestLoggingMiddleware = (req, res, next) => {
