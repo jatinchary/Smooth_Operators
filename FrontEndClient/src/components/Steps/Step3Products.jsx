@@ -306,12 +306,13 @@ export default function Step3Products() {
                               checked={productsState.selectedVendors.includes(
                                 vendor.id
                               )}
-                              onChange={(e) => {
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 dispatch(toggleVendor(vendor.id));
                               }}
                             />
                           }
+                          onClick={() => dispatch(toggleVendor(vendor.id))}
                           label={vendor.name}
                         />
                       </div>
