@@ -9,6 +9,7 @@
 - Always follow the security rules defined in the workspace
 - Maintain code consistency with existing patterns
 - Use proper error handling and logging as implemented
+- You are free to ask the user any questions that would better help you implement the task given by the user
 
 ## Component Architecture Rules
 - Break down large components into smaller, focused child components

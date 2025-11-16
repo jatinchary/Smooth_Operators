@@ -8,6 +8,7 @@ import {
   refreshLendingToken,
 } from "../services/lendingAuth.service.js";
 import { logOutgoingRequest } from "../services/logging.service.js";
+import { query } from "../services/database.service.js"; // Add this import
 
 const LENDING_BASE_PATH = process.env.LENDING_PLATFORM_LENDING_BASE_PATH;
 
@@ -91,7 +92,7 @@ export async function setupFinanceProvider(req, res) {
       state: generalInfo.state || "",
       country: generalInfo.country || "USA",
       zipCode: generalInfo.zipCode || "",
-      externalSystemId: dealerId, // Assuming dealerId is the external ID
+      externalSystemId: uuidv4(), // Assuming dealerId is the external ID
       phone: generalInfo.phone || "",
       fax: generalInfo.fax || "",
       website: generalInfo.website || "",
@@ -163,6 +164,33 @@ export async function setupFinanceProvider(req, res) {
         `Successfully set up finance provider: ${provider} for dealer ID: ${dealerId}`
       );
 
+      // Extract orgId and save to database
+      const orgId = responsePayload?.orgId;
+      const dealershipId = req.body.dealershipId || 7;
+      if (orgId && dealershipId) {
+        const recordId = uuidv4();
+        try {
+          await query(
+            `INSERT INTO entity_configuration (id, configurable_type, configurable_id, "key", value, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+            [recordId, "dealership", dealershipId, "lending_platform_id", orgId]
+          );
+          console.log(
+            `Saved Lending Platform orgId ${orgId} for dealership ${dealershipId}`
+          );
+        } catch (dbError) {
+          console.error(
+            `Failed to save orgId to database for dealership ${dealershipId}:`,
+            dbError
+          );
+          // Continue without failing the response
+        }
+      } else {
+        console.warn(
+          `Missing orgId or dealershipId: orgId=${orgId}, dealershipId=${dealershipId}`
+        );
+      }
+
       return res.status(200).json({
         success: true,
         message: `Finance provider ${provider} setup completed for dealer ${dealerId}`,
@@ -186,9 +214,42 @@ export async function setupFinanceProvider(req, res) {
             `Successfully set up finance provider: ${provider} for dealer ID: ${dealerId} after token refresh`
           );
 
+          // Extract orgId and save to database (same logic as above)
+          const orgId = responsePayload?.orgId;
+          const dealershipId = req.body.dealershipId;
+          if (orgId && dealershipId) {
+            const recordId = uuidv4();
+            try {
+              await query(
+                `INSERT INTO entity_configuration (id, configurable_type, configurable_id, "key", value, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())`,
+                [
+                  recordId,
+                  "dealership",
+                  dealershipId,
+                  "lending_platform_id",
+                  orgId,
+                ]
+              );
+              console.log(
+                `Saved Lending Platform orgId ${orgId} for dealership ${dealershipId}`
+              );
+            } catch (dbError) {
+              console.error(
+                `Failed to save orgId to database for dealership ${dealershipId}:`,
+                dbError
+              );
+              // Continue without failing the response
+            }
+          } else {
+            console.warn(
+              `Missing orgId or dealershipId: orgId=${orgId}, dealershipId=${dealershipId}`
+            );
+          }
+
           return res.status(200).json({
             success: true,
-            message: `Finance provider ${provider} setup completed for dealer ${dealerId}`,
+            message: `Finance provider ${provider} setup completed for dealer ${dealershipId}`,
             data: responsePayload,
           });
         }
