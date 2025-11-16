@@ -329,8 +329,6 @@ export async function importCreditAppLenders(req, res) {
         .json({ error: "Lending Platform token unavailable" });
     }
 
-    console.log("dealershipId", dealershipId);
-
     // Query orgId from database
     const orgResult = await query(
       `SELECT value as orgId FROM entity_configuration 
