@@ -229,7 +229,7 @@ export async function postProductList(req, res) {
 
 export async function importProducts(req, res) {
   try {
-    const { dealerId, vendorIds, vendors = [] } = req.body || {}; // Add vendors array
+    const { dealerId, vendorIds } = req.body || {}; // Remove vendors
 
     if (!dealerId) {
       return res.status(400).json({ error: "dealerId is required" });
@@ -241,9 +241,38 @@ export async function importProducts(req, res) {
         .json({ error: "vendorIds must be a non-empty array" });
     }
 
-    // Create vendor map for quick lookup
-    const vendorMap = vendors.reduce((map, vendor) => {
-      map[vendor.id] = vendor;
+    // Fetch providers list to get names
+    let fieToken = await getFieToken();
+
+    const providersUrl = `${fieApiBaseUrl}/EX1ProviderList/apijson`;
+
+    const providersRes = await fetch(providersUrl, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${fieToken}`,
+      },
+      body: JSON.stringify({
+        EX1ProviderListRequest: {
+          EX1DealerID: dealerId,
+        },
+      }),
+    });
+
+    if (!providersRes.ok) {
+      throw new Error(`Failed to fetch providers: ${providersRes.statusText}`);
+    }
+
+    const providersData = await providersRes.json();
+
+    const providers =
+      providersData?.EX1ProviderListResponse?.Providers?.Provider || [];
+
+    const providerMap = providers.reduce((map, provider) => {
+      const id = provider.EX1ProviderID || provider.id;
+      const name = provider.ProviderName || provider.name || `Provider ${id}`;
+      map[id] = { name };
       return map;
     }, {});
 
@@ -314,7 +343,7 @@ export async function importProducts(req, res) {
           ...product,
           vendorId,
           vendorIndex: index, // For mapping back
-          vendorName: vendorMap[vendorId]?.name || `Vendor ${vendorId}`,
+          vendorName: providerMap[vendorId]?.name || `Vendor ${vendorId}`,
         }));
       })
     );

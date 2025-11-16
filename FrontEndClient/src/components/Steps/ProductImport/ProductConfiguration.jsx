@@ -90,8 +90,10 @@ const ProductConfiguration = () => {
                 const displayName = product.name;
                 if (product.vendors.length === 0) return displayName;
                 if (product.vendors.length === 1)
-                  return `${displayName} (${product.vendors[0].name})`;
-                return `${displayName} (Multiple Vendors)`;
+                  return `${displayName} (Vendor: ${product.vendors[0].name})`;
+                return `${displayName} (Vendors: ${product.vendors
+                  .map((v) => v.name)
+                  .join(", ")})`;
               })()}
             </h4>
 

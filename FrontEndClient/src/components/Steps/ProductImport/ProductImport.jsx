@@ -156,12 +156,16 @@ const ProductImport = ({ onImportSuccess }) => {
                     checked={productsState.selectedProducts.includes(
                       product.id
                     )}
-                    onChange={(e) => {
-                      e.stopPropagation();
+                    onClick={(e) => {
+                      // e.stopPropagation();
                       handleProductToggle(product.id);
                     }}
                   />
                 }
+                onClick={(e) => {
+                  // e.stopPropagation();
+                  handleProductToggle(product.id);
+                }}
                 label={
                   <div>
                     <span className="text-dark-text font-medium">
