@@ -43,7 +43,6 @@ function buildDealershipResponse(dealership) {
 export async function listDealershipsHandler(req, res, next) {
   try {
     const dealerships = await listDealerships();
-    console.log('dealerships', dealerships)
     const payload = (dealerships ?? []).map((dealership) => buildDealershipResponse(dealership));
     res.json({ dealerships: payload });
   } catch (error) {
