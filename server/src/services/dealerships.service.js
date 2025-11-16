@@ -1,4 +1,5 @@
 import { query } from "../services/database.service.js";
+import { buildDealershipRecord } from "../models/dealerships.model.js";
 
 const CREATE_TABLE_SQL = `
   CREATE TABLE IF NOT EXISTS dealerships (
@@ -39,6 +40,31 @@ const GET_DEALERSHIP_SQL = `
   WHERE id = ?
     AND deleted_at IS NULL
   LIMIT 1
+`;
+
+const DEALERSHIP_COLUMNS = [
+  "name",
+  "address",
+  "address_2",
+  "city",
+  "state_id",
+  "zip_code",
+  "phone",
+  "fax",
+  "email",
+  "website",
+  "dms_code",
+  "dms_number",
+  "legal_name",
+  "dba_name",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+];
+
+const INSERT_DEALERSHIP_SQL = `
+  INSERT INTO dealerships (${DEALERSHIP_COLUMNS.join(", ")})
+  VALUES (${DEALERSHIP_COLUMNS.map(() => "?").join(", ")})
 `;
 
 export async function ensureDealershipsTable() {
@@ -132,6 +158,7 @@ function normalizeDealershipRow(row) {
 
   return {
     id: row.id,
+    name: pickValue(row, ["name"]),
     legalName,
     dbaName,
     displayName,
@@ -145,6 +172,9 @@ function normalizeDealershipRow(row) {
     state,
     zipCode,
     country: pickValue(row, ["country", "country_code"]),
+    stateId: row.state_id ?? null,
+    dmsCode: pickValue(row, ["dms_code", "dmsCode"]),
+    dmsNumber: pickValue(row, ["dms_number", "dmsNumber"]),
   };
 }
 
@@ -161,5 +191,23 @@ export async function getDealershipById(id) {
     return null;
   }
   return normalizeDealershipRow(rows[0]);
+}
+
+export async function createDealership(payload = {}) {
+  await ensureDealershipsTable();
+  const record = buildDealershipRecord(payload);
+
+  const values = DEALERSHIP_COLUMNS.map((column) =>
+    Object.prototype.hasOwnProperty.call(record, column) ? record[column] : null
+  );
+
+  const { rows } = await query(INSERT_DEALERSHIP_SQL, values);
+  const insertedId = rows?.insertId;
+
+  if (!insertedId) {
+    throw new Error("Failed to create dealership record");
+  }
+
+  return await getDealershipById(insertedId);
 }
 

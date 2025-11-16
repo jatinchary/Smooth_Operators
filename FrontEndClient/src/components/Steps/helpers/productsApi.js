@@ -87,3 +87,23 @@ export const transformImportedProducts = (importedProducts) => {
     vendors: product.vendors || [], // Include vendors array
   }));
 };
+
+/**
+ * Log the current products configuration snapshot for auditing/debugging.
+ * @param {Object} payload - Structured payload describing the products state
+ * @returns {Promise<void>}
+ */
+export const logProductsSummary = async (payload) => {
+  const response = await fetch("/api/products/log-summary", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to log products summary");
+  }
+};

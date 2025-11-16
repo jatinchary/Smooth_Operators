@@ -35,12 +35,12 @@ export default function StepContainer({
       {/* Step Title */}
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h2 className="text-4xl font-bold mb-2">
-            <span className="bg-gradient-logo bg-clip-text text-transparent">
-              Step {stepNumber}: {title}
-            </span>
-          </h2>
-          <div className="h-1 w-24 bg-gradient-logo rounded-full"></div>
+        <h2 className="text-4xl font-bold mb-2">
+          <span className="bg-gradient-logo bg-clip-text text-transparent">
+            Step {stepNumber}: {title}
+          </span>
+        </h2>
+        <div className="h-1 w-24 bg-gradient-logo rounded-full"></div>
         </div>
         {headerActions ? (
           <div className="flex items-center gap-3">{headerActions}</div>

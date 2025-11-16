@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import healthRoutes from "./routes/health.routes.js";
 import FIRoutes from "./routes/fi.routes.js";
 import dealershipRoutes from "./routes/dealerships.routes.js";
+import productRoutes from "./routes/products.routes.js";
 import financeProviderRoutes from "./routes/financeProvider.routes.js";
 import { initializeLendingAuthScheduler } from "./services/lendingAuth.service.js";
 import { initializeFiAuthScheduler } from "./services/fiAuth.service.js";
@@ -41,6 +42,7 @@ app.use(requestLoggingMiddleware);
 app.use("/api", healthRoutes);
 app.use("/api", FIRoutes);
 app.use("/api", dealershipRoutes);
+app.use("/api", productRoutes);
 app.use("/api", financeProviderRoutes);
 
 // 404

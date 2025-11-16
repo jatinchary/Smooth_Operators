@@ -1,31 +1,109 @@
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { updateGeneralInfo } from "../../store/slices/configSlice";
-import StepContainer from "./StepContainer";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import Grid from "@mui/material/Grid";
-import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
-import {
-  fetchDealershipOptions,
-  fetchDealershipDetails,
-} from "./helpers/dealersApi";
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { updateGeneralInfo } from '../../store/slices/configSlice'
+import StepContainer from './StepContainer'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import Slide from '@mui/material/Slide'
+import { fetchDealershipOptions, fetchDealershipDetails, saveDealership } from './helpers/dealersApi'
 
 export default function Step1GeneralInfo() {
-  const dispatch = useDispatch();
-  const generalInfo = useSelector((state) => state.config.generalInfo);
+  const dispatch = useDispatch()
+  const generalInfo = useSelector((state) => state.config.generalInfo)
+  
+  const [formData, setFormData] = useState(generalInfo)
+  const [errors, setErrors] = useState({})
+  const [dealershipOptions, setDealershipOptions] = useState([])
+  const [dealershipsError, setDealershipsError] = useState('')
+  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false)
+  const [isImportingDealership, setIsImportingDealership] = useState(false)
+  const [selectedDealershipName, setSelectedDealershipName] = useState('')
+  const [selectedDealershipId, setSelectedDealershipId] = useState('')
+  const [isSavingDealership, setIsSavingDealership] = useState(false)
+  const [saveDealershipError, setSaveDealershipError] = useState('')
+  const [saveDealershipSuccess, setSaveDealershipSuccess] = useState(false)
+  const [toastState, setToastState] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  })
 
-  const [formData, setFormData] = useState(generalInfo);
-  const [errors, setErrors] = useState({});
-  const [dealershipOptions, setDealershipOptions] = useState([]);
-  const [dealershipsError, setDealershipsError] = useState("");
-  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false);
-  const [isImportingDealership, setIsImportingDealership] = useState(false);
-  const [selectedDealershipName, setSelectedDealershipName] = useState("");
-  const [selectedDealershipId, setSelectedDealershipId] = useState("");
+  const showToast = (severity, message) => {
+    setToastState({
+      open: true,
+      severity,
+      message,
+    })
+  }
+
+  const handleToastClose = (_, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setToastState((prev) => ({ ...prev, open: false }))
+  }
+
+  const ToastTransition = (props) => <Slide {...props} direction="left" />
+  const STATE_ABBREVIATION_TO_ID = {
+    AL: 1,
+    AK: 2,
+    AZ: 4,
+    AR: 5,
+    CA: 6,
+    CO: 8,
+    CT: 9,
+    DE: 10,
+    DC: 11,
+    FL: 12,
+    GA: 13,
+    HI: 15,
+    ID: 16,
+    IL: 17,
+    IN: 18,
+    IA: 19,
+    KS: 20,
+    KY: 21,
+    LA: 22,
+    ME: 23,
+    MD: 24,
+    MA: 25,
+    MI: 26,
+    MN: 27,
+    MS: 28,
+    MO: 29,
+    MT: 30,
+    NE: 31,
+    NV: 32,
+    NH: 33,
+    NJ: 34,
+    NM: 35,
+    NY: 36,
+    NC: 37,
+    ND: 38,
+    OH: 39,
+    OK: 40,
+    OR: 41,
+    PA: 42,
+    RI: 44,
+    SC: 45,
+    SD: 46,
+    TN: 47,
+    TX: 48,
+    UT: 49,
+    VT: 50,
+    VA: 51,
+    WA: 53,
+    WV: 54,
+    WI: 55,
+    WY: 56,
+  }
 
   useEffect(() => {
     setFormData(generalInfo);
@@ -68,9 +146,10 @@ export default function Step1GeneralInfo() {
   }, [dealershipOptions, selectedDealershipId]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    setSaveDealershipSuccess(false)
+    
     // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -109,12 +188,93 @@ export default function Step1GeneralInfo() {
       setErrors({});
       setSelectedDealershipName(selectedOption?.name || "");
     } catch (error) {
-      console.error("Failed to import dealership", error);
-      setDealershipsError(error.message || "Failed to import dealership");
+      console.error('Failed to import dealership', error)
+      setDealershipsError(error.message || 'Failed to import dealership')
+      showToast('error', `Error importing dealership: ${error.message || 'Unknown error'}`)
     } finally {
       setIsImportingDealership(false);
     }
-  };
+  }
+
+  const handleSaveDealership = async () => {
+    const stateAbbr = (formData.state || '').trim().toUpperCase()
+    const stateId =
+      formData.stateId ||
+      (stateAbbr ? STATE_ABBREVIATION_TO_ID[stateAbbr] ?? null : null)
+
+    if (!stateId) {
+      setSaveDealershipError('Select a valid state before saving the dealership.')
+      return
+    }
+
+    const payload = {
+      name: formData.legalName || formData.dbaName || '',
+      legal_name: formData.legalName || '',
+      dba_name: formData.dbaName || '',
+      address: formData.address1 || '',
+      address_2: formData.address2 || '',
+      city: formData.city || '',
+      state_id: stateId,
+      state: stateAbbr || undefined,
+      zip_code: formData.zipCode || '',
+      phone: formData.phone || '',
+      fax: formData.fax || '',
+      email: formData.email || '',
+      website: formData.website || '',
+      dms_code: formData.dmsCode || '',
+      dms_number: formData.dmsNumber || '',
+    }
+
+    setIsSavingDealership(true)
+    setSaveDealershipError('')
+    setSaveDealershipSuccess(false)
+
+    try {
+      const response = await saveDealership(payload)
+      const savedDealership = response?.dealership
+
+      const savedName =
+        savedDealership?.displayName ||
+        savedDealership?.name ||
+        payload.name ||
+        ''
+
+      if (savedName) {
+        setSelectedDealershipName(savedName)
+      }
+
+      if (savedDealership?.id) {
+        setSelectedDealershipId(String(savedDealership.id))
+        setDealershipOptions((prev) => {
+          const optionName =
+            savedDealership.displayName ||
+            savedDealership.name ||
+            `Dealership ${savedDealership.id}`
+
+          const newOption = { id: savedDealership.id, name: optionName }
+          const exists = prev.some(
+            (option) => String(option.id) === String(savedDealership.id)
+          )
+          return exists
+            ? prev.map((option) =>
+                String(option.id) === String(savedDealership.id)
+                  ? newOption
+                  : option
+              )
+            : [...prev, newOption]
+        })
+      }
+
+      setSaveDealershipSuccess(true)
+      showToast('success', 'Dealership saved successfully.')
+    } catch (error) {
+      console.error('Failed to save dealership', error)
+      setSaveDealershipError(error.message || 'Failed to save dealership')
+      showToast('error', `Error saving dealership: ${error.message || 'Unknown error'}`)
+    } finally {
+      setIsSavingDealership(false)
+    }
+  }
 
   const handleNext = () => {
     const updatedGeneralInfo = {
@@ -126,7 +286,13 @@ export default function Step1GeneralInfo() {
   };
 
   // Require at least Legal Name and Email
-  const isValid = formData.legalName && formData.email;
+  const isValid = formData.legalName && formData.email
+  const canSaveDealership =
+    (formData.legalName || formData.dbaName) &&
+    formData.address1 &&
+    formData.city &&
+    formData.zipCode &&
+    formData.state
 
   return (
     <StepContainer
@@ -196,6 +362,18 @@ export default function Step1GeneralInfo() {
         {dealershipsError && (
           <Alert severity="error" onClose={() => setDealershipsError("")}>
             {dealershipsError}
+          </Alert>
+        )}
+        {saveDealershipError && (
+          <Alert severity="error" onClose={() => setSaveDealershipError('')}>
+            {saveDealershipError}
+          </Alert>
+        )}
+        {saveDealershipSuccess && (
+          <Alert severity="success" onClose={() => setSaveDealershipSuccess(false)}>
+            {selectedDealershipName
+              ? `Dealership "${selectedDealershipName}" saved successfully.`
+              : 'Dealership information saved successfully.'}
           </Alert>
         )}
 
@@ -403,7 +581,49 @@ export default function Step1GeneralInfo() {
             />
           </Grid>
         </Grid>
+
+        <div className="border-t border-dark-border pt-6 space-y-3">
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              color="primary"
+              onClick={handleSaveDealership}
+              disabled={
+                isSavingDealership ||
+                !canSaveDealership ||
+                isLoadingDealerships
+              }
+              startIcon={
+                isSavingDealership ? <CircularProgress size={18} color="inherit" /> : null
+              }
+            >
+              {isSavingDealership ? 'Saving...' : 'Save Dealership'}
+            </Button>
+          </Stack>
+        </div>
       </div>
+      <Snackbar
+        open={toastState.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={ToastTransition}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toastState.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {toastState.message}
+        </Alert>
+      </Snackbar>
     </StepContainer>
   );
 }

@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import nodeCron from "node-cron";
 
 dotenv.config();
 
@@ -9,6 +8,8 @@ let tokenExpiry = 0;
 const TOKEN_URL = process.env.LENDING_PLATFORM_TOKEN_URL;
 const CLIENT_ID = process.env.LENDING_PLATFORM_CLIENT_ID;
 const CLIENT_SECRET = process.env.LENDING_PLATFORM_CLIENT_SECRET;
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000; // 60 minutes
+let refreshTimer = null;
 
 async function requestToken() {
   if (!TOKEN_URL || !CLIENT_ID || !CLIENT_SECRET) {
@@ -68,13 +69,18 @@ export async function refreshLendingToken() {
 }
 
 export function initializeLendingAuthScheduler() {
-  // Refresh token every 60 minutes (suitable for 2-hour expiry)
-  nodeCron.schedule("0 * * * *", async () => {
+  if (refreshTimer) {
+    return;
+  }
+
+  const runRefresh = async () => {
     if (Date.now() >= tokenExpiry) {
       await refreshLendingToken();
       console.log("Lending Platform token refreshed");
     }
-  });
+  };
+
+  refreshTimer = setInterval(runRefresh, REFRESH_INTERVAL_MS);
 
   // Initial token fetch
   requestToken();

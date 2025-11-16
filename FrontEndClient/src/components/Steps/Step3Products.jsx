@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
 import {
   setProductIntegration,
   setDealerId,
@@ -9,10 +10,15 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
 import { Package } from "lucide-react";
 import VendorManagement from "./ProductImport/VendorManagement";
 import ProductImport from "./ProductImport/ProductImport";
 import ProductConfiguration from "./ProductImport/ProductConfiguration";
+import { logProductsSummary } from "./helpers/productsApi";
 
 export default function Step3Products() {
   const dispatch = useDispatch();
@@ -26,6 +32,77 @@ export default function Step3Products() {
     dispatch(setDealerId(e.target.value));
   };
 
+  const logMutation = useMutation({
+    mutationFn: (payload) => logProductsSummary(payload),
+  });
+
+  const handleLogProducts = () => {
+    const vendorSummaries = productsState.selectedVendors.map((vendor) => ({
+      id: vendor.id,
+      name: vendor.name,
+    }));
+
+    const selectedProductDetails = productsState.importedProducts
+      .filter((product) => productsState.selectedProducts.includes(product.id))
+      .map((product) => ({
+        EX1ProductID: product.id,
+        ProductName: product.name,
+        ProductCode: product.category,
+        vendors: Array.isArray(product.vendors)
+          ? product.vendors.map((vendor) => ({
+              id: String(vendor.id ?? ""),
+              name: vendor.name ?? "",
+            }))
+          : [],
+      }));
+
+    const configurationDetails = selectedProductDetails.map((product) => {
+      const config =
+        productsState.productConfigurations.find(
+          (item) => item.productId === product.EX1ProductID
+        ) || {};
+
+      return {
+        productId: product.EX1ProductID,
+        productName: product.ProductName,
+        dealTypes: Array.isArray(config.dealTypes) ? config.dealTypes : [],
+        vehicleTypes: Array.isArray(config.vehicleTypes)
+          ? config.vehicleTypes
+          : [],
+      };
+    });
+
+    const summary = [
+      { "product integration": productsState.productIntegration },
+      { dealerId: productsState.dealerId },
+      { vendors: vendorSummaries },
+      { products: selectedProductDetails },
+      {
+        "product deal types and vehicle types": configurationDetails.map(
+          ({ productId, productName, dealTypes, vehicleTypes }) => ({
+            productId,
+            productName,
+            dealTypes,
+            vehicleTypes,
+          })
+        ),
+      },
+    ];
+
+    logMutation.mutate({
+      summary,
+      context: {
+        productIntegration: productsState.productIntegration,
+        dealerId: productsState.dealerId,
+        vendors: vendorSummaries,
+        products: selectedProductDetails,
+        productConfigurations: configurationDetails,
+        selectedProductIds: productsState.selectedProducts,
+        importedProductCount: productsState.importedProducts.length,
+      },
+    });
+  };
+
   const isValid = productsState.dealerId;
 
   return (
@@ -33,7 +110,7 @@ export default function Step3Products() {
       <div className="space-y-8">
         {/* Product Integration Selection */}
         <div>
-          <label className="block text-dark-text font-medium mb-3 flex items-center gap-2">
+          <label className="flex text-dark-text font-medium mb-3 items-center gap-2">
             <Package
               className="w-5 h-5"
               style={{ color: "rgb(231 233 187 / var(--tw-text-opacity))" }}
@@ -104,6 +181,49 @@ export default function Step3Products() {
 
         {/* Product Configuration */}
         <ProductConfiguration />
+
+        <div className="border-t border-dark-border pt-6 space-y-4">
+          {logMutation.isError && (
+            <Alert
+              severity="error"
+              onClose={() => logMutation.reset()}
+              sx={{ maxWidth: 600 }}
+            >
+              {logMutation.error?.message ||
+                "Failed to log the products summary. Please try again."}
+            </Alert>
+          )}
+
+          {logMutation.isSuccess && (
+            <Alert
+              severity="success"
+              onClose={() => logMutation.reset()}
+              sx={{ maxWidth: 600 }}
+            >
+              Products summary sent to the server log.
+            </Alert>
+          )}
+
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            justifyContent="flex-end"
+            spacing={2}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleLogProducts}
+              disabled={logMutation.isPending || !productsState.dealerId}
+              startIcon={
+                logMutation.isPending ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : undefined
+              }
+            >
+              {logMutation.isPending ? "Logging..." : "Log Products Snapshot"}
+            </Button>
+          </Stack>
+        </div>
       </div>
     </StepContainer>
   );

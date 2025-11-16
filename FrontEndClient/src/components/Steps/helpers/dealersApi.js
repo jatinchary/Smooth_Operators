@@ -61,9 +61,29 @@ export const fetchDealershipDetails = async (dealershipId) => {
     address2: dealership.address2 ?? '',
     city: dealership.city ?? '',
     state: dealership.state ?? '',
+    stateId: dealership.stateId ?? null,
     zipCode: dealership.zipCode ?? '',
     country: dealership.country ?? '',
+    dmsCode: dealership.dmsCode ?? '',
+    dmsNumber: dealership.dmsNumber ?? '',
   };
+};
+
+export const saveDealership = async (payload) => {
+  const response = await fetch('/api/dealerships', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to save dealership');
+  }
+
+  return await response.json();
 };
 
 

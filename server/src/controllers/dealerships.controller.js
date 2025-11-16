@@ -1,4 +1,4 @@
-import { listDealerships, getDealershipById } from "../services/dealerships.service.js";
+import { listDealerships, getDealershipById, createDealership } from "../services/dealerships.service.js";
 
 function buildDealershipResponse(dealership) {
   if (!dealership) {
@@ -7,6 +7,7 @@ function buildDealershipResponse(dealership) {
 
   const {
     id,
+    name,
     legalName,
     dbaName,
     displayName,
@@ -20,10 +21,14 @@ function buildDealershipResponse(dealership) {
     state,
     zipCode,
     country,
+    stateId,
+    dmsCode,
+    dmsNumber,
   } = dealership;
 
   return {
     id,
+    name: name ?? "",
     legalName: legalName ?? "",
     dbaName: dbaName ?? "",
     displayName,
@@ -37,6 +42,9 @@ function buildDealershipResponse(dealership) {
     state: state ?? "",
     zipCode: zipCode ?? "",
     country: country ?? "",
+    stateId: stateId ?? null,
+    dmsCode: dmsCode ?? "",
+    dmsNumber: dmsNumber ?? "",
   };
 }
 
@@ -69,6 +77,53 @@ export async function getDealershipHandler(req, res, next) {
     next(error);
   }
 }
+
+export async function createDealershipHandler(req, res, next) {
+  try {
+    const dealership = await createDealership(req.body || {});
+    res.status(201).json({ dealership: buildDealershipResponse(dealership) });
+  } catch (error) {
+    if (error && typeof error === "object") {
+      if (error.code === "ER_DATA_TOO_LONG") {
+        return res
+          .status(400)
+          .json({ error: "One or more fields exceed the allowed length." });
+      }
+      if (error.code === "ER_BAD_NULL_ERROR") {
+        return res
+          .status(400)
+          .json({ error: "Missing required dealership fields." });
+      }
+      if (error.code === "ER_TRUNCATED_WRONG_VALUE") {
+        return res.status(400).json({
+          error:
+            error.sqlMessage ||
+            "Invalid value provided for a dealership field.",
+        });
+      }
+      if (error.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD") {
+        return res.status(400).json({
+          error:
+            error.sqlMessage ||
+            "Invalid value provided for a dealership field.",
+        });
+      }
+      if (error.code === "ER_NO_REFERENCED_ROW_2") {
+        return res
+          .status(400)
+          .json({ error: "Invalid state supplied for the dealership." });
+      }
+      if (error.sqlMessage) {
+        return res.status(400).json({ error: error.sqlMessage });
+      }
+    }
+    if (error instanceof Error && /required/i.test(error.message)) {
+      return res.status(400).json({ error: error.message });
+    }
+    next(error);
+  }
+}
+
 
 
 
