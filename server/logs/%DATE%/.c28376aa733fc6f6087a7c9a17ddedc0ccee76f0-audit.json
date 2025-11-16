@@ -9,6 +9,11 @@
             "date": 1763259723723,
             "name": "/Users/wallstreetitcs09/Projects/Smooth_Operators/server/logs/2025-11-16/frontend-api-call-2025-11-16.log",
             "hash": "0b9c709af6cc46fb02928626e4888ffdfc783e0b70b63e45ec3ce53e6285d38a"
+        },
+        {
+            "date": 1763318612936,
+            "name": "/Users/wallstreetitcs09/Projects/Smooth_Operators/server/logs/2025-11-17/frontend-api-call-2025-11-17.log",
+            "hash": "9add8d0410d46a058cd416bd44bd94e9449fd8cc00f0b88810a6ac820d2cebc5"
         }
     ],
     "hashType": "sha256"
