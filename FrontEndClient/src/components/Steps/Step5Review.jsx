@@ -91,10 +91,6 @@ export default function Step5Review() {
                   label="Dealer ID"
                   value={config.financeProviders.routeOneConfig.dealerId}
                 />
-                <InfoItem
-                  label="Username"
-                  value={config.financeProviders.routeOneConfig.username}
-                />
               </div>
             </div>
           )}
