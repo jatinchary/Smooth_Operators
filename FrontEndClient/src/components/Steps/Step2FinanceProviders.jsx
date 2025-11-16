@@ -69,6 +69,14 @@ export default function Step2FinanceProviders() {
   };
 
   const handleRouteOneSetup = async () => {
+    const dealershipId = generalInfo?.selectedDealershipId;
+    if (!dealershipId) {
+      alert(
+        "Dealership ID not selected in General Info. Please go back and select a dealership."
+      );
+      return;
+    }
+
     try {
       const response = await fetch("/api/setup-finance-provider", {
         method: "POST",
@@ -79,6 +87,7 @@ export default function Step2FinanceProviders() {
           dealerId: formData.routeOneConfig.dealerId,
           provider: "route-one",
           generalInfo: generalInfo,
+          dealershipId,
         }),
       });
 
@@ -100,6 +109,14 @@ export default function Step2FinanceProviders() {
   };
 
   const handleDealerTrackSetup = async () => {
+    const dealershipId = generalInfo?.selectedDealershipId;
+    if (!dealershipId) {
+      alert(
+        "Dealership ID not selected in General Info. Please go back and select a dealership."
+      );
+      return;
+    }
+
     try {
       const response = await fetch("/api/setup-finance-provider", {
         method: "POST",
@@ -110,6 +127,7 @@ export default function Step2FinanceProviders() {
           dealerId: formData.dealerTrackConfig.dealerId,
           provider: "dealertrack",
           generalInfo: generalInfo,
+          dealershipId,
         }),
       });
 
@@ -138,6 +156,14 @@ export default function Step2FinanceProviders() {
   };
 
   const handleImportCreditAppLenders = async () => {
+    const dealershipId = generalInfo?.selectedDealershipId;
+    if (!dealershipId) {
+      alert(
+        "Dealership ID not selected in General Info. Please go back and select a dealership."
+      );
+      return;
+    }
+
     let provider, interfaceOrgId;
     if (formData.primaryProvider === "RouteOne") {
       provider = "route-one";
@@ -165,7 +191,7 @@ export default function Step2FinanceProviders() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          dealershipId: 7, // Hardcoded for now
+          dealershipId,
           provider,
           interfaceOrgId,
         }),

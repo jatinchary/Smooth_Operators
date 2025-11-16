@@ -1,120 +1,132 @@
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { updateGeneralInfo } from '../../store/slices/configSlice'
-import StepContainer from './StepContainer'
-import TextField from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
-import Grid from '@mui/material/Grid'
-import Stack from '@mui/material/Stack'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import Typography from '@mui/material/Typography'
-import Alert from '@mui/material/Alert'
-import { fetchDealershipOptions, fetchDealershipDetails } from './helpers/dealersApi'
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { updateGeneralInfo } from "../../store/slices/configSlice";
+import StepContainer from "./StepContainer";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import {
+  fetchDealershipOptions,
+  fetchDealershipDetails,
+} from "./helpers/dealersApi";
 
 export default function Step1GeneralInfo() {
-  const dispatch = useDispatch()
-  const generalInfo = useSelector((state) => state.config.generalInfo)
-  
-  const [formData, setFormData] = useState(generalInfo)
-  const [errors, setErrors] = useState({})
-  const [dealershipOptions, setDealershipOptions] = useState([])
-  const [dealershipsError, setDealershipsError] = useState('')
-  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false)
-  const [isImportingDealership, setIsImportingDealership] = useState(false)
-  const [selectedDealershipName, setSelectedDealershipName] = useState('')
-  const [selectedDealershipId, setSelectedDealershipId] = useState('')
+  const dispatch = useDispatch();
+  const generalInfo = useSelector((state) => state.config.generalInfo);
+
+  const [formData, setFormData] = useState(generalInfo);
+  const [errors, setErrors] = useState({});
+  const [dealershipOptions, setDealershipOptions] = useState([]);
+  const [dealershipsError, setDealershipsError] = useState("");
+  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false);
+  const [isImportingDealership, setIsImportingDealership] = useState(false);
+  const [selectedDealershipName, setSelectedDealershipName] = useState("");
+  const [selectedDealershipId, setSelectedDealershipId] = useState("");
 
   useEffect(() => {
-    setFormData(generalInfo)
-  }, [generalInfo])
+    setFormData(generalInfo);
+  }, [generalInfo]);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
 
     const loadDealerships = async () => {
-      setIsLoadingDealerships(true)
-      setDealershipsError('')
+      setIsLoadingDealerships(true);
+      setDealershipsError("");
       try {
-        const options = await fetchDealershipOptions()
+        const options = await fetchDealershipOptions();
         if (isMounted) {
-          setDealershipOptions(options)
+          setDealershipOptions(options);
         }
       } catch (error) {
-        console.error('Failed to load dealerships', error)
+        console.error("Failed to load dealerships", error);
         if (isMounted) {
-          setDealershipsError(error.message || 'Failed to load dealerships')
+          setDealershipsError(error.message || "Failed to load dealerships");
         }
       } finally {
         if (isMounted) {
-          setIsLoadingDealerships(false)
+          setIsLoadingDealerships(false);
         }
       }
-    }
+    };
 
-    loadDealerships()
+    loadDealerships();
 
     return () => {
-      isMounted = false
-    }
-  }, [])
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!selectedDealershipId && dealershipOptions.length > 0) {
-      setSelectedDealershipId(String(dealershipOptions[0].id))
+      setSelectedDealershipId(String(dealershipOptions[0].id));
     }
-  }, [dealershipOptions, selectedDealershipId])
+  }, [dealershipOptions, selectedDealershipId]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     // Clear error when user types
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-    
+
     // Validate ZIP code
-    if (name === 'zipCode' && value) {
+    if (name === "zipCode" && value) {
       if (!/^\d{5}$/.test(value) && value.length === 5) {
-        setErrors((prev) => ({ ...prev, zipCode: 'Not a valid zip' }))
+        setErrors((prev) => ({ ...prev, zipCode: "Not a valid zip" }));
       }
     }
-  }
+  };
 
   const handleImportDealership = async () => {
     if (!selectedDealershipId) {
-      setDealershipsError('Select a dealership to import')
-      return
+      setDealershipsError("Select a dealership to import");
+      return;
     }
 
     const selectedOption = dealershipOptions.find(
       (option) => String(option.id) === String(selectedDealershipId)
-    )
+    );
 
-    setIsImportingDealership(true)
-    setDealershipsError('')
+    setIsImportingDealership(true);
+    setDealershipsError("");
 
     try {
-      const details = await fetchDealershipDetails(selectedDealershipId)
-      setFormData(details)
-      dispatch(updateGeneralInfo(details))
-      setErrors({})
-      setSelectedDealershipName(selectedOption?.name || '')
+      const details = await fetchDealershipDetails(selectedDealershipId);
+      const updatedFormData = {
+        ...details,
+        selectedDealershipId,
+        selectedDealershipName: selectedOption?.name || "",
+      };
+      setFormData(updatedFormData);
+      dispatch(updateGeneralInfo(updatedFormData));
+      setErrors({});
+      setSelectedDealershipName(selectedOption?.name || "");
     } catch (error) {
-      console.error('Failed to import dealership', error)
-      setDealershipsError(error.message || 'Failed to import dealership')
+      console.error("Failed to import dealership", error);
+      setDealershipsError(error.message || "Failed to import dealership");
     } finally {
-      setIsImportingDealership(false)
+      setIsImportingDealership(false);
     }
-  }
+  };
 
   const handleNext = () => {
-    dispatch(updateGeneralInfo(formData))
-  }
+    const updatedGeneralInfo = {
+      ...formData,
+      selectedDealershipId,
+      selectedDealershipName,
+    };
+    dispatch(updateGeneralInfo(updatedGeneralInfo));
+  };
 
   // Require at least Legal Name and Email
-  const isValid = formData.legalName && formData.email
+  const isValid = formData.legalName && formData.email;
 
   return (
     <StepContainer
@@ -124,17 +136,17 @@ export default function Step1GeneralInfo() {
       canGoNext={isValid}
       headerActions={
         <Stack
-          direction={{ xs: 'column', sm: 'row' }}
+          direction={{ xs: "column", sm: "row" }}
           spacing={2}
-          alignItems={{ xs: 'stretch', sm: 'center' }}
+          alignItems={{ xs: "stretch", sm: "center" }}
         >
           <TextField
             select
             label="Select Dealership"
             value={selectedDealershipId}
             onChange={(event) => {
-              setSelectedDealershipId(event.target.value)
-              setDealershipsError('')
+              setSelectedDealershipId(event.target.value);
+              setDealershipsError("");
             }}
             size="small"
             sx={{ minWidth: 220 }}
@@ -156,7 +168,7 @@ export default function Step1GeneralInfo() {
               ))
             ) : (
               <MenuItem value="" disabled>
-                {dealershipsError || 'No dealerships found'}
+                {dealershipsError || "No dealerships found"}
               </MenuItem>
             )}
           </TextField>
@@ -171,7 +183,9 @@ export default function Step1GeneralInfo() {
             }
             size="large"
             sx={{ px: 4 }}
-            startIcon={isImportingDealership ? <CircularProgress size={18} /> : null}
+            startIcon={
+              isImportingDealership ? <CircularProgress size={18} /> : null
+            }
           >
             Import Dealership
           </Button>
@@ -180,7 +194,7 @@ export default function Step1GeneralInfo() {
     >
       <div className="space-y-6">
         {dealershipsError && (
-          <Alert severity="error" onClose={() => setDealershipsError('')}>
+          <Alert severity="error" onClose={() => setDealershipsError("")}>
             {dealershipsError}
           </Alert>
         )}
@@ -191,7 +205,7 @@ export default function Step1GeneralInfo() {
             <TextField
               label="Legal Name"
               name="legalName"
-              value={formData.legalName || ''}
+              value={formData.legalName || ""}
               onChange={handleChange}
               required
               fullWidth
@@ -202,7 +216,7 @@ export default function Step1GeneralInfo() {
             <TextField
               label="DBA Name"
               name="dbaName"
-              value={formData.dbaName || ''}
+              value={formData.dbaName || ""}
               onChange={handleChange}
               fullWidth
               variant="outlined"
@@ -216,7 +230,7 @@ export default function Step1GeneralInfo() {
             label="Website"
             type="url"
             name="website"
-            value={formData.website || ''}
+            value={formData.website || ""}
             onChange={handleChange}
             fullWidth
             sx={{ flex: 1 }}
@@ -226,7 +240,7 @@ export default function Step1GeneralInfo() {
             label="Email"
             type="email"
             name="email"
-            value={formData.email || ''}
+            value={formData.email || ""}
             onChange={handleChange}
             required
             fullWidth
@@ -237,7 +251,7 @@ export default function Step1GeneralInfo() {
             label="Phone"
             type="tel"
             name="phone"
-            value={formData.phone || ''}
+            value={formData.phone || ""}
             onChange={handleChange}
             fullWidth
             sx={{ flex: 1 }}
@@ -246,7 +260,7 @@ export default function Step1GeneralInfo() {
           <TextField
             label="FAX"
             name="fax"
-            value={formData.fax || ''}
+            value={formData.fax || ""}
             onChange={handleChange}
             fullWidth
             sx={{ flex: 1 }}
@@ -258,7 +272,7 @@ export default function Step1GeneralInfo() {
         <TextField
           label="Address 1"
           name="address1"
-          value={formData.address1 || ''}
+          value={formData.address1 || ""}
           onChange={handleChange}
           fullWidth
           variant="outlined"
@@ -268,7 +282,7 @@ export default function Step1GeneralInfo() {
         <TextField
           label="Address 2"
           name="address2"
-          value={formData.address2 || ''}
+          value={formData.address2 || ""}
           onChange={handleChange}
           fullWidth
           variant="outlined"
@@ -280,7 +294,7 @@ export default function Step1GeneralInfo() {
             <TextField
               label="Country"
               name="country"
-              value={formData.country || ''}
+              value={formData.country || ""}
               onChange={handleChange}
               fullWidth
               variant="outlined"
@@ -291,7 +305,7 @@ export default function Step1GeneralInfo() {
               select
               label="State"
               name="state"
-              value={formData.state || ''}
+              value={formData.state || ""}
               onChange={handleChange}
               fullWidth
               variant="outlined"
@@ -299,7 +313,9 @@ export default function Step1GeneralInfo() {
                 displayEmpty: true,
                 renderValue: (selected) => {
                   if (!selected) {
-                    return <span style={{ color: '#9ca3af' }}>Select State</span>;
+                    return (
+                      <span style={{ color: "#9ca3af" }}>Select State</span>
+                    );
                   }
                   return selected;
                 },
@@ -308,7 +324,9 @@ export default function Step1GeneralInfo() {
                 shrink: true,
               }}
             >
-              <MenuItem value="" disabled>Select State</MenuItem>
+              <MenuItem value="" disabled>
+                Select State
+              </MenuItem>
               <MenuItem value="AL">AL</MenuItem>
               <MenuItem value="AK">AK</MenuItem>
               <MenuItem value="AZ">AZ</MenuItem>
@@ -365,7 +383,7 @@ export default function Step1GeneralInfo() {
             <TextField
               label="City"
               name="city"
-              value={formData.city || ''}
+              value={formData.city || ""}
               onChange={handleChange}
               fullWidth
               variant="outlined"
@@ -375,7 +393,7 @@ export default function Step1GeneralInfo() {
             <TextField
               label="ZIP Code"
               name="zipCode"
-              value={formData.zipCode || ''}
+              value={formData.zipCode || ""}
               onChange={handleChange}
               inputProps={{ maxLength: 5 }}
               error={!!errors.zipCode}
@@ -387,5 +405,5 @@ export default function Step1GeneralInfo() {
         </Grid>
       </div>
     </StepContainer>
-  )
+  );
 }
