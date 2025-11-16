@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import healthRoutes from "./routes/health.routes.js";
 import FIRoutes from "./routes/fi.routes.js";
 import dealershipRoutes from "./routes/dealerships.routes.js";
+import financeProviderRoutes from "./routes/financeProvider.routes.js";
+import { initializeLendingAuthScheduler } from "./services/lendingAuth.service.js";
 import { initializeFiAuthScheduler } from "./services/fiAuth.service.js";
 import { initializeDatabase } from "./services/database.service.js";
 import { requestLoggingMiddleware } from "./services/logging.service.js";
@@ -39,6 +41,7 @@ app.use(requestLoggingMiddleware);
 app.use("/api", healthRoutes);
 app.use("/api", FIRoutes);
 app.use("/api", dealershipRoutes);
+app.use("/api", financeProviderRoutes);
 
 // 404
 app.use((req, res) => {
@@ -59,6 +62,9 @@ await initializeDatabase();
 
 // Initialize FI auth scheduler
 initializeFiAuthScheduler();
+
+// Initialize Lending auth scheduler
+initializeLendingAuthScheduler();
 
 app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`);

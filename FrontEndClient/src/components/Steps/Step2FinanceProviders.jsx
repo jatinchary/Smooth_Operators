@@ -44,8 +44,12 @@ export default function Step2FinanceProviders() {
   const financeProviders = useSelector(
     (state) => state.config.financeProviders
   );
+  const generalInfo = useSelector((state) => state.config.generalInfo);
 
-  const [formData, setFormData] = useState(financeProviders);
+  const [formData, setFormData] = useState({
+    ...financeProviders,
+    viaLP: true,
+  });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
   const [showCreditAppLenders, setShowCreditAppLenders] = useState(false);
 
@@ -68,10 +72,6 @@ export default function Step2FinanceProviders() {
     setFormData((prev) => ({ ...prev, primaryProvider: provider }));
   };
 
-  const handleViaLPToggle = () => {
-    setFormData((prev) => ({ ...prev, viaLP: !prev.viaLP }));
-  };
-
   const handleRouteOneChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -88,18 +88,66 @@ export default function Step2FinanceProviders() {
     }));
   };
 
-  const handleRouteOneSetup = () => {
-    setFormData((prev) => ({
-      ...prev,
-      routeOneConfig: { ...prev.routeOneConfig, isConfigured: true },
-    }));
+  const handleRouteOneSetup = async () => {
+    try {
+      const response = await fetch("/api/setup-finance-provider", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealerId: formData.routeOneConfig.dealerId,
+          provider: "route-one",
+          generalInfo: generalInfo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Setup failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("RouteOne setup response:", data);
+
+      setFormData((prev) => ({
+        ...prev,
+        routeOneConfig: { ...prev.routeOneConfig, isConfigured: true },
+      }));
+    } catch (error) {
+      console.error("RouteOne setup error:", error);
+      alert("Failed to setup RouteOne configuration. Please try again.");
+    }
   };
 
-  const handleDealerTrackSetup = () => {
-    setFormData((prev) => ({
-      ...prev,
-      dealerTrackConfig: { ...prev.dealerTrackConfig, isConfigured: true },
-    }));
+  const handleDealerTrackSetup = async () => {
+    try {
+      const response = await fetch("/api/setup-finance-provider", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealerId: formData.dealerTrackConfig.dealerId,
+          provider: "dealertrack",
+          generalInfo: generalInfo,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Setup failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("DealerTrack setup response:", data);
+
+      setFormData((prev) => ({
+        ...prev,
+        dealerTrackConfig: { ...prev.dealerTrackConfig, isConfigured: true },
+      }));
+    } catch (error) {
+      console.error("DealerTrack setup error:", error);
+      alert("Failed to setup DealerTrack configuration. Please try again.");
+    }
   };
 
   const handleImportDMSLenders = () => {
@@ -203,8 +251,8 @@ export default function Step2FinanceProviders() {
         <FormControlLabel
           control={
             <Switch
-              checked={formData.viaLP}
-              onChange={handleViaLPToggle}
+              checked={true}
+              disabled={true}
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": {
                   color: "#E7E9BB",
@@ -309,7 +357,7 @@ export default function Step2FinanceProviders() {
             >
               {formData.dealerTrackConfig.isConfigured
                 ? "Configuration Complete"
-                : "Configuration Setup"}
+                : "Setup Configuration"}
             </Button>
           </div>
         )}
