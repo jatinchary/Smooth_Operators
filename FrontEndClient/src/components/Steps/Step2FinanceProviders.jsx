@@ -218,6 +218,17 @@ export default function Step2FinanceProviders() {
     ((showRouteOne && isRouteOneValid) ||
       (showDealerTrack && isDealerTrackValid));
 
+  const isConfigurationComplete =
+    formData.primaryProvider &&
+    (formData.primaryProvider === "RouteOne"
+      ? !!formData.routeOneConfig?.isConfigured
+      : formData.primaryProvider === "DealerTrack"
+      ? !!formData.dealerTrackConfig?.isConfigured
+      : formData.primaryProvider === "Both"
+      ? !!formData.routeOneConfig?.isConfigured &&
+        !!formData.dealerTrackConfig?.isConfigured
+      : false);
+
   return (
     <StepContainer
       stepNumber={2}
@@ -426,7 +437,7 @@ export default function Step2FinanceProviders() {
             </h3>
             <Button
               onClick={handleImportCreditAppLenders}
-              disabled={(formData.dmsLenders?.length || 0) === 0}
+              disabled={!isConfigurationComplete}
               variant="contained"
               startIcon={<Download className="w-4 h-4" />}
             >
