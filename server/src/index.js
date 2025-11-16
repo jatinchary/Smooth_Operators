@@ -6,6 +6,7 @@ import healthRoutes from "./routes/health.routes.js";
 import FIRoutes from "./routes/fi.routes.js";
 import { initializeFiAuthScheduler } from "./services/fiAuth.service.js";
 import { initializeDatabase } from "./services/database.service.js";
+import { requestLoggingMiddleware } from "./services/logging.service.js";
 
 dotenv.config();
 
@@ -29,6 +30,9 @@ app.use(
 
 // JSON body parsing
 app.use(express.json({ limit: "1mb" }));
+
+// Request logging middleware
+app.use(requestLoggingMiddleware);
 
 // Routes
 app.use("/api", healthRoutes);

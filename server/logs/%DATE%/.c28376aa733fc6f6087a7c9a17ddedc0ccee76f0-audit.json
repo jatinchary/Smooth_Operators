@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/wallstreetitcs09/Projects/Smooth_Operators/server/logs/%DATE%/.c28376aa733fc6f6087a7c9a17ddedc0ccee76f0-audit.json",
+    "files": [
+        {
+            "date": 1763259723723,
+            "name": "/Users/wallstreetitcs09/Projects/Smooth_Operators/server/logs/2025-11-16/frontend-api-call-2025-11-16.log",
+            "hash": "0b9c709af6cc46fb02928626e4888ffdfc783e0b70b63e45ec3ce53e6285d38a"
+        }
+    ],
+    "hashType": "sha256"
+}

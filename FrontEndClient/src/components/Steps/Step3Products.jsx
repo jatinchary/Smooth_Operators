@@ -16,18 +16,39 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
-import { Package, Download, Settings, ChevronDown } from "lucide-react";
+import { Package, Download, Settings } from "lucide-react";
 
-// Mock API functions - replace with actual API calls
-const fetchVendors = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return [
-    { id: "vendor1", name: "Vendor A - Premium Insurance" },
-    { id: "vendor2", name: "Vendor B - Extended Warranty" },
-    { id: "vendor3", name: "Vendor C - GAP Coverage" },
-    { id: "vendor4", name: "Vendor D - Paint Protection" },
-    { id: "vendor5", name: "Vendor E - Tire & Wheel" },
-  ];
+// API function to fetch vendors
+const fetchVendors = async (dealerId) => {
+  const response = await fetch("/api/ex1/provider-list", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ dealerId }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch vendors: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  // Transform the API response to match expected format
+  // Assuming the API returns vendors in a structure that needs mapping
+  // Adjust this transformation based on actual API response structure
+  if (data?.EX1ProviderListResponse?.Providers) {
+    return data.EX1ProviderListResponse.Providers.map((provider) => ({
+      id: provider.ProviderID || provider.id,
+      name:
+        provider.ProviderName ||
+        provider.name ||
+        `Provider ${provider.ProviderID || provider.id}`,
+    }));
+  }
+
+  // Fallback: if the structure is different, return empty array or handle accordingly
+  return [];
 };
 
 const fetchProducts = async () => {
@@ -62,9 +83,9 @@ export default function Step3Products() {
 
   // Fetch vendors
   const { data: vendors, isLoading: vendorsLoading } = useQuery({
-    queryKey: ["vendors"],
-    queryFn: fetchVendors,
-    enabled: showVendors,
+    queryKey: ["vendors", productsState.dealerId],
+    queryFn: () => fetchVendors(productsState.dealerId),
+    enabled: Boolean(showVendors && productsState.dealerId),
   });
 
   // Fetch products

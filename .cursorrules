@@ -1,0 +1,11 @@
+# Cursor User Rules for Smooth Operators Project
+
+## Testing Rules
+- Do NOT write tests unless the user explicitly requests it
+- Never create test files, test directories, or testing code without explicit user approval
+- Avoid suggesting or implementing testing frameworks unless specifically asked
+
+## Code Quality Rules
+- Always follow the security rules defined in the workspace
+- Maintain code consistency with existing patterns
+- Use proper error handling and logging as implemented
