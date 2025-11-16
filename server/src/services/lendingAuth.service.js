@@ -38,7 +38,7 @@ async function requestToken() {
 
     const data = await response.json();
     const token = data.access_token;
-    const expiresIn = data.expires_in || 3600;
+    const expiresIn = data.expires_in || 7200; // Updated fallback to 7200 seconds (2 hours)
 
     if (token) {
       currentToken = token;
@@ -68,8 +68,8 @@ export async function refreshLendingToken() {
 }
 
 export function initializeLendingAuthScheduler() {
-  // Refresh token every 30 minutes (adjust based on expiry)
-  nodeCron.schedule("*/30 * * * *", async () => {
+  // Refresh token every 60 minutes (suitable for 2-hour expiry)
+  nodeCron.schedule("0 * * * *", async () => {
     if (Date.now() >= tokenExpiry) {
       await refreshLendingToken();
       console.log("Lending Platform token refreshed");
