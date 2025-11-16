@@ -427,20 +427,6 @@ export async function persistProductsSnapshot({
 
     const now = getMysqlNow();
 
-    const deferredVendorIntegrations = [];
-    for (const relationship of vendorRelationships) {
-      const persisted = await upsertVendorIntegrationRow({
-        vendorId: relationship.vendorTableId,
-        productPrimaryId: null,
-        productExternalId: product.EX1ProductID,
-        integration: productIntegration,
-        timestamp: now,
-      });
-      if (!persisted) {
-        deferredVendorIntegrations.push(relationship.vendorTableId);
-      }
-    }
-
     const productId = await upsertProduct(product, {
       dealerId,
       integration: productIntegration,
@@ -451,11 +437,11 @@ export async function persistProductsSnapshot({
       continue;
     }
 
-    for (const vendorTableId of deferredVendorIntegrations) {
+    // Enforce order: vendors -> products -> vendor_integrations
+    for (const relationship of vendorRelationships) {
       await upsertVendorIntegrationRow({
-        vendorId: vendorTableId,
-        productPrimaryId: productId,
-        productExternalId: null,
+        vendorId: relationship.vendorTableId,
+        vendorExternalId: relationship.vendorKey, // EX1ProviderID -> external_id
         integration: productIntegration,
         timestamp: now,
       });
@@ -494,8 +480,7 @@ export async function persistProductsSnapshot({
 
 async function upsertVendorIntegrationRow({
   vendorId,
-  productPrimaryId,
-  productExternalId,
+  vendorExternalId,
   integration,
   timestamp,
 }) {
@@ -507,60 +492,32 @@ async function upsertVendorIntegrationRow({
     "vendorid",
     "vendor",
   ]);
-  const productPrimaryColumn = resolveColumn(schema, [
-    "product_id",
-    "productid",
-    "product",
-    "primary_product_id",
-    "primaryproductid",
-  ]);
-  const productExternalColumn = resolveColumn(schema, [
-    "product_uuid",
-    "productuuid",
-    "ex1_product_id",
-    "ex1productid",
-    "external_product_id",
-    "externalproductid",
-    "ext_vendor_id",
-    "extvendorid",
+  const externalIdColumn = resolveColumn(schema, [
+    "external_id",
+    "externalid",
   ]);
   const integrationColumn = resolveColumn(schema, [
     "integration",
     "product_integration",
+    "integration_id",
   ]);
   const createdAtColumn = resolveColumn(schema, ["created_at", "createdat"]);
   const updatedAtColumn = resolveColumn(schema, ["updated_at", "updatedat"]);
 
-  if (!vendorColumn) {
+  if (!vendorColumn || !externalIdColumn) {
     console.warn(
-      "Skipping vendor integration persistence; vendor column is missing.",
-      { vendorColumn }
+      "Skipping vendor integration persistence; required columns are missing.",
+      { vendorColumn, externalIdColumn }
     );
-    return false;
-  }
-
-  let chosenProductColumn = null;
-  let productColumnValue = null;
-
-  if (productExternalColumn && productExternalId != null) {
-    chosenProductColumn = productExternalColumn;
-    productColumnValue = productExternalId;
-  } else if (productPrimaryColumn && productPrimaryId != null) {
-    chosenProductColumn = productPrimaryColumn;
-    productColumnValue = productPrimaryId;
-  }
-
-  if (!chosenProductColumn) {
-    // Could not satisfy requirements yet (likely waiting on product primary id)
     return false;
   }
 
   try {
     const { rows } = await query(
-      `SELECT ${formatColumn(chosenProductColumn)} FROM vendor_integrations WHERE ${formatColumn(
+      `SELECT ${formatColumn(externalIdColumn)} FROM vendor_integrations WHERE ${formatColumn(
         vendorColumn
-      )} = ? AND ${formatColumn(chosenProductColumn)} = ? LIMIT 1`,
-      [vendorId, productColumnValue]
+      )} = ? AND ${formatColumn(externalIdColumn)} = ? LIMIT 1`,
+      [vendorId, vendorExternalId]
     );
 
     if (rows && rows.length > 0) {
@@ -577,12 +534,12 @@ async function upsertVendorIntegrationRow({
       }
 
       if (updates.length > 0) {
-        values.push(vendorId, productColumnValue);
+        values.push(vendorId, vendorExternalId);
         await query(
           `UPDATE vendor_integrations SET ${updates.join(
             ", "
           )} WHERE ${formatColumn(vendorColumn)} = ? AND ${formatColumn(
-            chosenProductColumn
+            externalIdColumn
           )} = ?`,
           values
         );
@@ -598,9 +555,9 @@ async function upsertVendorIntegrationRow({
     return false;
   }
 
-  const columns = [vendorColumn, chosenProductColumn];
+  const columns = [vendorColumn, externalIdColumn];
   const placeholders = ["?", "?"];
-  const values = [vendorId, productColumnValue];
+  const values = [vendorId, vendorExternalId];
 
   if (integrationColumn) {
     columns.push(integrationColumn);
@@ -629,7 +586,7 @@ async function upsertVendorIntegrationRow({
   } catch (error) {
     console.error("Failed to insert vendor integration snapshot row", {
       vendorId,
-      productId: productPrimaryId ?? productExternalId,
+      externalId: vendorExternalId,
       error,
     });
     return false;
