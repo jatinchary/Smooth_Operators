@@ -9,3 +9,10 @@
 - Always follow the security rules defined in the workspace
 - Maintain code consistency with existing patterns
 - Use proper error handling and logging as implemented
+
+## Component Architecture Rules
+- Break down large components into smaller, focused child components
+- Create reusable helper functions in separate files when logic can be shared
+- Keep individual component files under 300 lines where possible
+- Use helper files for API calls, data transformation, and complex business logic
+- Group related components in subdirectories under components/
