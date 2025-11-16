@@ -35,15 +35,14 @@ const fetchVendors = async (dealerId) => {
   const data = await response.json();
 
   // Transform the API response to match expected format
-  // Assuming the API returns vendors in a structure that needs mapping
-  // Adjust this transformation based on actual API response structure
-  if (data?.EX1ProviderListResponse?.Providers) {
-    return data.EX1ProviderListResponse.Providers.map((provider) => ({
-      id: provider.ProviderID || provider.id,
+  // The API returns vendors in EX1ProviderListResponse.Providers.Provider structure
+  if (data?.EX1ProviderListResponse?.Providers?.Provider) {
+    return data.EX1ProviderListResponse.Providers.Provider.map((provider) => ({
+      id: provider.EX1ProviderID || provider.id,
       name:
         provider.ProviderName ||
         provider.name ||
-        `Provider ${provider.ProviderID || provider.id}`,
+        `Provider ${provider.EX1ProviderID || provider.id}`,
     }));
   }
 
