@@ -9,7 +9,8 @@ export default function StepContainer({
   children, 
   onNext,
   onPrevious,
-  canGoNext = true 
+  canGoNext = true,
+  headerActions = null,
 }) {
   const dispatch = useDispatch()
   const { currentStep } = useSelector((state) => state.config)
@@ -32,13 +33,18 @@ export default function StepContainer({
   return (
     <div className="p-6 lg:p-12 max-w-5xl mx-auto">
       {/* Step Title */}
-      <div className="mb-8">
-        <h2 className="text-4xl font-bold mb-2">
-          <span className="bg-gradient-logo bg-clip-text text-transparent">
-            Step {stepNumber}: {title}
-          </span>
-        </h2>
-        <div className="h-1 w-24 bg-gradient-logo rounded-full"></div>
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-4xl font-bold mb-2">
+            <span className="bg-gradient-logo bg-clip-text text-transparent">
+              Step {stepNumber}: {title}
+            </span>
+          </h2>
+          <div className="h-1 w-24 bg-gradient-logo rounded-full"></div>
+        </div>
+        {headerActions ? (
+          <div className="flex items-center gap-3">{headerActions}</div>
+        ) : null}
       </div>
 
       {/* Step Content */}

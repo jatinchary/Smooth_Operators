@@ -4,9 +4,9 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import healthRoutes from "./routes/health.routes.js";
 import FIRoutes from "./routes/fi.routes.js";
+import dealershipRoutes from "./routes/dealerships.routes.js";
 import { initializeFiAuthScheduler } from "./services/fiAuth.service.js";
-// Disabling database connection for now until we have a use for it
-// import { initializeDatabase } from "./services/database.service.js";
+import { initializeDatabase } from "./services/database.service.js";
 import { requestLoggingMiddleware } from "./services/logging.service.js";
 
 dotenv.config();
@@ -38,6 +38,7 @@ app.use(requestLoggingMiddleware);
 // Routes
 app.use("/api", healthRoutes);
 app.use("/api", FIRoutes);
+app.use("/api", dealershipRoutes);
 
 // 404
 app.use((req, res) => {
@@ -54,7 +55,7 @@ app.use((err, req, res, next) => {
 const port = parseInt(process.env.PORT || "4000", 10);
 
 // Initialize database connection
-// await initializeDatabase();
+await initializeDatabase();
 
 // Initialize FI auth scheduler
 initializeFiAuthScheduler();

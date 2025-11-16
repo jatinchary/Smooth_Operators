@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateGeneralInfo } from '../../store/slices/configSlice'
 import StepContainer from './StepContainer'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Menu from '@mui/material/Menu'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import { fetchDealershipOptions, fetchDealershipDetails } from './helpers/dealersApi'
 
 export default function Step1GeneralInfo() {
   const dispatch = useDispatch()
@@ -12,6 +19,16 @@ export default function Step1GeneralInfo() {
   
   const [formData, setFormData] = useState(generalInfo)
   const [errors, setErrors] = useState({})
+  const [dealershipMenuAnchor, setDealershipMenuAnchor] = useState(null)
+  const [dealershipOptions, setDealershipOptions] = useState([])
+  const [dealershipsError, setDealershipsError] = useState('')
+  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false)
+  const [isImportingDealership, setIsImportingDealership] = useState(false)
+  const [selectedDealershipName, setSelectedDealershipName] = useState('')
+
+  useEffect(() => {
+    setFormData(generalInfo)
+  }, [generalInfo])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -30,6 +47,51 @@ export default function Step1GeneralInfo() {
     }
   }
 
+  const handleOpenDealershipMenu = async (event) => {
+    setDealershipMenuAnchor(event.currentTarget)
+    setDealershipsError('')
+
+    if (dealershipOptions.length === 0 && !isLoadingDealerships) {
+      setIsLoadingDealerships(true)
+      try {
+        const options = await fetchDealershipOptions()
+        setDealershipOptions(options)
+      } catch (error) {
+        console.error('Failed to load dealerships', error)
+        setDealershipsError(error.message || 'Failed to load dealerships')
+      } finally {
+        setIsLoadingDealerships(false)
+      }
+    }
+  }
+
+  const handleCloseDealershipMenu = () => {
+    setDealershipMenuAnchor(null)
+  }
+
+  const handleSelectDealership = async (dealershipId) => {
+    const selectedOption = dealershipOptions.find(
+      (option) => String(option.id) === String(dealershipId)
+    )
+
+    setIsImportingDealership(true)
+    setDealershipMenuAnchor(null)
+    setDealershipsError('')
+
+    try {
+      const details = await fetchDealershipDetails(dealershipId)
+      setFormData(details)
+      dispatch(updateGeneralInfo(details))
+      setErrors({})
+      setSelectedDealershipName(selectedOption?.name || '')
+    } catch (error) {
+      console.error('Failed to import dealership', error)
+      setDealershipsError(error.message || 'Failed to import dealership')
+    } finally {
+      setIsImportingDealership(false)
+    }
+  }
+
   const handleNext = () => {
     dispatch(updateGeneralInfo(formData))
   }
@@ -43,8 +105,56 @@ export default function Step1GeneralInfo() {
       title="General Information"
       onNext={handleNext}
       canGoNext={isValid}
+      headerActions={
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleOpenDealershipMenu}
+            disabled={isImportingDealership}
+            startIcon={isImportingDealership ? <CircularProgress size={18} /> : null}
+          >
+            Import Dealers
+          </Button>
+          {selectedDealershipName && (
+            <Typography variant="body2" color="text.secondary">
+              Populated from {selectedDealershipName}
+            </Typography>
+          )}
+        </Stack>
+      }
     >
+      <Menu
+        anchorEl={dealershipMenuAnchor}
+        open={Boolean(dealershipMenuAnchor)}
+        onClose={handleCloseDealershipMenu}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        {isLoadingDealerships ? (
+          <MenuItem disabled>
+            <CircularProgress size={20} sx={{ mr: 2 }} />
+            Loading dealers...
+          </MenuItem>
+        ) : dealershipOptions.length > 0 ? (
+          dealershipOptions.map((dealer) => (
+            <MenuItem key={dealer.id} onClick={() => handleSelectDealership(dealer.id)}>
+              {dealer.name}
+            </MenuItem>
+          ))
+        ) : dealershipsError ? (
+          <MenuItem disabled>{dealershipsError}</MenuItem>
+        ) : (
+          <MenuItem disabled>No dealerships found</MenuItem>
+        )}
+      </Menu>
+
       <div className="space-y-6">
+        {dealershipsError && (
+          <Alert severity="error" onClose={() => setDealershipsError('')}>
+            {dealershipsError}
+          </Alert>
+        )}
+
         {/* Row 1: Legal Name, DBA Name */}
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -70,67 +180,49 @@ export default function Step1GeneralInfo() {
           </Grid>
         </Grid>
 
-        {/* Row 2: Website, Email */}
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Website"
-              type="url"
-              name="website"
-              value={formData.website || ''}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email || ''}
-              onChange={handleChange}
-              required
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-        </Grid>
-
-        {/* Row 3: Country, Phone, Fax */}
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
-            <TextField
-              label="Country"
-              name="country"
-              value={formData.country || ''}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              label="Phone"
-              type="tel"
-              name="phone"
-              value={formData.phone || ''}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <TextField
-              label="FAX"
-              name="fax"
-              value={formData.fax || ''}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
-        </Grid>
+        {/* Row 2: Website, Email, Phone, Fax */}
+        <Stack direction="row" spacing={2}>
+          <TextField
+            label="Website"
+            type="url"
+            name="website"
+            value={formData.website || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ flex: 1 }}
+            variant="outlined"
+          />
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email || ''}
+            onChange={handleChange}
+            required
+            fullWidth
+            sx={{ flex: 1 }}
+            variant="outlined"
+          />
+          <TextField
+            label="Phone"
+            type="tel"
+            name="phone"
+            value={formData.phone || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ flex: 1 }}
+            variant="outlined"
+          />
+          <TextField
+            label="FAX"
+            name="fax"
+            value={formData.fax || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ flex: 1 }}
+            variant="outlined"
+          />
+        </Stack>
 
         {/* Row 4: Address 1 */}
         <TextField
@@ -152,9 +244,19 @@ export default function Step1GeneralInfo() {
           variant="outlined"
         />
 
-        {/* Row 6: State, City, ZIP Code */}
+        {/* Row 3: Country, State, City, ZIP Code */}
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
+            <TextField
+              label="Country"
+              name="country"
+              value={formData.country || ''}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
             <TextField
               select
               label="State"
@@ -229,7 +331,7 @@ export default function Step1GeneralInfo() {
               <MenuItem value="WY">WY</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <TextField
               label="City"
               name="city"
@@ -239,7 +341,7 @@ export default function Step1GeneralInfo() {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <TextField
               label="ZIP Code"
               name="zipCode"
