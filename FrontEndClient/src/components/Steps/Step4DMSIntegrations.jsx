@@ -10,11 +10,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import { Server, CheckCircle, AlertCircle } from "lucide-react";
-import {
-  fetchDealerSettings,
-  fetchLenders,
-  fetchCreditAppLenders,
-} from "./helpers/tekionApi";
+import { fetchDealerSettings } from "./helpers/tekionApi";
 
 const dmsSystems = [
   { value: "", label: "Select DMS System" },
@@ -32,7 +28,7 @@ export default function Step4DMSIntegrations() {
 
   const [formData, setFormData] = useState({
     ...dmsIntegrations,
-    apiEndpoint: dmsIntegrations.apiEndpoint || "",
+    dealerId: dmsIntegrations.dealerId || "",
     credentials: dmsIntegrations.credentials || { username: "", password: "" }, // Keep for backward compat, but not used
   });
   const [toastState, setToastState] = useState({
@@ -40,12 +36,8 @@ export default function Step4DMSIntegrations() {
     message: "",
     severity: "success",
   });
-  const [isTekionSelected, setIsTekionSelected] = useState(
-    formData.dmsSystem === "Tekion"
-  );
   const [loading, setLoading] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
-
   const showToast = (severity, message) => {
     setToastState({
       open: true,
@@ -66,98 +58,49 @@ export default function Step4DMSIntegrations() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === "dmsSystem") {
-      setIsTekionSelected(value === "Tekion");
-      setIsValidated(false); // Reset validation on change
-    }
   };
 
   const handleTestConnection = async () => {
-    if (isTekionSelected) {
-      if (!formData.apiEndpoint) {
-        showToast("error", "Dealer ID is required for Tekion integration.");
-        return;
-      }
-
-      setLoading(true);
-      setIsValidated(false);
-
-      try {
-        // Validate with dealer settings first, treating apiEndpoint as dealerId
-        await fetchDealerSettings(formData.apiEndpoint);
-        setIsValidated(true);
-        showToast("success", "Dealer ID validated successfully!");
-      } catch (error) {
-        setIsValidated(false);
-        const errorMsg =
-          error.message ||
-          "Failed to validate Dealer ID. Please check and try again.";
-        showToast("error", errorMsg);
-      } finally {
-        setLoading(false);
-      }
+    if (!formData.dealerId) {
+      showToast("error", "Dealer ID is required.");
       return;
     }
 
-    if (!formData.dmsSystem || !formData.apiEndpoint) {
-      showToast(
-        "error",
-        "Please fill in all required fields before testing the connection."
-      );
-      return;
-    }
+    setLoading(true);
 
     try {
-      // Simulate connection test for other DMS - replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      showToast(
-        "success",
-        "Connection test successful! DMS integration is working properly."
-      );
+      // Validate with dealer settings
+      await fetchDealerSettings(formData.dealerId);
+      showToast("success", "Dealer ID validated successfully!");
+      setIsValidated(true);
     } catch (error) {
       const errorMsg =
-        error?.message ||
-        "Connection test failed. Please check your endpoint and try again.";
+        error.message ||
+        "Failed to validate Dealer ID. Please check and try again.";
       showToast("error", errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleNext = () => {
-    if (isTekionSelected) {
-      if (!isValidated) {
-        showToast("error", "Please validate Dealer ID before proceeding.");
-        return;
-      }
-      // For Tekion, save apiEndpoint as dealerId, empty others
-      dispatch(
-        updateDMSIntegrations({
-          ...formData,
-          dealerId: formData.apiEndpoint,
-          apiEndpoint: "",
-          credentials: { username: "", password: "" },
-        })
-      );
-    } else {
-      // For other DMS, save without credentials
-      const { credentials, ...saveData } = formData;
-      dispatch(
-        updateDMSIntegrations({
-          ...saveData,
-          credentials: { username: "", password: "" }, // Empty for consistency
-        })
-      );
-    }
+    // Save with dealerId, empty others
+    dispatch(
+      updateDMSIntegrations({
+        ...formData,
+        apiEndpoint: "",
+        credentials: { username: "", password: "" },
+      })
+    );
   };
 
-  const isValid = isTekionSelected
-    ? !!formData.dmsSystem && !!formData.apiEndpoint && isValidated
-    : formData.dmsSystem && formData.apiEndpoint;
+  const isValid = !!formData.dmsSystem && !!formData.dealerId;
 
   const buttonText = isValidated
     ? "Validated ✓"
     : loading
     ? "Validating..."
-    : "Validate Connection";
+    : "Validate Dealer ID";
 
   return (
     <StepContainer
@@ -220,24 +163,23 @@ export default function Step4DMSIntegrations() {
           ))}
         </TextField>
 
-        {/* API Endpoint */}
+        {/* Dealer ID */}
         <TextField
-          label={isTekionSelected ? "Dealer ID" : "API Endpoint"}
-          type={isTekionSelected ? "text" : "url"}
-          name="apiEndpoint"
-          value={formData.apiEndpoint}
+          label="Dealer ID"
+          name="dealerId"
+          value={formData.dealerId}
           onChange={handleChange}
           required
           fullWidth
           variant="outlined"
-          placeholder={isTekionSelected ? "e.g., techmotors_4" : ""}
+          placeholder=""
         />
 
         {/* Test Connection Button */}
         <Button
           variant="contained"
           onClick={handleTestConnection}
-          disabled={loading}
+          disabled={loading || !formData.dealerId || isValidated}
           sx={{ width: { xs: "100%", md: "auto" } }}
         >
           {buttonText}

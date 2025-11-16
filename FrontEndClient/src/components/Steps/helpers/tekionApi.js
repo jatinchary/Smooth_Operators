@@ -41,26 +41,3 @@ export async function fetchLenders(dealerId) {
 
   return result.data;
 }
-
-export async function fetchCreditAppLenders(dealerId) {
-  const response = await fetch(`${API_BASE}/credit-app-lenders`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ dealerId }),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch credit app lenders: ${response.statusText}`
-    );
-  }
-
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.message || "Failed to fetch credit app lenders");
-  }
-
-  return result.data;
-}
