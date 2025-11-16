@@ -44,6 +44,7 @@ export default function Step2FinanceProviders() {
   const financeProviders = useSelector(
     (state) => state.config.financeProviders
   );
+  const generalInfo = useSelector((state) => state.config.generalInfo);
 
   const [formData, setFormData] = useState({
     ...financeProviders,
@@ -97,6 +98,7 @@ export default function Step2FinanceProviders() {
         body: JSON.stringify({
           dealerId: formData.routeOneConfig.dealerId,
           provider: "route-one",
+          generalInfo: generalInfo,
         }),
       });
 
@@ -127,6 +129,7 @@ export default function Step2FinanceProviders() {
         body: JSON.stringify({
           dealerId: formData.dealerTrackConfig.dealerId,
           provider: "dealertrack",
+          generalInfo: generalInfo,
         }),
       });
 
