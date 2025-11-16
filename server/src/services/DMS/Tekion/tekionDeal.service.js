@@ -62,12 +62,12 @@ export async function getCreditAppLenders(dealerId, requestId) {
 
   const settings = await getDealerSettings(dealerId, requestId);
 
-  // Extract fnIs (credit app lenders) from data, fallback to empty array
-  const creditAppLenders = settings.data?.fnIs || [];
+  // Extract lenders from data, fallback to empty array
+  const lenders = settings.data?.lenders || [];
 
-  if (creditAppLenders.length === 0) {
-    console.warn("No credit app lenders found for dealer:", dealerId);
+  if (lenders.length === 0) {
+    console.warn("No lenders found for dealer:", dealerId);
   }
 
-  return creditAppLenders;
+  return lenders;
 }

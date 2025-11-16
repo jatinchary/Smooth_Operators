@@ -7,6 +7,6 @@ import {
 const router = Router();
 
 router.post("/deal/settings", getDealerSettingsController);
-router.post("/credit-app-lenders", getCreditAppLendersController);
+router.post("/dms/credit-app-lenders", getCreditAppLendersController);
 
 export default router;

@@ -1,4 +1,7 @@
-import { getDealerSettings } from "../services/DMS/Tekion/tekionDeal.service.js";
+import {
+  getDealerSettings,
+  getCreditAppLenders,
+} from "../services/DMS/Tekion/tekionDeal.service.js";
 import { logWithRequestId } from "../services/logging.service.js";
 
 export const getDealerSettingsController = async (req, res) => {

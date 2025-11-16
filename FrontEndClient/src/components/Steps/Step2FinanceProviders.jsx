@@ -14,20 +14,9 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import { Settings, Download } from "lucide-react";
+import { fetchCreditAppLenders } from "./helpers/tekionApi";
 
 const providers = ["RouteOne", "DealerTrack", "Both"];
-
-// Mock API functions - replace with actual API calls
-const fetchDMSLenders = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return [
-    { id: "lender1", name: "Chase Auto Finance", dmsId: "DMS001" },
-    { id: "lender2", name: "Wells Fargo Dealer Services", dmsId: "DMS002" },
-    { id: "lender3", name: "Ally Financial", dmsId: "DMS003" },
-    { id: "lender4", name: "Capital One Auto Finance", dmsId: "DMS004" },
-    { id: "lender5", name: "Bank of America", dmsId: "DMS005" },
-  ];
-};
 
 export default function Step2FinanceProviders() {
   const dispatch = useDispatch();
@@ -35,6 +24,7 @@ export default function Step2FinanceProviders() {
     (state) => state.config.financeProviders
   );
   const generalInfo = useSelector((state) => state.config.generalInfo);
+  const dmsIntegrations = useSelector((state) => state.config.dmsIntegrations);
 
   const [formData, setFormData] = useState({
     ...financeProviders,
@@ -43,10 +33,11 @@ export default function Step2FinanceProviders() {
     dealerTrackConfig: {},
   });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
+  const [dmsLendersDealerId, setDmsLendersDealerId] = useState(null);
   const [toastState, setToastState] = useState({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const showToast = (severity, message) => {
@@ -58,7 +49,7 @@ export default function Step2FinanceProviders() {
   };
 
   const handleToastClose = (_, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setToastState((prev) => ({ ...prev, open: false }));
@@ -68,9 +59,9 @@ export default function Step2FinanceProviders() {
 
   // Fetch DMS Lenders
   const { data: dmsLenders, isLoading: dmsLendersLoading } = useQuery({
-    queryKey: ["dmsLenders"],
-    queryFn: fetchDMSLenders,
-    enabled: showDMSLenders,
+    queryKey: ["dmsLenders", dmsLendersDealerId],
+    queryFn: () => fetchCreditAppLenders(dmsLendersDealerId),
+    enabled: showDMSLenders && !!dmsLendersDealerId,
   });
 
   const handleProviderChange = (provider) => {
@@ -96,14 +87,15 @@ export default function Step2FinanceProviders() {
   const handleRouteOneSetup = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
-      showToast('error', errorMsg);
+      const errorMsg =
+        "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast("error", errorMsg);
       return;
     }
 
     if (!formData.routeOneConfig.dealerId) {
       const errorMsg = "Please enter a Dealer ID for RouteOne.";
-      showToast('error', errorMsg);
+      showToast("error", errorMsg);
       return;
     }
 
@@ -132,25 +124,32 @@ export default function Step2FinanceProviders() {
         ...prev,
         routeOneConfig: { ...(prev.routeOneConfig || {}), isConfigured: true },
       }));
-      showToast('success', 'RouteOne configuration setup successfully!');
+      showToast("success", "RouteOne configuration setup successfully!");
     } catch (error) {
       console.error("RouteOne setup error:", error);
-      const errorMsg = error.message || 'Failed to setup RouteOne configuration. Please try again.';
-      showToast('error', errorMsg);
+      const errorMsg =
+        error.message ||
+        "Failed to setup RouteOne configuration. Please try again.";
+      showToast("error", errorMsg);
     }
   };
 
   const handleDealerTrackSetup = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
-      showToast('error', errorMsg);
+      const errorMsg =
+        "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast("error", errorMsg);
       return;
     }
 
-    if (!formData.dealerTrackConfig.dealerId || !formData.dealerTrackConfig.apiKey) {
-      const errorMsg = "Please enter both Dealer ID and API Key for DealerTrack.";
-      showToast('error', errorMsg);
+    if (
+      !formData.dealerTrackConfig.dealerId ||
+      !formData.dealerTrackConfig.apiKey
+    ) {
+      const errorMsg =
+        "Please enter both Dealer ID and API Key for DealerTrack.";
+      showToast("error", errorMsg);
       return;
     }
 
@@ -182,24 +181,38 @@ export default function Step2FinanceProviders() {
           isConfigured: true,
         },
       }));
-      showToast('success', 'DealerTrack configuration setup successfully!');
+      showToast("success", "DealerTrack configuration setup successfully!");
     } catch (error) {
       console.error("DealerTrack setup error:", error);
-      const errorMsg = error.message || 'Failed to setup DealerTrack configuration. Please try again.';
-      showToast('error', errorMsg);
+      const errorMsg =
+        error.message ||
+        "Failed to setup DealerTrack configuration. Please try again.";
+      showToast("error", errorMsg);
     }
   };
 
   const handleImportDMSLenders = () => {
+    // Check if DMS is configured in Step 4
+    const dmsDealerId = dmsIntegrations?.dealerId;
+
+    if (!dmsDealerId) {
+      showToast(
+        "error",
+        "Please configure DMS integration in Step 4 first before importing DMS lenders."
+      );
+      return;
+    }
+
+    setDmsLendersDealerId(dmsDealerId);
     setShowDMSLenders(true);
-    showToast('success', 'DMS Lenders list loaded successfully.');
   };
 
   const handleImportCreditAppLenders = async () => {
     const dealershipId = generalInfo?.selectedDealershipId;
     if (!dealershipId) {
-      const errorMsg = "Dealership ID not selected in General Info. Please go back and select a dealership.";
-      showToast('error', errorMsg);
+      const errorMsg =
+        "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast("error", errorMsg);
       return;
     }
 
@@ -215,13 +228,13 @@ export default function Step2FinanceProviders() {
       interfaceOrgId = formData.routeOneConfig.dealerId;
     } else {
       const errorMsg = "No provider selected";
-      showToast('error', errorMsg);
+      showToast("error", errorMsg);
       return;
     }
 
     if (!interfaceOrgId) {
       const errorMsg = "Provider dealer ID not configured";
-      showToast('error', errorMsg);
+      showToast("error", errorMsg);
       return;
     }
 
@@ -243,11 +256,13 @@ export default function Step2FinanceProviders() {
       }
 
       await response.json(); // Just to consume response
-      showToast('success', 'Credit app lenders imported successfully!');
+      showToast("success", "Credit app lenders imported successfully!");
     } catch (error) {
       console.error("Import credit app lenders error:", error);
-      const errorMsg = error.message || 'Failed to import credit app lenders. Please try again.';
-      showToast('error', errorMsg);
+      const errorMsg =
+        error.message ||
+        "Failed to import credit app lenders. Please try again.";
+      showToast("error", errorMsg);
     }
   };
 
@@ -490,7 +505,7 @@ export default function Step2FinanceProviders() {
                             {lender.name}
                           </span>
                           <span className="text-dark-text-secondary text-sm ml-2">
-                            ({lender.dmsId})
+                            ({lender.lienHolder || lender.code || lender.id})
                           </span>
                         </div>
                       }
@@ -523,14 +538,14 @@ export default function Step2FinanceProviders() {
         open={toastState.open}
         autoHideDuration={4000}
         onClose={handleToastClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         TransitionComponent={ToastTransition}
       >
         <Alert
           onClose={handleToastClose}
           severity={toastState.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {toastState.message}
         </Alert>
