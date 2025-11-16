@@ -12,6 +12,28 @@ import { query } from "../services/database.service.js"; // Add this import
 
 const LENDING_BASE_PATH = process.env.LENDING_PLATFORM_LENDING_BASE_PATH;
 
+// Helper function to format phone/fax to US standard (XXX) XXX-XXXX
+function formatPhone(phoneStr) {
+  if (!phoneStr || typeof phoneStr !== "string") return "";
+
+  // Extract digits only
+  const digits = phoneStr.replace(/\D/g, "");
+
+  if (digits.length === 10) {
+    const formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+      3,
+      6
+    )}-${digits.slice(6, 10)}`;
+    console.log(`Formatted phone/fax: ${formatted}`);
+    return formatted;
+  } else {
+    console.warn(
+      `Phone/fax formatting failed for input "${phoneStr}" (digits: ${digits.length}), using empty`
+    );
+    return "";
+  }
+}
+
 function payloadIndicatesInvalidToken(payload) {
   try {
     const stack = [payload];
@@ -93,9 +115,9 @@ export async function setupFinanceProvider(req, res) {
       country: generalInfo.country || "USA",
       zipCode: generalInfo.zipCode || "",
       externalSystemId: uuidv4(), // Assuming dealerId is the external ID
-      phone: generalInfo.phone || "",
-      fax: generalInfo.fax || "",
-      website: generalInfo.website || "",
+      phone: formatPhone(generalInfo.phone),
+      fax: formatPhone(generalInfo.fax),
+      website: generalInfo.website,
       modifyusername: "System", // Hardcoded, adjust as needed
       isTest: true,
       interfaces: [
