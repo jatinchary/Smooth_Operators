@@ -229,7 +229,7 @@ export async function postProductList(req, res) {
 
 export async function importProducts(req, res) {
   try {
-    const { dealerId, vendorIds } = req.body || {};
+    const { dealerId, vendorIds, vendors = [] } = req.body || {}; // Add vendors array
 
     if (!dealerId) {
       return res.status(400).json({ error: "dealerId is required" });
@@ -241,7 +241,13 @@ export async function importProducts(req, res) {
         .json({ error: "vendorIds must be a non-empty array" });
     }
 
-    // Step 1: Fetch dealer products
+    // Create vendor map for quick lookup
+    const vendorMap = vendors.reduce((map, vendor) => {
+      map[vendor.id] = vendor;
+      return map;
+    }, {});
+
+    // Step 1: Fetch dealer products (unchanged)
     const dealerProductsRes = await fetch(
       `${fieApiBaseUrl}/EX1DealerProduct/apijson`,
       {
@@ -275,51 +281,79 @@ export async function importProducts(req, res) {
       dealerProducts.map((product) => product.EX1ProductID || product.ProductID)
     );
 
-    // Step 2: Fetch products for each vendor
-    const vendorProductsPromises = vendorIds.map(async (vendorId) => {
-      const vendorProductsRes = await fetch(
-        `${fieApiBaseUrl}/EX1ProductList/apijson`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${await getFieToken()}`,
-          },
-          body: JSON.stringify({
-            EX1ProductListRequest: {
-              EX1ProviderID: vendorId,
+    // Step 2: Fetch products for each vendor, tracking vendor info
+    const vendorProductsWithInfo = await Promise.all(
+      vendorIds.map(async (vendorId, index) => {
+        const vendorProductsRes = await fetch(
+          `${fieApiBaseUrl}/EX1ProductList/apijson`,
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${await getFieToken()}`,
             },
-          }),
+            body: JSON.stringify({
+              EX1ProductListRequest: {
+                EX1ProviderID: vendorId,
+              },
+            }),
+          }
+        );
+
+        if (!vendorProductsRes.ok) {
+          throw new Error(`Failed to fetch products for vendor ${vendorId}`);
         }
-      );
 
-      if (!vendorProductsRes.ok) {
-        throw new Error(`Failed to fetch products for vendor ${vendorId}`);
-      }
+        const vendorProductsData = await vendorProductsRes.json();
+        const products =
+          vendorProductsData?.EX1ProductListResponse?.Products?.Product || [];
 
-      const vendorProductsData = await vendorProductsRes.json();
-      return (
-        vendorProductsData?.EX1ProductListResponse?.Products?.Product || []
-      );
-    });
-
-    const vendorProductsArrays = await Promise.all(vendorProductsPromises);
-
-    // Flatten all vendor products
-    const allVendorProducts = vendorProductsArrays.flat();
-
-    // Step 3: Find common products
-    const commonProducts = allVendorProducts.filter((vendorProduct) => {
-      const vendorProductId = vendorProduct.EX1ProductID;
-      return dealerProductIds.has(vendorProductId);
-    });
-
-    // Remove duplicates based on EX1ProductID
-    const uniqueCommonProducts = commonProducts.filter(
-      (product, index, self) =>
-        index === self.findIndex((p) => p.EX1ProductID === product.EX1ProductID)
+        // Attach vendor info to each product
+        return products.map((product) => ({
+          ...product,
+          vendorId,
+          vendorIndex: index, // For mapping back
+          vendorName: vendorMap[vendorId]?.name || `Vendor ${vendorId}`,
+        }));
+      })
     );
+
+    // Flatten all vendor products with vendor info
+    const allVendorProductsWithInfo = vendorProductsWithInfo.flat();
+
+    // Step 3: Find common products and collect vendors
+    const commonProductsMap = new Map(); // Key: EX1ProductID, Value: product with vendors array
+
+    allVendorProductsWithInfo.forEach((vendorProduct) => {
+      const productId = vendorProduct.EX1ProductID;
+      if (dealerProductIds.has(productId)) {
+        if (!commonProductsMap.has(productId)) {
+          // First time seeing this product - initialize
+          const baseProduct = {
+            EX1ProductID: productId,
+            ProductName: vendorProduct.ProductName,
+            ProductCode: vendorProduct.ProductCode,
+            vendors: [], // Array of {id, name}
+          };
+          commonProductsMap.set(productId, baseProduct);
+        }
+
+        // Add this vendor to the product's vendors array (dedup by id)
+        const currentProduct = commonProductsMap.get(productId);
+        const existingVendor = currentProduct.vendors.find(
+          (v) => v.id === vendorProduct.vendorId
+        );
+        if (!existingVendor) {
+          currentProduct.vendors.push({
+            id: vendorProduct.vendorId,
+            name: vendorProduct.vendorName,
+          });
+        }
+      }
+    });
+
+    const uniqueCommonProducts = Array.from(commonProductsMap.values());
 
     return res.status(200).json({
       success: true,

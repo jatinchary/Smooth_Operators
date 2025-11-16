@@ -84,5 +84,6 @@ export const transformImportedProducts = (importedProducts) => {
     id: product.EX1ProductID,
     name: product.ProductName,
     category: product.ProductCode || "General",
+    vendors: product.vendors || [], // Include vendors array
   }));
 };

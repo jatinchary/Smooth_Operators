@@ -75,9 +75,13 @@ const ProductImport = ({ onImportSuccess }) => {
       return;
     }
 
+    const vendorIds = productsState.selectedVendors.map((v) => v.id);
+    const vendors = productsState.selectedVendors; // Full objects
+
     importMutation.mutate({
       dealerId: productsState.dealerId,
-      vendorIds: productsState.selectedVendors,
+      vendorIds,
+      vendors, // Send full vendor objects for backend to use
     });
   };
 

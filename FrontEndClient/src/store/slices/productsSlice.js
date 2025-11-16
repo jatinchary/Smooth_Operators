@@ -9,7 +9,7 @@ const initialState = {
     penUsername: "",
     penPassword: "",
   },
-  selectedVendors: [],
+  selectedVendors: [], // Now array of full {id, name} objects
   selectedProducts: [],
   importedProducts: [], // Array of imported product objects with id, name, category
   productConfigurations: [], // Array of {productId, productName, dealTypes: [], vehicleTypes: []}
@@ -29,15 +29,17 @@ const productsSlice = createSlice({
       state.credentials = { ...state.credentials, ...action.payload };
     },
     setSelectedVendors: (state, action) => {
-      state.selectedVendors = action.payload;
+      state.selectedVendors = action.payload; // Array of full objects
     },
     toggleVendor: (state, action) => {
-      const vendorId = action.payload;
-      const index = state.selectedVendors.indexOf(vendorId);
+      const vendor = action.payload; // Full vendor object {id, name}
+      const vendorId = vendor.id;
+      const index = state.selectedVendors.findIndex((v) => v.id === vendorId);
+
       if (index > -1) {
         state.selectedVendors.splice(index, 1);
       } else {
-        state.selectedVendors.push(vendorId);
+        state.selectedVendors.push(vendor);
       }
     },
     setSelectedProducts: (state, action) => {

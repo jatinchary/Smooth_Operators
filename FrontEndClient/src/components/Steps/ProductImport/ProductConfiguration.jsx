@@ -54,6 +54,7 @@ const ProductConfiguration = () => {
     return {
       id: productId,
       name: importedProduct?.name || `Product ${productId}`,
+      vendors: importedProduct?.vendors || [], // Include vendors
       dealTypes: config?.dealTypes || [],
       vehicleTypes: config?.vehicleTypes || [],
     };
@@ -85,7 +86,13 @@ const ProductConfiguration = () => {
             className="bg-dark-bg rounded-lg p-4 border border-dark-border"
           >
             <h4 className="font-semibold text-dark-text mb-4">
-              {product.name}
+              {(() => {
+                const displayName = product.name;
+                if (product.vendors.length === 0) return displayName;
+                if (product.vendors.length === 1)
+                  return `${displayName} (${product.vendors[0].name})`;
+                return `${displayName} (Multiple Vendors)`;
+              })()}
             </h4>
 
             {/* Deal Types */}

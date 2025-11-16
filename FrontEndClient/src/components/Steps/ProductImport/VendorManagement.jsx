@@ -113,23 +113,46 @@ const VendorManagement = () => {
 
               {/* Paginated vendors list */}
               <div className="space-y-2">
-                {paginatedVendors?.map((vendor) => (
+                {paginatedVendors?.map((vendor, index) => (
                   <div
-                    key={vendor.id}
+                    key={vendor.id || `unknown-${index}`}
                     className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all cursor-pointer"
-                    onClick={() => dispatch(toggleVendor(vendor.id))}
+                    onClick={() => {
+                      dispatch(
+                        toggleVendor({
+                          id: vendor.id,
+                          name: vendor.name || "Unknown",
+                        })
+                      );
+                    }}
                   >
                     <FormControlLabel
                       control={
                         <Checkbox
-                          checked={productsState.selectedVendors.includes(
-                            vendor.id
+                          checked={productsState.selectedVendors.some(
+                            (v) => v.id === vendor.id
                           )}
-                          onClick={(e) => dispatch(toggleVendor(vendor.id))}
+                          onClick={(e) => {
+                            // e.stopPropagation();
+                            dispatch(
+                              toggleVendor({
+                                id: vendor.id,
+                                name: vendor.name || "Unknown",
+                              })
+                            );
+                          }}
                         />
                       }
-                      onClick={() => dispatch(toggleVendor(vendor.id))}
-                      label={vendor.name}
+                      onClick={(e) => {
+                        // e.stopPropagation();
+                        dispatch(
+                          toggleVendor({
+                            id: vendor.id,
+                            name: vendor.name || "Unknown",
+                          })
+                        );
+                      }}
+                      label={vendor.name || "Unknown Vendor"}
                     />
                   </div>
                 ))}
