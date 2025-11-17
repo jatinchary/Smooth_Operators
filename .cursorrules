@@ -4,6 +4,7 @@
 - Do NOT write tests unless the user explicitly requests it
 - Never create test files, test directories, or testing code without explicit user approval
 - Avoid suggesting or implementing testing frameworks unless specifically asked
+- If you are asked to fix any playwright failing test, use the browser tool if enabled to reproduce the steps that are happening in the playwright test to better debug and understand and fix the issue
 
 ## Code Quality Rules
 - Always follow the security rules defined in the workspace
