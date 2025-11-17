@@ -3,10 +3,19 @@ import {
   getCreditAppLenders,
 } from "../services/DMS/Tekion/tekionDeal.service.js";
 import { logWithRequestId } from "../services/logging.service.js";
+import { query } from "../services/database.service.js";
 
 export const getDealerSettingsController = async (req, res) => {
   const requestId = req.requestId;
-  const { dealerId } = req.body;
+  const { dealerId, dealershipId } = req.body;
+
+  if (!dealerId) {
+    return res.status(400).json({ error: "dealerId is required" });
+  }
+
+  if (!dealershipId) {
+    return res.status(400).json({ error: "dealershipId is required" });
+  }
 
   try {
     logWithRequestId("info", "Fetching Tekion dealer settings", requestId, {
@@ -14,6 +23,53 @@ export const getDealerSettingsController = async (req, res) => {
     });
 
     const settings = await getDealerSettings(dealerId, requestId);
+
+    // Save Tekion settings to dealership_variables
+    if (dealershipId && dealerId) {
+      // Insert tekion_dealer_id if not exists
+      const existingTekion = await query(
+        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ?`,
+        ["tekion_dealer_id", dealershipId]
+      );
+      if (!existingTekion.rows || existingTekion.rows.length === 0) {
+        try {
+          await query(
+            `INSERT INTO dealership_variables (name, value, client_editable, dealership_id, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            ["tekion_dealer_id", dealerId, 0, dealershipId]
+          );
+          console.log(
+            `Saved tekion_dealer_id ${dealerId} for dealership ${dealershipId}`
+          );
+        } catch (dbError) {
+          console.error(
+            `Failed to save tekion_dealer_id for dealership ${dealershipId}:`,
+            dbError
+          );
+        }
+      }
+
+      // Insert dms_type if not exists
+      const existingDmsType = await query(
+        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ?`,
+        ["dms_type", dealershipId]
+      );
+      if (!existingDmsType.rows || existingDmsType.rows.length === 0) {
+        try {
+          await query(
+            `INSERT INTO dealership_variables (name, value, client_editable, dealership_id, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            ["dms_type", "Tekion", 0, dealershipId]
+          );
+          console.log(`Saved dms_type Tekion for dealership ${dealershipId}`);
+        } catch (dbError) {
+          console.error(
+            `Failed to save dms_type for dealership ${dealershipId}:`,
+            dbError
+          );
+        }
+      }
+    }
 
     logWithRequestId(
       "info",
@@ -24,7 +80,7 @@ export const getDealerSettingsController = async (req, res) => {
 
     res.json({
       success: true,
-      data: settings,
+      data: { ...settings, dealershipId },
     });
   } catch (error) {
     logWithRequestId(

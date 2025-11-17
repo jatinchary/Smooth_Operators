@@ -38,17 +38,19 @@ export const fetchVendors = async (dealerId) => {
 
 /**
  * Import products that are common between dealer and selected vendors
- * @param {string} dealerId - The dealer ID
- * @param {Array<string>} vendorIds - Array of selected vendor IDs
+ * @param {Object} params - Object containing dealerId, vendorIds, dealershipId
+ * @param {string} params.dealerId - The dealer ID
+ * @param {Array<string>} params.vendorIds - Array of selected vendor IDs
+ * @param {string} params.dealershipId - The dealership ID
  * @returns {Promise<Object>} Response containing common products
  */
-export const importProducts = async (dealerId, vendorIds) => {
+export const importProducts = async ({ dealerId, vendorIds, dealershipId }) => {
   const response = await fetch("/api/ex1/import-products", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ dealerId, vendorIds }),
+    body: JSON.stringify({ dealerId, vendorIds, dealershipId }),
   });
 
   if (!response.ok) {

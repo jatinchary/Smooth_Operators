@@ -18,12 +18,12 @@ import { Download, CheckCircle, AlertCircle } from "lucide-react";
 const ProductImport = ({ onImportSuccess }) => {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products);
+  const generalInfo = useSelector((state) => state.config.generalInfo);
   const [importedProducts, setLocalImportedProducts] = useState([]);
   const [showImportedProducts, setShowImportedProducts] = useState(false);
 
   const importMutation = useMutation({
-    mutationFn: ({ dealerId, vendorIds }) =>
-      importProductsApi(dealerId, vendorIds),
+    mutationFn: (params) => importProductsApi(params),
     onSuccess: (data) => {
       const transformedProducts = transformImportedProducts(
         data.commonProducts
@@ -82,6 +82,7 @@ const ProductImport = ({ onImportSuccess }) => {
       dealerId: productsState.dealerId,
       vendorIds,
       vendors, // Send full vendor objects for backend to use
+      dealershipId: generalInfo.selectedDealershipId || null,
     });
   };
 
@@ -131,7 +132,7 @@ const ProductImport = ({ onImportSuccess }) => {
       {importMutation.isSuccess && showImportedProducts && (
         <div className="mb-4 p-4 bg-brand-focus/20 border border-brand-focus rounded-lg">
           <div className="flex items-center gap-2 text-dark-text">
-            <CheckCircle className="w-5 h-5" style={{ color: '#22c55e' }} />
+            <CheckCircle className="w-5 h-5" style={{ color: "#22c55e" }} />
             <span className="font-medium">Import Successful</span>
           </div>
           <p className="text-dark-text-secondary mt-1">

@@ -6,6 +6,7 @@ const fieApiBaseUrl =
   process.env.FIE_API_BASE_URL ||
   "https://uat-fandiexpress.app.coxautoinc.com/dspapi";
 import { getFieToken, refreshTokenNow } from "../services/fiAuth.service.js";
+import { query } from "../services/database.service.js";
 
 function payloadIndicatesInvalidToken(payload) {
   try {
@@ -229,7 +230,7 @@ export async function postProductList(req, res) {
 
 export async function importProducts(req, res) {
   try {
-    const { dealerId, vendorIds } = req.body || {}; // Remove vendors
+    const { dealerId, vendorIds, dealershipId } = req.body || {}; // Remove vendors
 
     if (!dealerId) {
       return res.status(400).json({ error: "dealerId is required" });
@@ -239,6 +240,10 @@ export async function importProducts(req, res) {
       return res
         .status(400)
         .json({ error: "vendorIds must be a non-empty array" });
+    }
+
+    if (!dealershipId) {
+      return res.status(400).json({ error: "dealershipId is required" });
     }
 
     // Fetch providers list to get names
@@ -383,6 +388,36 @@ export async function importProducts(req, res) {
     });
 
     const uniqueCommonProducts = Array.from(commonProductsMap.values());
+
+    // Save to dealership_variables if not exists
+    if (dealershipId && dealerId) {
+      const existingResult = await query(
+        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ?`,
+        ["pi_fiexpress_dealership_id", dealershipId]
+      );
+      if (!existingResult.rows || existingResult.rows.length === 0) {
+        try {
+          await query(
+            `INSERT INTO dealership_variables (name, value, client_editable, dealership_id, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            ["pi_fiexpress_dealership_id", dealerId, 0, dealershipId]
+          );
+          console.log(
+            `Saved pi_fiexpress_dealership_id ${dealerId} for dealership ${dealershipId}`
+          );
+        } catch (dbError) {
+          console.error(
+            `Failed to save pi_fiexpress_dealership_id for dealership ${dealershipId}:`,
+            dbError
+          );
+          // Continue without failing
+        }
+      } else {
+        console.log(
+          `pi_fiexpress_dealership_id already exists for dealership ${dealershipId}`
+        );
+      }
+    }
 
     return res.status(200).json({
       success: true,

@@ -27,6 +27,7 @@ const dmsSystems = [
 export default function Step4DMSIntegrations() {
   const dispatch = useDispatch();
   const dmsIntegrations = useSelector((state) => state.config.dmsIntegrations);
+  const generalInfo = useSelector((state) => state.config.generalInfo);
 
   const [formData, setFormData] = useState({
     ...dmsIntegrations,
@@ -67,11 +68,19 @@ export default function Step4DMSIntegrations() {
       return;
     }
 
+    if (!generalInfo.selectedDealershipId) {
+      showToast("error", "Dealership not selected.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       // Validate with dealer settings
-      await fetchDealerSettings(formData.dealerId);
+      await fetchDealerSettings({
+        dealerId: formData.dealerId,
+        dealershipId: generalInfo.selectedDealershipId,
+      });
       showToast("success", "Dealer ID validated successfully!");
       setIsValidated(true);
     } catch (error) {
@@ -114,7 +123,14 @@ export default function Step4DMSIntegrations() {
           <div className="flex items-start gap-3">
             <Server className="w-5 h-5 text-brand-focus mt-0.5" />
             <div>
-              <h4 className="font-semibold text-brand-focus mb-1" style={{ background: 'none', WebkitTextFillColor: 'unset', color: 'var(--theme-primary, #E7E9BB)' }}>
+              <h4
+                className="font-semibold text-brand-focus mb-1"
+                style={{
+                  background: "none",
+                  WebkitTextFillColor: "unset",
+                  color: "var(--theme-primary, #E7E9BB)",
+                }}
+              >
                 DMS Integration
               </h4>
               <p className="text-sm text-dark-text-secondary">

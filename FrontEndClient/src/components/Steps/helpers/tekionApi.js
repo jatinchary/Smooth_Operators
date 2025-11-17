@@ -1,12 +1,20 @@
 const API_BASE = "/api"; // Backend routes mounted under /api
 
-export async function fetchDealerSettings(dealerId) {
+export async function fetchDealerSettings({ dealerId, dealershipId }) {
+  if (!dealerId) {
+    throw new Error("Dealer ID is required");
+  }
+
+  if (!dealershipId) {
+    throw new Error("Dealership ID is required");
+  }
+
   const response = await fetch(`${API_BASE}/deal/settings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ dealerId }),
+    body: JSON.stringify({ dealerId, dealershipId }),
   });
 
   if (!response.ok) {
