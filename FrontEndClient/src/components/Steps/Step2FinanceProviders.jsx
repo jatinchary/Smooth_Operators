@@ -698,7 +698,7 @@ export default function Step2FinanceProviders() {
               variant="contained"
               startIcon={<Download className="w-4 h-4" />}
             >
-              Import Credit App Lenders
+              Associate Lenders with Dealership
             </Button>
           </div>
         </div>
