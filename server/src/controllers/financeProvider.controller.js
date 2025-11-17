@@ -188,7 +188,7 @@ export async function setupFinanceProvider(req, res) {
 
       // Extract orgId and save to database
       const orgId = responsePayload?.orgId;
-      const dealershipId = req.body.dealershipId || 7;
+      const dealershipId = req.body.dealershipId;
       if (orgId && dealershipId) {
         const recordId = uuidv4();
         try {
@@ -211,6 +211,26 @@ export async function setupFinanceProvider(req, res) {
         console.warn(
           `Missing orgId or dealershipId: orgId=${orgId}, dealershipId=${dealershipId}`
         );
+      }
+
+      // Save interfaceOrgId to dealership_variables for route-one
+      if (provider === "route-one" && interfaceOrgId && dealershipId) {
+        try {
+          await query(
+            `INSERT INTO dealership_variables (name, value, client_editable, dealership_id, created_at, updated_at) 
+             VALUES (?, ?, ?, ?, NOW(), NOW())`,
+            ["routeone_dealer", interfaceOrgId, 0, dealershipId]
+          );
+          console.log(
+            `Saved routeone_dealer interfaceOrgId ${interfaceOrgId} for dealership ${dealershipId}`
+          );
+        } catch (dbError) {
+          console.error(
+            `Failed to save interfaceOrgId to dealership_variables for dealership ${dealershipId}:`,
+            dbError
+          );
+          // Continue without failing the response
+        }
       }
 
       return res.status(200).json({
@@ -267,6 +287,26 @@ export async function setupFinanceProvider(req, res) {
             console.warn(
               `Missing orgId or dealershipId: orgId=${orgId}, dealershipId=${dealershipId}`
             );
+          }
+
+          // Save interfaceOrgId to dealership_variables for route-one
+          if (provider === "route-one" && interfaceOrgId && dealershipId) {
+            try {
+              await query(
+                `INSERT INTO dealership_variables (name, value, client_editable, dealership_id, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, NOW(), NOW())`,
+                ["routeone_dealer", interfaceOrgId, 0, dealershipId]
+              );
+              console.log(
+                `Saved routeone_dealer interfaceOrgId ${interfaceOrgId} for dealership ${dealershipId}`
+              );
+            } catch (dbError) {
+              console.error(
+                `Failed to save interfaceOrgId to dealership_variables for dealership ${dealershipId}:`,
+                dbError
+              );
+              // Continue without failing the response
+            }
           }
 
           return res.status(200).json({
