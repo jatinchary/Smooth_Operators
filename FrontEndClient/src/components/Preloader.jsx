@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 export default function Preloader() {
   const [isVisible, setIsVisible] = useState(true)
   const [curtainsVisible, setCurtainsVisible] = useState(false)
   const [curtainsAnimating, setCurtainsAnimating] = useState(false)
+  const currentTheme = useSelector((state) => state.config.theme || 'gold')
+  
+  // Theme colors
+  const themeColor = currentTheme === 'blue' ? '#515ada' : '#E7E9BB'
 
   useEffect(() => {
     /**
@@ -57,7 +62,9 @@ export default function Preloader() {
         className={`mcurtain mcurtain-left ${curtainsVisible ? 'mcurtain-visible' : ''} ${curtainsAnimating ? 'mcurtain-animate' : ''}`}
         style={{ 
           animationDelay: '0s',
-          backgroundImage: `url('/src/assets/curtain-background-left.svg')`
+          backgroundImage: currentTheme === 'blue'
+            ? `url('/src/assets/curtain-background-blue-left.svg')`
+            : `url('/src/assets/curtain-background-left.svg')`
         }}
       ></div>
       <div 
@@ -74,11 +81,11 @@ export default function Preloader() {
             {/* Dealership Deal Icon - Car with Checkmark and Handshake */}
             <g transform="translate(640, 880) scale(1.5)">
               {/* Checkmark Circle */}
-              <circle cx="-80" cy="-30" r="22" stroke="#E7E9BB" strokeWidth="6" fill="none"/>
-              <polyline points="-90,-30 -83,-20 -70,-40" stroke="#E7E9BB" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="-80" cy="-30" r="22" stroke={themeColor} strokeWidth="6" fill="none"/>
+              <polyline points="-90,-30 -83,-20 -70,-40" stroke={themeColor} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
               
               {/* Car Front View */}
-              <g stroke="#E7E9BB" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <g stroke={themeColor} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 {/* Car roof and body */}
                 <path d="M-45,-30 L-35,-45 L35,-45 L45,-30 L55,-25 L55,15 L45,20 L40,30 L-40,30 L-45,20 L-55,15 L-55,-25 Z"/>
                 {/* Windshield */}
@@ -98,7 +105,7 @@ export default function Preloader() {
               </g>
               
               {/* Handshake */}
-              <g transform="translate(0, 70)" stroke="#E7E9BB" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <g transform="translate(0, 70)" stroke={themeColor} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 {/* Left sleeve (cuff) */}
                 <rect x="-70" y="25" width="20" height="18" rx="2"/>
                 
@@ -137,7 +144,7 @@ export default function Preloader() {
             <text 
               x="640" 
               y="1150" 
-              fill="#E7E9BB" 
+              fill={themeColor}
               fontFamily="Staatliches" 
               fontSize="100" 
               fontWeight="700"
@@ -154,7 +161,9 @@ export default function Preloader() {
         className={`mcurtain mcurtain-right ${curtainsVisible ? 'mcurtain-visible' : ''} ${curtainsAnimating ? 'mcurtain-animate' : ''}`}
         style={{ 
           animationDelay: '0.48s',
-          backgroundImage: `url('/src/assets/curtain-background-right.svg')`
+          backgroundImage: currentTheme === 'blue'
+            ? `url('/src/assets/curtain-background-blue-right.svg')`
+            : `url('/src/assets/curtain-background-right.svg')`
         }}
       ></div>
     </div>

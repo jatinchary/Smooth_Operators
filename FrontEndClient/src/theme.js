@@ -195,8 +195,14 @@ export const createAppTheme = (themeName = 'gold') => {
               borderColor: themeName === 'blue' ? '#e5e7eb' : '#3d4354',
                 borderWidth: '1px',
               },
+              '&:hover': {
+                backgroundColor: themeName === 'blue' ? '#ffffff' : '#1a1d25',
+              },
               '&:hover fieldset': {
                 borderColor: colors.primary,
+              },
+              '&.Mui-focused': {
+                backgroundColor: themeName === 'blue' ? '#ffffff' : '#1a1d25',
               },
               '&.Mui-focused fieldset': {
                 borderColor: colors.primary,
