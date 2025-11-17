@@ -351,6 +351,60 @@ a {
   box-shadow: none !important;
 }
 
+/* Remove blue backgrounds from inputs - override autofill and focused states */
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-root input,
+.MuiOutlinedInput-root textarea {
+  background-color: var(--theme-surface, #252932) !important;
+}
+
+[data-theme="blue"] .MuiOutlinedInput-root,
+[data-theme="blue"] .MuiOutlinedInput-root input,
+[data-theme="blue"] .MuiOutlinedInput-root textarea {
+  background-color: #ffffff !important;
+}
+
+.MuiOutlinedInput-root:hover,
+.MuiOutlinedInput-root.Mui-focused,
+.MuiOutlinedInput-root input:hover,
+.MuiOutlinedInput-root input:focus,
+.MuiOutlinedInput-root textarea:hover,
+.MuiOutlinedInput-root textarea:focus {
+  background-color: var(--theme-surface, #252932) !important;
+}
+
+[data-theme="blue"] .MuiOutlinedInput-root:hover,
+[data-theme="blue"] .MuiOutlinedInput-root.Mui-focused,
+[data-theme="blue"] .MuiOutlinedInput-root input:hover,
+[data-theme="blue"] .MuiOutlinedInput-root input:focus,
+[data-theme="blue"] .MuiOutlinedInput-root textarea:hover,
+[data-theme="blue"] .MuiOutlinedInput-root textarea:focus {
+  background-color: #ffffff !important;
+}
+
+/* Override browser autofill blue background */
+.MuiOutlinedInput-root input:-webkit-autofill,
+.MuiOutlinedInput-root input:-webkit-autofill:hover,
+.MuiOutlinedInput-root input:-webkit-autofill:focus,
+.MuiOutlinedInput-root textarea:-webkit-autofill,
+.MuiOutlinedInput-root textarea:-webkit-autofill:hover,
+.MuiOutlinedInput-root textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--theme-surface, #252932) inset !important;
+  -webkit-text-fill-color: var(--theme-text, #e5e7eb) !important;
+  background-color: var(--theme-surface, #252932) !important;
+}
+
+[data-theme="blue"] .MuiOutlinedInput-root input:-webkit-autofill,
+[data-theme="blue"] .MuiOutlinedInput-root input:-webkit-autofill:hover,
+[data-theme="blue"] .MuiOutlinedInput-root input:-webkit-autofill:focus,
+[data-theme="blue"] .MuiOutlinedInput-root textarea:-webkit-autofill,
+[data-theme="blue"] .MuiOutlinedInput-root textarea:-webkit-autofill:hover,
+[data-theme="blue"] .MuiOutlinedInput-root textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  background-color: #ffffff !important;
+}
+
 /* Disabled inputs - no hover effects */
 .MuiOutlinedInput-root.Mui-disabled:hover fieldset {
   border-color: #3d4354 !important;
