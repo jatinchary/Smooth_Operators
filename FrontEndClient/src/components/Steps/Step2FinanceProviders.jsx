@@ -14,7 +14,7 @@ import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import Pagination from "@mui/material/Pagination";
 import InputAdornment from "@mui/material/InputAdornment";
-import { Settings, Download, Search } from "lucide-react";
+import { Settings, Download, Search, Save } from "lucide-react";
 import { fetchCreditAppLenders } from "./helpers/tekionApi";
 
 const providers = ["RouteOne", "DealerTrack", "Both"];
@@ -325,6 +325,53 @@ export default function Step2FinanceProviders() {
     });
   };
 
+  const handleSaveLenders = async () => {
+    const dealershipId = generalInfo?.selectedDealershipId;
+    if (!dealershipId) {
+      const errorMsg =
+        "Dealership ID not selected in General Info. Please go back and select a dealership.";
+      showToast("error", errorMsg);
+      return;
+    }
+
+    const selectedLenders = formData.dmsLenders || [];
+    if (selectedLenders.length === 0) {
+      const errorMsg = "Please select at least one lender to save.";
+      showToast("error", errorMsg);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/save-credit-app-lenders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dealershipId,
+          lenders: selectedLenders,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Save failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Save lenders response:", data);
+
+      const successMsg = `Successfully saved ${data.data.saved} lender(s)${
+        data.data.failed > 0 ? ` (${data.data.failed} failed)` : ""
+      }`;
+      showToast("success", successMsg);
+    } catch (error) {
+      console.error("Save lenders error:", error);
+      const errorMsg =
+        error.message || "Failed to save lenders. Please try again.";
+      showToast("error", errorMsg);
+    }
+  };
+
   const handleNext = () => {
     dispatch(updateFinanceProviders(formData));
   };
@@ -506,13 +553,25 @@ export default function Step2FinanceProviders() {
             <h3 className="text-lg font-semibold text-dark-text">
               Import DMS Lenders ID from Credit App Lenders
             </h3>
-            <Button
-              onClick={handleImportDMSLenders}
-              variant="contained"
-              startIcon={<Download className="w-4 h-4" />}
-            >
-              Import DMS Lenders
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleImportDMSLenders}
+                variant="contained"
+                startIcon={<Download className="w-4 h-4" />}
+              >
+                Import DMS Lenders
+              </Button>
+              {showDMSLenders && formData.dmsLenders?.length > 0 && (
+                <Button
+                  onClick={handleSaveLenders}
+                  variant="contained"
+                  color="success"
+                  startIcon={<Save className="w-4 h-4" />}
+                >
+                  Save Lenders ({formData.dmsLenders.length})
+                </Button>
+              )}
+            </div>
           </div>
 
           {showDMSLenders && (

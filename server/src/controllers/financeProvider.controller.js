@@ -452,3 +452,207 @@ export async function importCreditAppLenders(req, res) {
     return res.status(500).json({ error: "Unexpected server error" });
   }
 }
+
+export async function saveCreditAppLenders(req, res) {
+  let connection;
+  try {
+    const { dealershipId, lenders } = req.body || {};
+
+    if (!dealershipId) {
+      return res.status(400).json({ error: "dealershipId is required" });
+    }
+
+    if (!lenders || !Array.isArray(lenders) || lenders.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "lenders array is required and must not be empty" });
+    }
+
+    // Fetch all states from database to create a mapping
+    const statesResult = await query(`SELECT id, abbreviation FROM states`);
+
+    if (!statesResult.rows || !statesResult.rows.length) {
+      return res
+        .status(500)
+        .json({ error: "Failed to fetch states from database" });
+    }
+
+    // Create a map of state abbreviation to state ID
+    const stateMap = {};
+    for (const state of statesResult.rows) {
+      stateMap[state.abbreviation.toUpperCase()] = state.id;
+    }
+
+    console.log(`Fetched ${Object.keys(stateMap).length} states from database`);
+
+    // Get a connection for transaction
+    connection = (await query.constructor.prototype.constructor.prototype
+      .getConnection)
+      ? await query.constructor.prototype.constructor.prototype.getConnection()
+      : null;
+
+    // If we can't get a transaction connection, we'll just process without transactions
+    const savedLenders = [];
+    const failedLenders = [];
+
+    for (const lender of lenders) {
+      try {
+        // Extract and validate lender data
+        const dmsLenderId = lender.id || null; // DMS lender ID for reference only
+        const creditAppLenderId = null; // Keep as null for now - different from DMS lender ID
+        const name = lender.name || lender.lienHolder || "Unknown Lender";
+        const addressLine1 =
+          lender.lienHolderAddress?.addressLine1 ||
+          lender.lienHolderAddress?.street ||
+          lender.lienHolderAddress?.address ||
+          "";
+        const addressLine2 = lender.lienHolderAddress?.addressLine2 || null;
+        const city = lender.lienHolderAddress?.city || "";
+        const stateAbbr = lender.lienHolderAddress?.state || "";
+        const zipCode =
+          lender.lienHolderAddress?.zipCode ||
+          lender.lienHolderAddress?.zip ||
+          "";
+        const phone = lender.phone || null;
+        const email = lender.email || null;
+        const fax = lender.fax || null;
+
+        // Validate required fields
+        if (!name || !city || !stateAbbr || !zipCode) {
+          console.warn(
+            `Skipping lender ${dmsLenderId}: Missing required fields`
+          );
+          failedLenders.push({
+            dmsLenderId,
+            name,
+            reason: "Missing required fields (name, city, state, or zip code)",
+          });
+          continue;
+        }
+
+        // Get state ID from mapping
+        const stateId = stateMap[stateAbbr.toUpperCase()];
+        if (!stateId) {
+          console.warn(
+            `Skipping lender ${dmsLenderId}: Invalid state abbreviation ${stateAbbr}`
+          );
+          failedLenders.push({
+            dmsLenderId,
+            name,
+            reason: `Invalid state abbreviation: ${stateAbbr}`,
+          });
+          continue;
+        }
+
+        // Check if lender already exists by name, city, and state
+        const lenderResult = await query(
+          `SELECT id FROM lenders 
+           WHERE name = ? 
+           AND city = ? 
+           AND state_id = ? 
+           AND deleted_at IS NULL 
+           LIMIT 1`,
+          [name, city, stateId]
+        );
+
+        let lenderId;
+
+        if (lenderResult && lenderResult.rows && lenderResult.rows.length > 0) {
+          // Update existing lender
+          lenderId = lenderResult.rows[0].id;
+          await query(
+            `UPDATE lenders 
+             SET address_line_1 = ?, 
+                 address_line_2 = ?, 
+                 zip_code = ?, 
+                 phone = ?, 
+                 email = ?, 
+                 fax = ?, 
+                 updated_at = NOW()
+             WHERE id = ?`,
+            [addressLine1, addressLine2, zipCode, phone, email, fax, lenderId]
+          );
+          console.log(`Updated existing lender ID ${lenderId}: ${name}`);
+        } else {
+          // Insert new lender
+          const insertResult = await query(
+            `INSERT INTO lenders 
+             (credit_app_lender_id, name, address_line_1, address_line_2, city, state_id, zip_code, phone, email, fax, active, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+            [
+              creditAppLenderId,
+              name,
+              addressLine1,
+              addressLine2,
+              city,
+              stateId,
+              zipCode,
+              phone,
+              email,
+              fax,
+            ]
+          );
+          lenderId = insertResult.rows.insertId;
+          console.log(`Inserted new lender ID ${lenderId}: ${name}`);
+        }
+
+        // Check if lender_dealerships relationship already exists
+        const relationshipResult = await query(
+          `SELECT id FROM lender_dealerships 
+           WHERE lender_id = ? AND dealership_id = ? AND deleted_at IS NULL`,
+          [lenderId, dealershipId]
+        );
+
+        if (!relationshipResult.rows || relationshipResult.rows.length === 0) {
+          // Insert lender_dealerships relationship
+          await query(
+            `INSERT INTO lender_dealerships 
+             (lender_id, dealership_id, created_at, updated_at)
+             VALUES (?, ?, NOW(), NOW())`,
+            [lenderId, dealershipId]
+          );
+          console.log(
+            `Created lender_dealerships relationship for lender ID ${lenderId} and dealership ID ${dealershipId}`
+          );
+        } else {
+          console.log(
+            `Lender_dealerships relationship already exists for lender ID ${lenderId} and dealership ID ${dealershipId}`
+          );
+        }
+
+        savedLenders.push({
+          lenderId,
+          dmsLenderId,
+          name,
+        });
+      } catch (lenderError) {
+        console.error(`Error processing lender ${lender.id}:`, lenderError);
+        failedLenders.push({
+          dmsLenderId: lender.id,
+          name: lender.name || "Unknown",
+          reason: lenderError.message,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully saved ${savedLenders.length} lender(s)`,
+      data: {
+        saved: savedLenders.length,
+        failed: failedLenders.length,
+        savedLenders,
+        failedLenders,
+      },
+    });
+  } catch (err) {
+    console.error("Error in saveCreditAppLenders:", err);
+    return res
+      .status(500)
+      .json({ error: "Unexpected server error", details: err.message });
+  } finally {
+    if (connection && connection.release) {
+      connection.release();
+    }
+  }
+}
