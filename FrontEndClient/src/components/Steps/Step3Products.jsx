@@ -17,7 +17,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
-import { Package } from "lucide-react";
+import { Package, FileText } from "lucide-react";
 import VendorManagement from "./ProductImport/VendorManagement";
 import ProductImport from "./ProductImport/ProductImport";
 import ProductConfiguration from "./ProductImport/ProductConfiguration";
@@ -145,7 +145,7 @@ export default function Step3Products() {
           <label className="flex text-dark-text font-medium mb-3 items-center gap-2">
             <Package
               className="w-5 h-5"
-              style={{ color: "rgb(231 233 187 / var(--tw-text-opacity))" }}
+              style={{ color: "var(--theme-primary, #E7E9BB)" }}
             />
             Choose your product integration
           </label>
@@ -228,7 +228,9 @@ export default function Step3Products() {
               startIcon={
                 logMutation.isPending ? (
                   <CircularProgress size={18} color="inherit" />
-                ) : undefined
+                ) : (
+                  <FileText size={18} />
+                )
               }
             >
               {logMutation.isPending ? "Logging..." : "Log Products Snapshot"}

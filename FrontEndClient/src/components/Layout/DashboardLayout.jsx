@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentStep } from "../../store/slices/configSlice";
 import { CheckCircle } from "lucide-react";
+import ThemeSwitcher from "../ThemeSwitcher";
 
 const steps = [
   { id: 1, title: "Dealership Information" },
@@ -19,10 +20,13 @@ export default function DashboardLayout({ children }) {
     dispatch(setCurrentStep(stepId));
   };
 
+  const currentTheme = useSelector((state) => state.config.theme || 'gold')
+  
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className={`min-h-screen ${currentTheme === 'blue' ? 'bg-white' : 'bg-dark-bg'}`}>
+      <ThemeSwitcher />
       {/* Header */}
-      <header className="bg-gradient-dark border-b border-dark-border px-6 py-6">
+      <header className={`${currentTheme === 'blue' ? 'bg-white border-b border-gray-200' : 'bg-gradient-dark border-b border-dark-border'} px-6 py-6`}>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <span className="text-4xl bg-gradient-logo bg-clip-text text-transparent">
             ✦
@@ -35,7 +39,7 @@ export default function DashboardLayout({ children }) {
 
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-88px)]">
         {/* Sidebar - Steps Navigation */}
-        <aside className="w-full lg:w-80 bg-dark-surface border-b lg:border-b-0 lg:border-r border-dark-border p-6">
+        <aside className={`w-full lg:w-80 ${currentTheme === 'blue' ? 'bg-white border-b lg:border-b-0 lg:border-r border-gray-200' : 'bg-dark-surface border-b lg:border-b-0 lg:border-r border-dark-border'} p-6`}>
           <nav className="space-y-2">
             {steps.map((step) => {
               const isActive = currentStep === step.id;
@@ -51,15 +55,21 @@ export default function DashboardLayout({ children }) {
                     [transition:all_var(--md-sys-motion-duration-short4)_var(--md-sys-motion-easing-emphasized)]
                     ${
                       isActive
-                        ? "bg-gradient-primary text-dark-bg elevation-1 font-semibold"
+                        ? currentTheme === 'blue'
+                          ? "bg-gradient-primary text-white elevation-1 font-semibold"
+                          : "bg-gradient-primary text-dark-bg elevation-1 font-semibold"
                         : isCompleted
-                        ? "bg-dark-surface-light text-dark-text hover:bg-dark-border hover:elevation-1"
+                        ? currentTheme === 'blue'
+                          ? "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:elevation-1"
+                          : "bg-dark-surface-light text-dark-text hover:bg-dark-border hover:elevation-1"
+                        : currentTheme === 'blue'
+                        ? "text-gray-600 hover:bg-gray-50"
                         : "text-dark-text-secondary hover:bg-dark-surface-light"
                     }
                   `}
                 >
                   <span
-                    className={`font-medium ${isActive ? "text-dark-bg" : ""}`}
+                    className={`font-medium ${isActive ? (currentTheme === 'blue' ? "text-white" : "text-dark-bg") : ""}`}
                   >
                     {step.title}
                   </span>
@@ -73,7 +83,7 @@ export default function DashboardLayout({ children }) {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-dark-bg">{children}</main>
+        <main className={`flex-1 ${currentTheme === 'blue' ? 'bg-gray-50' : 'bg-dark-bg'}`}>{children}</main>
       </div>
     </div>
   );
