@@ -406,28 +406,14 @@ export default function Step1GeneralInfo() {
             size="small"
             sx={{ 
               minWidth: 220,
-              '& .MuiSelect-select': {
-                '&:empty::before': {
-                  content: '"Select dealership"',
-                  color: 'var(--theme-text-secondary, #9ca3af)',
-                },
-              },
             }}
             disabled={isLoadingDealerships || !!dealershipsError}
             SelectProps={{
               displayEmpty: true,
               renderValue: (selected) => {
-                if (!selected || selected === "") {
+                if (!selected || selected === "" || selected === null) {
                   return (
-                    <span 
-                      className="select-placeholder"
-                      style={{ 
-                        color: '#9ca3af', 
-                        opacity: 1, 
-                        display: 'inline-block',
-                        visibility: 'visible'
-                      }}
-                    >
+                    <span className="select-placeholder">
                       Select dealership
                     </span>
                   );
@@ -613,9 +599,11 @@ export default function Step1GeneralInfo() {
               SelectProps={{
                 displayEmpty: true,
                 renderValue: (selected) => {
-                  if (!selected) {
+                  if (!selected || selected === "" || selected === null) {
                     return (
-                      <span style={{ color: "#9ca3af" }}>Select State</span>
+                      <span className="select-placeholder">
+                        Select State
+                      </span>
                     );
                   }
                   return selected;

@@ -485,18 +485,20 @@ export default function Step2FinanceProviders() {
               variant="outlined"
             />
 
-            <Button
-              onClick={handleRouteOneSetup}
-              disabled={
-                !isRouteOneValid || formData.routeOneConfig.isConfigured
-              }
-              variant="contained"
-              startIcon={<Settings className="w-4 h-4" />}
-            >
-              {formData.routeOneConfig.isConfigured
-                ? "Configuration Complete"
-                : "Setup Configuration"}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                onClick={handleRouteOneSetup}
+                disabled={
+                  !isRouteOneValid || formData.routeOneConfig.isConfigured
+                }
+                variant="contained"
+                startIcon={<Settings className="w-4 h-4" />}
+              >
+                {formData.routeOneConfig.isConfigured
+                  ? "Configuration Complete"
+                  : "Setup Configuration"}
+              </Button>
+            </div>
           </div>
         )}
 

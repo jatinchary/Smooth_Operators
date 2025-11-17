@@ -208,6 +208,11 @@ a {
   color: var(--theme-text, #1f2937) !important;
 }
 
+/* Blue theme - select text color */
+[data-theme="blue"] .MuiSelect-select {
+  color: #1f2937 !important;
+}
+
 .MuiSelect-select:empty {
   color: var(--theme-text-secondary, #9ca3af) !important;
 }
@@ -243,6 +248,78 @@ a {
 .MuiSelect-select span[style*="color"],
 .MuiSelect-select .select-placeholder {
   color: var(--theme-text-secondary, #9ca3af) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Ensure placeholder spans are always visible */
+.MuiSelect-select > span,
+.MuiSelect-select span.select-placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  font-size: inherit !important;
+}
+
+/* Blue theme - ensure placeholder is visible */
+[data-theme="blue"] .MuiSelect-select > span,
+[data-theme="blue"] .MuiSelect-select span.select-placeholder,
+[data-theme="blue"] .MuiSelect-select .select-placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+  font-size: inherit !important;
+}
+
+/* When select value is empty, ensure placeholder shows */
+.MuiOutlinedInput-root .MuiSelect-select:empty,
+.MuiOutlinedInput-root .MuiSelect-select[value=""],
+.MuiOutlinedInput-root .MuiSelect-select:not([value]) {
+  color: #9ca3af !important;
+}
+
+/* Blue theme - empty select placeholder */
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select:empty,
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select[value=""],
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select:not([value]) {
+  color: #9ca3af !important;
+}
+
+.MuiOutlinedInput-root .MuiSelect-select:empty > span,
+.MuiOutlinedInput-root .MuiSelect-select[value=""] > span,
+.MuiOutlinedInput-root .MuiSelect-select:not([value]) > span {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Blue theme - empty select placeholder spans */
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select:empty > span,
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select[value=""] > span,
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select:not([value]) > span,
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select > span.select-placeholder,
+[data-theme="blue"] .MuiOutlinedInput-root .MuiSelect-select span.select-placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Blue theme - override any MUI theme color for placeholder spans */
+[data-theme="blue"] .MuiSelect-select span {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+}
+
+/* Blue theme - when select has placeholder class, ensure it's visible */
+[data-theme="blue"] .MuiSelect-select .select-placeholder {
+  color: #9ca3af !important;
   opacity: 1 !important;
   visibility: visible !important;
   display: inline-block !important;
