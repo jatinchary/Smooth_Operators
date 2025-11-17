@@ -1,0 +1,24 @@
+{
+  "name": "automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:import-lenders": "playwright test 09_ImportCreditAppLenders_API.spec.ts",
+    "test:import-lenders:ui": "playwright test 09_ImportCreditAppLenders_API.spec.ts --ui",
+    "test:import-lenders:headed": "playwright test 09_ImportCreditAppLenders_API.spec.ts --headed",
+    "test:dealership-daisy-chain": "playwright test 12_DealershipInformation_DaisyChain.spec.ts",
+    "test:dealership-daisy-chain:headed": "playwright test 12_DealershipInformation_DaisyChain.spec.ts --headed",
+    "test:review-submit": "playwright test 05_ReviewSubmit.spec.ts",
+    "test:review-submit:ui": "playwright test 05_ReviewSubmit.spec.ts --ui",
+    "test:review-submit:headed": "playwright test 05_ReviewSubmit.spec.ts --headed"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.1"
+  }
+}

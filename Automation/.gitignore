@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# Test results and reports
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Screenshots and videos (uncomment to keep them)
+# test-results/**/*.png
+# test-results/**/*.webm
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Coverage reports
+coverage/
+
+# Build artifacts
+dist/
+build/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Playwright storage state
+storageState.json
