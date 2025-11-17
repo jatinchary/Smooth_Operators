@@ -26,7 +26,6 @@ export default function Step2FinanceProviders() {
   );
   const generalInfo = useSelector((state) => state.config.generalInfo);
   const dmsIntegrations = useSelector((state) => state.config.dmsIntegrations);
-  const currentTheme = useSelector((state) => state.config.theme || 'gold');
 
   const [formData, setFormData] = useState({
     ...financeProviders,
@@ -439,26 +438,26 @@ export default function Step2FinanceProviders() {
             <Switch
               checked={true}
               disabled={true}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "#E7E9BB",
+                },
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  backgroundColor: "#E7E9BB",
+                },
+              }}
             />
           }
-          label={<span style={{ color: currentTheme === 'blue' ? '#1f2937' : '#e5e7eb', fontSize: '0.875rem', fontWeight: 500 }}>Via Lending Platform</span>}
+          label="Via Lending Platform"
           sx={{
             padding: "16px",
-            backgroundColor: currentTheme === 'blue' ? '#ffffff' : '#1a1d25',
+            backgroundColor: "#1a1d25",
             borderRadius: "8px",
-            border: currentTheme === 'blue' ? '1px solid #e5e7eb' : '1px solid #3d4354',
+            border: "1px solid #3d4354",
             width: "100%",
             margin: 0,
             justifyContent: "space-between",
             marginLeft: 0,
-            '& .MuiFormControlLabel-label': {
-              color: currentTheme === 'blue' ? '#1f2937' : '#e5e7eb',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              opacity: '1 !important',
-              visibility: 'visible !important',
-              display: 'block',
-            },
           }}
         />
 
@@ -470,7 +469,7 @@ export default function Step2FinanceProviders() {
                 RouteOne Configuration
               </h3>
               {formData.routeOneConfig.isConfigured && (
-                <span className="px-3 py-1 bg-brand-focus/20 text-brand-focus text-sm rounded-full">
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
                   Configured
                 </span>
               )}
@@ -502,13 +501,13 @@ export default function Step2FinanceProviders() {
 
         {/* DealerTrack Configuration */}
         {showDealerTrack && (
-          <div className="border-l-4 border-brand-focus pl-6 space-y-4">
+          <div className="border-l-4 border-brand-secondary pl-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold text-dark-text">
                 DealerTrack Configuration
               </h3>
               {formData.dealerTrackConfig.isConfigured && (
-                <span className="px-3 py-1 bg-brand-focus/20 text-brand-focus text-sm rounded-full">
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded-full">
                   Configured
                 </span>
               )}

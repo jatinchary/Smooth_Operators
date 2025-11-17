@@ -12,8 +12,6 @@ import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import Slide from "@mui/material/Slide";
-import DownloadIcon from "@mui/icons-material/Download";
-import SaveIcon from "@mui/icons-material/Save";
 import {
   fetchDealershipOptions,
   fetchDealershipDetails,
@@ -31,7 +29,7 @@ export default function Step1GeneralInfo() {
   const [isLoadingDealerships, setIsLoadingDealerships] = useState(false);
   const [isImportingDealership, setIsImportingDealership] = useState(false);
   const [selectedDealershipName, setSelectedDealershipName] = useState("");
-  const [selectedDealershipId, setSelectedDealershipId] = useState(null);
+  const [selectedDealershipId, setSelectedDealershipId] = useState("");
   const [isSavingDealership, setIsSavingDealership] = useState(false);
   const [saveDealershipError, setSaveDealershipError] = useState("");
   const [saveDealershipSuccess, setSaveDealershipSuccess] = useState(false);
@@ -200,12 +198,11 @@ export default function Step1GeneralInfo() {
     };
   }, []);
 
-  // Removed auto-select - let placeholder show when no selection
-  // useEffect(() => {
-  //   if (!selectedDealershipId && dealershipOptions.length > 0) {
-  //     setSelectedDealershipId(String(dealershipOptions[0].id));
-  //   }
-  // }, [dealershipOptions, selectedDealershipId]);
+  useEffect(() => {
+    if (!selectedDealershipId && dealershipOptions.length > 0) {
+      setSelectedDealershipId(String(dealershipOptions[0].id));
+    }
+  }, [dealershipOptions, selectedDealershipId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -397,50 +394,18 @@ export default function Step1GeneralInfo() {
           <TextField
             select
             label="Select Dealership"
-            value={selectedDealershipId ? String(selectedDealershipId) : ""}
+            value={selectedDealershipId}
             onChange={(event) => {
-              const newValue = event.target.value;
-              setSelectedDealershipId(newValue === "" ? null : newValue);
+              setSelectedDealershipId(event.target.value);
               setDealershipsError("");
             }}
             size="small"
-            sx={{ 
-              minWidth: 220,
-              '& .MuiSelect-select': {
-                '&:empty::before': {
-                  content: '"Select dealership"',
-                  color: 'var(--theme-text-secondary, #9ca3af)',
-                },
-              },
-            }}
-            disabled={isLoadingDealerships || !!dealershipsError}
+            sx={{ minWidth: 220 }}
+            disabled={isLoadingDealerships}
             SelectProps={{
               displayEmpty: true,
-              renderValue: (selected) => {
-                if (!selected || selected === "") {
-                  return (
-                    <span 
-                      className="select-placeholder"
-                      style={{ 
-                        color: '#9ca3af', 
-                        opacity: 1, 
-                        display: 'inline-block',
-                        visibility: 'visible'
-                      }}
-                    >
-                      Select dealership
-                    </span>
-                  );
-                }
-                const dealer = dealershipOptions.find(d => String(d.id) === String(selected));
-                return dealer?.name || 'Select dealership';
-              },
-            }}
-            InputLabelProps={{
-              shrink: true,
             }}
           >
-            <MenuItem value="" disabled>Select dealership</MenuItem>
             {isLoadingDealerships ? (
               <MenuItem value="" disabled>
                 <CircularProgress size={18} sx={{ mr: 2 }} />
@@ -454,7 +419,7 @@ export default function Step1GeneralInfo() {
               ))
             ) : (
               <MenuItem value="" disabled>
-                No dealerships found
+                {dealershipsError || "No dealerships found"}
               </MenuItem>
             )}
           </TextField>
@@ -470,7 +435,7 @@ export default function Step1GeneralInfo() {
             size="large"
             sx={{ px: 4 }}
             startIcon={
-              isImportingDealership ? <CircularProgress size={18} /> : <DownloadIcon />
+              isImportingDealership ? <CircularProgress size={18} /> : null
             }
           >
             Import Dealership
@@ -723,9 +688,7 @@ export default function Step1GeneralInfo() {
               startIcon={
                 isSavingDealership ? (
                   <CircularProgress size={18} color="inherit" />
-                ) : (
-                  <SaveIcon />
-                )
+                ) : null
               }
             >
               {isSavingDealership ? "Saving..." : "Save Dealership"}

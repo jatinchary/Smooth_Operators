@@ -8,9 +8,6 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
-import CircularProgress from "@mui/material/CircularProgress";
-import CloudSyncIcon from "@mui/icons-material/CloudSync";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Server } from "lucide-react";
 import { fetchDealerSettings } from "./helpers/tekionApi";
 
@@ -110,11 +107,11 @@ export default function Step4DMSIntegrations() {
     >
       <div className="space-y-6">
         {/* Info Banner */}
-        <div className="bg-gradient-card border border-brand-focus/30 rounded-lg p-4">
+        <div className="bg-dark-surface-warm border border-brand-focus/30 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <Server className="w-5 h-5 text-brand-focus mt-0.5" />
             <div>
-              <h4 className="font-semibold text-brand-focus mb-1" style={{ background: 'none', WebkitTextFillColor: 'unset', color: 'var(--theme-primary, #E7E9BB)' }}>
+              <h4 className="font-semibold text-dark-text mb-1">
                 DMS Integration
               </h4>
               <p className="text-sm text-dark-text-secondary">

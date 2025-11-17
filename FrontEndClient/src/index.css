@@ -2,405 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables for theme colors - initialized with gold theme */
-:root {
-  --theme-primary: #E7E9BB;
-  --theme-primary-dark: #403B4A;
-  --theme-primary-opacity-20: rgba(231, 233, 187, 0.2);
-  --theme-primary-opacity-30: rgba(231, 233, 187, 0.3);
-  --theme-gradient: linear-gradient(to right, #E7E9BB, #403B4A);
-  --theme-gradient-secondary: linear-gradient(135deg, #E7E9BB 0%, #403B4A 100%);
-  --theme-gradient-card: linear-gradient(135deg, rgba(231, 233, 187, 0.1) 0%, rgba(64, 59, 74, 0.05) 100%);
-  --theme-gradient-logo: linear-gradient(to right, #E7E9BB, #403B4A);
-  --theme-bg: #1a1d25;
-  --theme-surface: #252932;
-  --theme-surface-light: #2d3240;
-  --theme-surface-warm: #2a2d26;
-  --theme-border: #3d4354;
-  --theme-text: #e5e7eb;
-  --theme-text-secondary: #9ca3af;
-  --theme-button-text: #000000;
-}
-
-/* Dynamic theme colors using CSS variables */
-.border-brand-focus {
-  border-color: var(--theme-primary, #E7E9BB) !important;
-}
-
-.border-brand-focus\/30 {
-  border-color: var(--theme-primary-opacity-30, rgba(231, 233, 187, 0.3)) !important;
-}
-
-.text-brand-focus {
-  color: var(--theme-primary, #E7E9BB) !important;
-}
-
-.bg-brand-focus {
-  background-color: var(--theme-primary, #E7E9BB) !important;
-}
-
-.bg-brand-focus\/20 {
-  background-color: var(--theme-primary-opacity-20, rgba(231, 233, 187, 0.2)) !important;
-}
-
-.bg-gradient-primary {
-  background-image: var(--theme-gradient, linear-gradient(to right, #E7E9BB, #403B4A)) !important;
-}
-
-.bg-gradient-logo {
-  background-image: var(--theme-gradient-logo, linear-gradient(to right, #E7E9BB, #403B4A)) !important;
-}
-
-.bg-gradient-card {
-  background-image: var(--theme-gradient-card, linear-gradient(135deg, rgba(231, 233, 187, 0.1) 0%, rgba(64, 59, 74, 0.05) 100%)) !important;
-}
-
-/* Dynamic background colors using CSS variables */
-.bg-dark-bg {
-  background: var(--theme-bg, #1a1d25) !important;
-  background-color: var(--theme-bg, #1a1d25) !important;
-}
-
-.bg-dark-surface {
-  background: var(--theme-surface, #252932) !important;
-  background-color: var(--theme-surface, #252932) !important;
-}
-
-.bg-dark-surface-light {
-  background: var(--theme-surface-light, #2d3240) !important;
-  background-color: var(--theme-surface-light, #2d3240) !important;
-}
-
-.bg-dark-surface-warm {
-  background: var(--theme-surface-warm, #2a2d26) !important;
-  background-color: var(--theme-surface-warm, #2a2d26) !important;
-}
-
-.border-dark-border {
-  border-color: var(--theme-border, #3d4354) !important;
-}
-
-.text-dark-text {
-  color: var(--theme-text, #e5e7eb) !important;
-}
-
-.text-dark-text-secondary {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-/* Custom cursor pointer effects - enhanced pointer on interactive elements */
-button, a, .btn, [role="button"], .MuiButton-root, input[type="button"], input[type="submit"], 
-select, .MuiFormControlLabel-root, .MuiRadio-root, .MuiCheckbox-root {
-  cursor: none !important;
-  position: relative;
-}
-
-button:disabled, input:disabled, select:disabled, textarea:disabled, .Mui-disabled {
-  cursor: not-allowed !important;
-}
-
-/* Enhanced hover effects for interactive elements */
-button:hover, a:hover, .btn:hover, [role="button"]:hover, 
-.MuiButton-root:hover, .MuiFormControlLabel-root:hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Hide default cursor when custom cursor is active */
+/* Apply fonts with higher specificity after Tailwind */
 body {
-  cursor: none !important;
   font-family: 'Urbanist', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--theme-bg, #1a1d25) !important;
 }
 
-/* Show text cursor for text inputs and textareas */
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], 
-input[type="tel"], input[type="url"], textarea, .MuiInputBase-input {
-  cursor: text !important;
-}
-
-/* Headings - Force Staatliches font with increased sizes */
-h1, h1 * {
+/* Headings - Force Staatliches font */
+h1, h2, h3, h4, h5, h6,
+h1 *, h2 *, h3 *, h4 *, h5 *, h6 * {
   font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
   letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
+  text-transform: uppercase;
 }
 
-h2, h2 * {
-  font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
-
-h3, h3 * {
-  font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
-
-h4, h4 * {
-  font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
-
-h5, h5 * {
-  font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
-
-h6, h6 * {
-  font-family: 'Staatliches', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
-
-/* Buttons, links - Force Urbanist font */
-button, a, .btn, [role="button"], .MuiButton-root {
+/* Links and Buttons - Use Urbanist with uppercase */
+button,
+a,
+.btn,
+[role="button"],
+.MuiButton-root {
   font-family: 'Urbanist', ui-sans-serif, system-ui, -apple-system, sans-serif !important;
+  text-transform: uppercase !important;
   font-weight: 500 !important;
   letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
+  font-size: 0.875rem !important;
 }
 
 /* Links specific styling */
 a {
   font-size: 0.875rem !important;
   text-decoration: none;
-  white-space: nowrap;
 }
 
-/* Force text color on MUI buttons based on theme */
+/* Force black text on MUI buttons */
 .MuiButton-contained,
 .MuiButton-containedPrimary,
 .MuiButton-containedSecondary {
-  color: var(--theme-button-text, #000000) !important;
+  color: #000000 !important;
 }
 
 .MuiButton-contained .MuiButton-startIcon,
 .MuiButton-contained .MuiButton-endIcon,
-.MuiButton-contained svg,
-.MuiButton-contained .lucide {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
+.MuiButton-contained svg {
+  color: #000000 !important;
 }
 
 /* Select dropdown icon - match placeholder color */
 .MuiSelect-icon {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-/* Select dropdown styling for better visibility */
-.MuiSelect-select {
-  color: var(--theme-text, #1f2937) !important;
-}
-
-.MuiSelect-select:empty {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-.MuiSelect-select[aria-disabled="true"] {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-/* Ensure placeholder text in select is visible */
-.MuiSelect-select em,
-.MuiSelect-select span {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-  opacity: 1 !important;
-  display: inline-block !important;
-  visibility: visible !important;
-}
-
-.MuiSelect-select em {
-  font-style: normal !important;
-}
-
-/* Force placeholder visibility when select contains placeholder span */
-.MuiSelect-select:has(> span) {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-/* Ensure the select element itself shows placeholder color when empty */
-.MuiSelect-select[value=""] {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-}
-
-/* Override any color that might be hiding the placeholder */
-.MuiSelect-select span[style*="color"],
-.MuiSelect-select .select-placeholder {
-  color: var(--theme-text-secondary, #9ca3af) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: inline-block !important;
-}
-
-/* Select label styling */
-.MuiInputLabel-root {
-  color: var(--theme-text-secondary, #6b7280) !important;
-}
-
-.MuiInputLabel-root.Mui-focused {
-  color: var(--theme-primary, #515ada) !important;
-}
-
-.MuiInputLabel-root.MuiInputLabel-shrink {
-  color: var(--theme-text-secondary, #6b7280) !important;
+  color: #9ca3af !important;
 }
 
 /* Lucide icons - use brand focus color */
 .lucide {
-  color: var(--theme-primary, #E7E9BB) !important;
+  color: rgb(231 233 187 / var(--tw-text-opacity, 1)) !important;
 }
 
-/* Icons in buttons - white for all themes (consolidated above) */
-
-/* Force brand color for all toasters/alerts background (except info) */
-.MuiAlert-root:not(.MuiAlert-standardInfo) {
-  background-color: var(--theme-primary, #E7E9BB) !important;
-  color: var(--theme-button-text, #000000) !important;
-  border: 1px solid var(--theme-primary, #E7E9BB) !important;
-}
-
-/* Colored icons for different alert types */
-.MuiAlert-standardSuccess .MuiAlert-icon,
-.MuiAlert-standardSuccess .MuiAlert-icon svg,
-.MuiAlert-standardSuccess .MuiAlert-icon path {
-  color: #22c55e !important; /* Green for success */
-  fill: #22c55e !important;
-}
-
-.MuiAlert-standardError .MuiAlert-icon,
-.MuiAlert-standardError .MuiAlert-icon svg,
-.MuiAlert-standardError .MuiAlert-icon path {
-  color: #ef4444 !important; /* Red for error */
-  fill: #ef4444 !important;
-}
-
-.MuiAlert-standardWarning .MuiAlert-icon,
-.MuiAlert-standardWarning .MuiAlert-icon svg,
-.MuiAlert-standardWarning .MuiAlert-icon path {
-  color: #f97316 !important; /* Orange for warning */
-  fill: #f97316 !important;
-}
-
-/* Info alerts - Orange background */
-.MuiAlert-standardInfo {
-  background-color: #f97316 !important; /* Orange background for info */
-  color: #000000 !important;
-  border: 1px solid #f97316 !important;
-}
-
-.MuiAlert-standardInfo .MuiAlert-icon,
-.MuiAlert-standardInfo .MuiAlert-icon svg,
-.MuiAlert-standardInfo .MuiAlert-icon path,
-.MuiAlert-standardInfo .MuiAlert-icon circle,
-.MuiAlert-standardInfo .MuiAlert-icon * {
-  color: #000000 !important; /* Black icon for info */
-  fill: #000000 !important;
-  stroke: #000000 !important;
-}
-
-/* Override any inherited text color for info alert icons */
-.MuiAlert-standardInfo .MuiAlert-icon svg path,
-.MuiAlert-standardInfo .MuiAlert-icon svg circle,
-.MuiAlert-standardInfo .MuiAlert-icon svg g {
-  fill: #000000 !important;
-  stroke: #000000 !important;
+/* Icons in buttons stay black for enabled, match disabled color for disabled */
+.MuiButton-contained .lucide {
   color: #000000 !important;
 }
 
-.MuiSnackbar-root .MuiAlert-root:not(.MuiAlert-standardInfo) {
-  background-color: var(--theme-primary, #E7E9BB) !important;
-  color: var(--theme-button-text, #000000) !important;
+.MuiButton-contained.Mui-disabled .lucide {
+  color: #6b7280 !important;
 }
 
-.MuiSnackbar-root .MuiAlert-standardInfo {
-  background-color: #f97316 !important;
-  color: #000000 !important;
-  border: 1px solid #f97316 !important;
-}
-
-/* Disabled buttons - visible gray background, no hover effects */
+/* Disabled buttons - visible gray background */
 .MuiButton-contained.Mui-disabled {
-  background: var(--theme-disabled-bg, #2d3240) !important;
-  color: var(--theme-disabled-text, #6b7280) !important;
+  background: #2d3240 !important;
+  color: #6b7280 !important;
   opacity: 1 !important;
   box-shadow: none !important;
-  border: 1px solid var(--theme-disabled-border, #3d4354) !important;
+  border: 1px solid #3d4354 !important;
   cursor: not-allowed !important;
   pointer-events: all !important;
 }
 
 .MuiButton-contained.Mui-disabled:hover {
   cursor: not-allowed !important;
-  background: var(--theme-disabled-bg, #2d3240) !important;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Disabled inputs - no hover effects */
-.MuiOutlinedInput-root.Mui-disabled:hover fieldset {
-  border-color: #3d4354 !important;
-}
-
-.MuiOutlinedInput-root.Mui-disabled {
-  cursor: not-allowed !important;
-}
-
-/* Disabled select - no hover effects */
-.MuiSelect-select.Mui-disabled:hover {
-  cursor: not-allowed !important;
-}
-
-/* Disabled checkbox/radio - no hover effects */
-.MuiCheckbox-root.Mui-disabled:hover,
-.MuiRadio-root.Mui-disabled:hover {
-  background-color: transparent !important;
-  cursor: not-allowed !important;
-}
-
-/* Global: Remove all hover effects from disabled elements */
-button:disabled:hover,
-input:disabled:hover,
-select:disabled:hover,
-textarea:disabled:hover,
-[disabled]:hover {
-  cursor: not-allowed !important;
+  background: #2d3240 !important;
 }
 
 .MuiButton-contained.Mui-disabled .MuiButton-startIcon,
 .MuiButton-contained.Mui-disabled .MuiButton-endIcon,
-.MuiButton-contained.Mui-disabled svg,
-.MuiButton-contained.Mui-disabled .lucide {
-  color: var(--theme-disabled-text, #6b7280) !important;
-  fill: var(--theme-disabled-text, #6b7280) !important;
-  stroke: var(--theme-disabled-text, #6b7280) !important;
+.MuiButton-contained.Mui-disabled svg {
+  color: #6b7280 !important;
 }
 
-/* Gradient effect for headings - only apply gradient if not blue theme */
+/* Gradient effect for headings */
 h1, h2, h3, h4, h5, h6 {
-  background: var(--theme-gradient-logo, linear-gradient(to right, #E7E9BB, #403B4A));
+  background: linear-gradient(to right, #E7E9BB, #403B4A);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-/* Blue theme headings - use solid color instead of gradient */
-[data-theme="blue"] h1,
-[data-theme="blue"] h2,
-[data-theme="blue"] h3,
-[data-theme="blue"] h4,
-[data-theme="blue"] h5,
-[data-theme="blue"] h6 {
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  background-clip: unset !important;
-  -webkit-text-fill-color: unset !important;
-  color: #1f2937 !important;
 }
 
 /* Force Staatliches on gradient text in headings */
@@ -461,6 +156,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: none !important;
   }
   
+  /* M3 Elevation System */
   .elevation-0 {
     box-shadow: none;
   }
@@ -471,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   }
   .elevation-3 {
-    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.3), 0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.3);
   }
   .elevation-4 {
     box-shadow: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px rgba(0, 0, 0, 0.3);
@@ -492,7 +188,7 @@ h1, h2, h3, h4, h5, h6 {
     inset: 0;
     background: currentColor;
     opacity: 0;
-    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 0, 1);
+    transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
     pointer-events: none;
   }
   
@@ -532,96 +228,4 @@ h1, h2, h3, h4, h5, h6 {
     --md-sys-motion-duration-long3: 550ms;
     --md-sys-motion-duration-long4: 600ms;
   }
-}
-
-/* Preloader Curtain Effect Styles */
-.sk__master-curtain {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  background-color: #0A0A0A;
-  transform-origin: 50% 70%;
-  animation: slowZoom 3s ease-out 0s forwards;
-}
-
-.mcurtain {
-  opacity: 0;
-  position: absolute;
-  width: 34%;
-  height: 100%;
-  top: 0;
-  transform-origin: center top;
-  transform: scaleY(1);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.mcurtain.mcurtain-visible {
-  transition: all 0.8s ease-in 0s;
-  opacity: 1;
-}
-
-.mcurtain-left {
-  left: 0;
-}
-
-.mcurtain-center-custom {
-  left: 33.333%;
-}
-
-.mcurtain-right {
-  left: 66.666%;
-}
-
-.mcurtain-animate {
-  animation: curtainSlideUp 0.4s ease-in forwards;
-}
-
-@keyframes slowZoom {
-  0% {
-    background-color: #0A0A0A;
-    transform: scale(1);
-  }
-  20% {
-    background-color: #0A0A0A;
-    transform: scale(1.02);
-  }
-  85% {
-    background-color: #0A0A0A;
-    transform: scale(1.085);
-  }
-  100% {
-    background-color: rgba(10, 10, 10, 0);
-    transform: scale(1.1);
-  }
-}
-
-@keyframes curtainSlideUp {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-100%);
-  }
-}
-
-/* FormControlLabel text visibility */
-.MuiFormControlLabel-label {
-  color: var(--theme-text, #1f2937) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-}
-
-[data-theme="blue"] .MuiFormControlLabel-label {
-  color: #1f2937 !important;
-}
-
-[data-theme="gold"] .MuiFormControlLabel-label {
-  color: #e5e7eb !important;
 }
