@@ -26,6 +26,7 @@ import { logProductsSummary } from "./helpers/productsApi";
 export default function Step3Products() {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products);
+  const generalInfo = useSelector((state) => state.config.generalInfo);
   const [toastState, setToastState] = useState({
     open: false,
     message: '',
@@ -126,6 +127,7 @@ export default function Step3Products() {
       context: {
         productIntegration: productsState.productIntegration,
         dealerId: productsState.dealerId,
+        dealershipId: generalInfo.selectedDealershipId || null,
         vendors: vendorSummaries,
         products: selectedProductDetails,
         productConfigurations: configurationDetails,

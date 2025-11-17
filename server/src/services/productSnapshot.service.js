@@ -119,7 +119,7 @@ function hasUniqueConstraint(schema, columnName) {
 
 async function upsertProduct(
   product,
-  { dealerId, integration, primaryVendorId }
+  { dealerId, dealershipId, integration, primaryVendorId }
 ) {
   const schema = await getTableSchema("products");
   if (!schema) {
@@ -236,7 +236,7 @@ async function upsertProduct(
   addColumn(productCodeColumn, product.ProductCode || null);
   addColumn(dealerColumn, dealerId || null);
   if (dealerFkColumn) {
-    addColumn(dealerFkColumn, dealerId || 11);
+    addColumn(dealerFkColumn, dealershipId || null);
   }
   addColumn(integrationColumn, mapIntegrationToId(integration));
   if (vendorColumn && primaryVendorId != null) {
@@ -370,6 +370,7 @@ export async function persistProductsSnapshot({
   products = [],
   productConfigurations = [],
   dealerId,
+  dealershipId,
   productIntegration,
 }) {
   if (!Array.isArray(products) || products.length === 0) {
@@ -442,6 +443,7 @@ export async function persistProductsSnapshot({
 
     const productId = await upsertProduct(product, {
       dealerId,
+      dealershipId,
       integration: productIntegration,
       primaryVendorId: primaryVendorTableId,
     });
