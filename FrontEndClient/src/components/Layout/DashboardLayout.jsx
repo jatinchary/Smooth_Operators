@@ -8,7 +8,7 @@ const steps = [
   { id: 2, title: "Finance & Providers" },
   { id: 3, title: "Products" },
   { id: 4, title: "DMS Integrations" },
-  { id: 5, title: "Review & Submit" },
+  { id: 5, title: "Review" },
 ];
 
 export default function DashboardLayout({ children }) {
@@ -25,8 +25,8 @@ export default function DashboardLayout({ children }) {
   return (
     <div className={`min-h-screen ${currentTheme === 'blue' ? 'bg-white' : 'bg-dark-bg'}`}>
       <ThemeSwitcher />
-      {/* Header */}
-      <header className={`${currentTheme === 'blue' ? 'bg-white border-b border-gray-200' : 'bg-gradient-dark border-b border-dark-border'} px-6 py-6`}>
+      {/* Header - Fixed at top */}
+      <header className={`fixed top-0 left-0 right-0 z-50 ${currentTheme === 'blue' ? 'bg-white border-b border-gray-200' : 'bg-gradient-dark border-b border-dark-border'} px-6 py-6`}>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <span className="text-4xl bg-gradient-logo bg-clip-text text-transparent">
             ✦
@@ -37,9 +37,9 @@ export default function DashboardLayout({ children }) {
         </h1>
       </header>
 
-      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-88px)]">
-        {/* Sidebar - Steps Navigation */}
-        <aside className={`w-full lg:w-80 ${currentTheme === 'blue' ? 'bg-white border-b lg:border-b-0 lg:border-r border-gray-200' : 'bg-dark-surface border-b lg:border-b-0 lg:border-r border-dark-border'} p-6`}>
+      <div className="flex flex-col lg:flex-row pt-[88px]">
+        {/* Sidebar - Fixed on left */}
+        <aside className={`fixed top-[88px] left-0 bottom-0 w-full lg:w-80 ${currentTheme === 'blue' ? 'bg-white border-b lg:border-b-0 lg:border-r border-gray-200' : 'bg-dark-surface border-b lg:border-b-0 lg:border-r border-dark-border'} p-6 z-40`}>
           <nav className="space-y-2">
             {steps.map((step) => {
               const isActive = currentStep === step.id;
@@ -82,8 +82,8 @@ export default function DashboardLayout({ children }) {
           </nav>
         </aside>
 
-        {/* Main Content Area */}
-        <main className={`flex-1 ${currentTheme === 'blue' ? 'bg-gray-50' : 'bg-dark-bg'}`}>{children}</main>
+        {/* Main Content Area - Scrollable */}
+        <main className={`flex-1 lg:ml-80 min-h-[calc(100vh-88px)] overflow-y-auto ${currentTheme === 'blue' ? 'bg-gray-50' : 'bg-dark-bg'}`}>{children}</main>
       </div>
     </div>
   );

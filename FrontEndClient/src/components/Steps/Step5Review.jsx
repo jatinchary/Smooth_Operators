@@ -48,7 +48,7 @@ export default function Step5Review() {
   return (
     <StepContainer
       stepNumber={5}
-      title="Review & Submit"
+      title="Review"
       onNext={handleSubmit}
       canGoNext={true}
     >
@@ -61,7 +61,7 @@ export default function Step5Review() {
               Configuration Complete!
             </h3>
             <p className="text-dark-text-secondary">
-              Please review your settings below before submitting.
+              Please review your settings below.
             </p>
           </div>
         </div>

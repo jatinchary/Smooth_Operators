@@ -10,6 +10,7 @@ const vehicleTypeOptions = ["New", "Used"];
 const ProductConfiguration = () => {
   const dispatch = useDispatch();
   const productsState = useSelector((state) => state.products);
+  const currentTheme = useSelector((state) => state.config.theme || 'gold');
 
   const handleDealTypeToggle = (productId, dealType) => {
     const config = productsState.productConfigurations.find(
@@ -63,8 +64,10 @@ const ProductConfiguration = () => {
   if (selectedProducts.length === 0) {
     return (
       <div className="border-t border-dark-border pt-6">
-        <h3 className="text-lg font-semibold text-dark-text mb-4">
-          Product Configuration
+        <h3 className={`text-lg font-semibold mb-4 uppercase ${currentTheme === 'blue' ? 'text-gray-900' : ''}`}>
+          <span className={currentTheme === 'blue' ? 'text-gray-900' : 'bg-gradient-logo bg-clip-text text-transparent'}>
+            Product Configuration
+          </span>
         </h3>
         <div className="text-center py-8 text-dark-text-secondary">
           <p>Please import and select products first to configure them.</p>
@@ -75,8 +78,10 @@ const ProductConfiguration = () => {
 
   return (
     <div className="border-t border-dark-border pt-6">
-      <h3 className="text-lg font-semibold text-dark-text mb-4">
-        Configure Product Deal Type and Vehicle Types
+      <h3 className={`text-lg font-semibold mb-4 uppercase ${currentTheme === 'blue' ? 'text-gray-900' : ''}`}>
+        <span className={currentTheme === 'blue' ? 'text-gray-900' : 'bg-gradient-logo bg-clip-text text-transparent'}>
+          Product Configuration
+        </span>
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

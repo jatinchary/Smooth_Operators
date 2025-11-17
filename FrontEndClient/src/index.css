@@ -179,10 +179,20 @@ a {
   color: var(--theme-button-text, #000000) !important;
 }
 
+/* Icons in buttons - black for gold theme, white for blue theme */
 .MuiButton-contained .MuiButton-startIcon,
 .MuiButton-contained .MuiButton-endIcon,
 .MuiButton-contained svg,
 .MuiButton-contained .lucide {
+  color: #000000 !important;
+  fill: #000000 !important;
+  stroke: #000000 !important;
+}
+
+[data-theme="blue"] .MuiButton-contained .MuiButton-startIcon,
+[data-theme="blue"] .MuiButton-contained .MuiButton-endIcon,
+[data-theme="blue"] .MuiButton-contained svg,
+[data-theme="blue"] .MuiButton-contained .lucide {
   color: #ffffff !important;
   fill: #ffffff !important;
   stroke: #ffffff !important;
@@ -256,7 +266,6 @@ a {
   color: var(--theme-primary, #E7E9BB) !important;
 }
 
-/* Icons in buttons - white for all themes (consolidated above) */
 
 /* Force brand color for all toasters/alerts background (except info) */
 .MuiAlert-root:not(.MuiAlert-standardInfo) {

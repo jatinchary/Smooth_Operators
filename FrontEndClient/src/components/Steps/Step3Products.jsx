@@ -60,10 +60,10 @@ export default function Step3Products() {
   const logMutation = useMutation({
     mutationFn: (payload) => logProductsSummary(payload),
     onSuccess: () => {
-      showToast('success', 'Products summary sent to the server log successfully.');
+      showToast('success', 'Products have been saved');
     },
     onError: (error) => {
-      const errorMsg = error?.message || 'Failed to log the products summary. Please try again.';
+      const errorMsg = error?.message || 'Failed to save products. Please try again.';
       showToast('error', errorMsg);
     },
   });
@@ -233,7 +233,7 @@ export default function Step3Products() {
                 )
               }
             >
-              {logMutation.isPending ? "Logging..." : "Log Products Snapshot"}
+              {logMutation.isPending ? "Saving..." : "Save Products"}
             </Button>
           </Stack>
         </div>

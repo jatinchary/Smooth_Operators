@@ -3,7 +3,6 @@ import { setCurrentStep, markStepComplete } from '../../store/slices/configSlice
 import Button from '@mui/material/Button'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import CheckIcon from '@mui/icons-material/Check'
 
 export default function StepContainer({ 
   stepNumber, 
@@ -40,7 +39,7 @@ export default function StepContainer({
         <div>
         <h2 className={`text-4xl font-bold mb-2 ${currentTheme === 'blue' ? 'text-gray-900' : ''}`}>
           <span className={currentTheme === 'blue' ? 'text-gray-900' : 'bg-gradient-logo bg-clip-text text-transparent'}>
-            Step {stepNumber}: {title}
+            {title}
           </span>
         </h2>
         <div className={`h-1 w-24 rounded-full ${currentTheme === 'blue' ? 'bg-gradient-logo' : 'bg-gradient-logo'}`}></div>
@@ -68,17 +67,18 @@ export default function StepContainer({
           Previous
         </Button>
 
-        <Button
-          onClick={handleNext}
-          disabled={!canGoNext}
-          variant="contained"
-          size="large"
-          startIcon={stepNumber === 5 ? <CheckIcon /> : null}
-          endIcon={stepNumber !== 5 ? <ChevronRightIcon /> : null}
-          sx={{ px: 4 }}
-        >
-          {stepNumber === 5 ? 'Submit' : 'Next Step'}
-        </Button>
+        {stepNumber !== 5 && (
+          <Button
+            onClick={handleNext}
+            disabled={!canGoNext}
+            variant="contained"
+            size="large"
+            endIcon={<ChevronRightIcon />}
+            sx={{ px: 4 }}
+          >
+            Next Step
+          </Button>
+        )}
       </div>
     </div>
   )

@@ -153,12 +153,12 @@ export const createAppTheme = (themeName = 'gold') => {
               },
             },
             '& .MuiButton-startIcon, & .MuiButton-endIcon': {
-              color: '#ffffff',
+              color: themeName === 'blue' ? '#ffffff' : '#000000',
             },
             '& svg, & .lucide': {
-              color: '#ffffff',
-              fill: '#ffffff',
-              stroke: '#ffffff',
+              color: themeName === 'blue' ? '#ffffff' : '#000000',
+              fill: themeName === 'blue' ? '#ffffff' : '#000000',
+              stroke: themeName === 'blue' ? '#ffffff' : '#000000',
             },
             '&.Mui-disabled .MuiButton-startIcon, &.Mui-disabled .MuiButton-endIcon': {
               color: themeName === 'blue' ? '#9ca3af !important' : '#4a5568 !important',

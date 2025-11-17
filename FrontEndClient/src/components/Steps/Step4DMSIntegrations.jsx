@@ -175,14 +175,16 @@ export default function Step4DMSIntegrations() {
         />
 
         {/* Test Connection Button */}
-        <Button
-          variant="contained"
-          onClick={handleTestConnection}
-          disabled={loading || !formData.dealerId || isValidated}
-          sx={{ width: { xs: "100%", md: "auto" } }}
-        >
-          {buttonText}
-        </Button>
+        <div className="flex justify-end">
+          <Button
+            variant="contained"
+            onClick={handleTestConnection}
+            disabled={loading || !formData.dealerId || isValidated}
+            sx={{ width: { xs: "100%", md: "auto" } }}
+          >
+            {buttonText}
+          </Button>
+        </div>
       </div>
       <Snackbar
         open={toastState.open}
