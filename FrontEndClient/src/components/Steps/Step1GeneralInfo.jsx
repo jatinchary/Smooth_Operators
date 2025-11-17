@@ -171,6 +171,12 @@ export default function Step1GeneralInfo() {
   }, [generalInfo]);
 
   useEffect(() => {
+    setFormData(generalInfo);
+    setSelectedDealershipId(generalInfo.selectedDealershipId || null);
+    setSelectedDealershipName(generalInfo.selectedDealershipName || "");
+  }, [generalInfo]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadDealerships = async () => {
@@ -404,12 +410,12 @@ export default function Step1GeneralInfo() {
               setDealershipsError("");
             }}
             size="small"
-            sx={{ 
+            sx={{
               minWidth: 220,
-              '& .MuiSelect-select': {
-                '&:empty::before': {
+              "& .MuiSelect-select": {
+                "&:empty::before": {
                   content: '"Select dealership"',
-                  color: 'var(--theme-text-secondary, #9ca3af)',
+                  color: "var(--theme-text-secondary, #9ca3af)",
                 },
               },
             }}
@@ -419,28 +425,32 @@ export default function Step1GeneralInfo() {
               renderValue: (selected) => {
                 if (!selected || selected === "") {
                   return (
-                    <span 
+                    <span
                       className="select-placeholder"
-                      style={{ 
-                        color: '#9ca3af', 
-                        opacity: 1, 
-                        display: 'inline-block',
-                        visibility: 'visible'
+                      style={{
+                        color: "#9ca3af",
+                        opacity: 1,
+                        display: "inline-block",
+                        visibility: "visible",
                       }}
                     >
                       Select dealership
                     </span>
                   );
                 }
-                const dealer = dealershipOptions.find(d => String(d.id) === String(selected));
-                return dealer?.name || 'Select dealership';
+                const dealer = dealershipOptions.find(
+                  (d) => String(d.id) === String(selected)
+                );
+                return dealer?.name || "Select dealership";
               },
             }}
             InputLabelProps={{
               shrink: true,
             }}
           >
-            <MenuItem value="" disabled>Select dealership</MenuItem>
+            <MenuItem value="" disabled>
+              Select dealership
+            </MenuItem>
             {isLoadingDealerships ? (
               <MenuItem value="" disabled>
                 <CircularProgress size={18} sx={{ mr: 2 }} />
@@ -470,7 +480,11 @@ export default function Step1GeneralInfo() {
             size="large"
             sx={{ px: 4 }}
             startIcon={
-              isImportingDealership ? <CircularProgress size={18} /> : <DownloadIcon />
+              isImportingDealership ? (
+                <CircularProgress size={18} />
+              ) : (
+                <DownloadIcon />
+              )
             }
           >
             Import Dealership
@@ -718,7 +732,10 @@ export default function Step1GeneralInfo() {
               color="primary"
               onClick={handleSaveDealership}
               disabled={
-                isSavingDealership || !canSaveDealership || isLoadingDealerships
+                isSavingDealership ||
+                !canSaveDealership ||
+                isLoadingDealerships ||
+                !!selectedDealershipId
               }
               startIcon={
                 isSavingDealership ? (
