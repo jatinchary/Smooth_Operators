@@ -1,56 +1,60 @@
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { updateGeneralInfo } from '../../store/slices/configSlice'
-import StepContainer from './StepContainer'
-import TextField from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
-import Grid from '@mui/material/Grid'
-import Stack from '@mui/material/Stack'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import Typography from '@mui/material/Typography'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import Slide from '@mui/material/Slide'
-import { fetchDealershipOptions, fetchDealershipDetails, saveDealership } from './helpers/dealersApi'
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { updateGeneralInfo } from "../../store/slices/configSlice";
+import StepContainer from "./StepContainer";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import Slide from "@mui/material/Slide";
+import {
+  fetchDealershipOptions,
+  fetchDealershipDetails,
+  saveDealership,
+} from "./helpers/dealersApi";
 
 export default function Step1GeneralInfo() {
-  const dispatch = useDispatch()
-  const generalInfo = useSelector((state) => state.config.generalInfo)
-  
-  const [formData, setFormData] = useState(generalInfo)
-  const [errors, setErrors] = useState({})
-  const [dealershipOptions, setDealershipOptions] = useState([])
-  const [dealershipsError, setDealershipsError] = useState('')
-  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false)
-  const [isImportingDealership, setIsImportingDealership] = useState(false)
-  const [selectedDealershipName, setSelectedDealershipName] = useState('')
-  const [selectedDealershipId, setSelectedDealershipId] = useState('')
-  const [isSavingDealership, setIsSavingDealership] = useState(false)
-  const [saveDealershipError, setSaveDealershipError] = useState('')
-  const [saveDealershipSuccess, setSaveDealershipSuccess] = useState(false)
+  const dispatch = useDispatch();
+  const generalInfo = useSelector((state) => state.config.generalInfo);
+
+  const [formData, setFormData] = useState(generalInfo);
+  const [errors, setErrors] = useState({});
+  const [dealershipOptions, setDealershipOptions] = useState([]);
+  const [dealershipsError, setDealershipsError] = useState("");
+  const [isLoadingDealerships, setIsLoadingDealerships] = useState(false);
+  const [isImportingDealership, setIsImportingDealership] = useState(false);
+  const [selectedDealershipName, setSelectedDealershipName] = useState("");
+  const [selectedDealershipId, setSelectedDealershipId] = useState("");
+  const [isSavingDealership, setIsSavingDealership] = useState(false);
+  const [saveDealershipError, setSaveDealershipError] = useState("");
+  const [saveDealershipSuccess, setSaveDealershipSuccess] = useState(false);
   const [toastState, setToastState] = useState({
     open: false,
-    message: '',
-    severity: 'success',
-  })
+    message: "",
+    severity: "success",
+  });
 
   const showToast = (severity, message) => {
     setToastState({
       open: true,
       severity,
       message,
-    })
-  }
+    });
+  };
 
   const handleToastClose = (_, reason) => {
-    if (reason === 'clickaway') {
-      return
+    if (reason === "clickaway") {
+      return;
     }
-    setToastState((prev) => ({ ...prev, open: false }))
-  }
+    setToastState((prev) => ({ ...prev, open: false }));
+  };
 
-  const ToastTransition = (props) => <Slide {...props} direction="left" />
+  const ToastTransition = (props) => <Slide {...props} direction="left" />;
   const STATE_ABBREVIATION_TO_ID = {
     AL: 1,
     AK: 2,
@@ -103,7 +107,7 @@ export default function Step1GeneralInfo() {
     WV: 54,
     WI: 55,
     WY: 56,
-  }
+  };
 
   useEffect(() => {
     setFormData(generalInfo);
@@ -146,10 +150,10 @@ export default function Step1GeneralInfo() {
   }, [dealershipOptions, selectedDealershipId]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    setSaveDealershipSuccess(false)
-    
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setSaveDealershipSuccess(false);
+
     // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -167,7 +171,7 @@ export default function Step1GeneralInfo() {
     if (!selectedDealershipId) {
       const errorMsg = "Select a dealership to import";
       setDealershipsError(errorMsg);
-      showToast('error', errorMsg);
+      showToast("error", errorMsg);
       return;
     }
 
@@ -189,98 +193,106 @@ export default function Step1GeneralInfo() {
       dispatch(updateGeneralInfo(updatedFormData));
       setErrors({});
       setSelectedDealershipName(selectedOption?.name || "");
-      showToast('success', `Dealership "${selectedOption?.name || 'selected'}" imported successfully.`);
+      showToast(
+        "success",
+        `Dealership "${
+          selectedOption?.name || "selected"
+        }" imported successfully.`
+      );
     } catch (error) {
-      console.error('Failed to import dealership', error)
-      const errorMsg = error.message || 'Failed to import dealership';
+      console.error("Failed to import dealership", error);
+      const errorMsg = error.message || "Failed to import dealership";
       setDealershipsError(errorMsg);
-      showToast('error', `Error importing dealership: ${errorMsg}`);
+      showToast("error", `Error importing dealership: ${errorMsg}`);
     } finally {
       setIsImportingDealership(false);
     }
-  }
+  };
 
   const handleSaveDealership = async () => {
-    const stateAbbr = (formData.state || '').trim().toUpperCase()
+    const stateAbbr = (formData.state || "").trim().toUpperCase();
     const stateId =
       formData.stateId ||
-      (stateAbbr ? STATE_ABBREVIATION_TO_ID[stateAbbr] ?? null : null)
+      (stateAbbr ? STATE_ABBREVIATION_TO_ID[stateAbbr] ?? null : null);
 
     if (!stateId) {
-      const errorMsg = 'Select a valid state before saving the dealership.';
+      const errorMsg = "Select a valid state before saving the dealership.";
       setSaveDealershipError(errorMsg);
-      showToast('error', errorMsg);
+      showToast("error", errorMsg);
       return;
     }
 
     const payload = {
-      name: formData.legalName || formData.dbaName || '',
-      legal_name: formData.legalName || '',
-      dba_name: formData.dbaName || '',
-      address: formData.address1 || '',
-      address_2: formData.address2 || '',
-      city: formData.city || '',
+      name: formData.legalName || formData.dbaName || "",
+      legal_name: formData.legalName || "",
+      dba_name: formData.dbaName || "",
+      address: formData.address1 || "",
+      address_2: formData.address2 || "",
+      city: formData.city || "",
       state_id: stateId,
       state: stateAbbr || undefined,
-      zip_code: formData.zipCode || '',
-      phone: formData.phone || '',
-      fax: formData.fax || '',
-      email: formData.email || '',
-      website: formData.website || '',
-      dms_code: formData.dmsCode || '',
-      dms_number: formData.dmsNumber || '',
-    }
+      zip_code: formData.zipCode || "",
+      phone: formData.phone || "",
+      fax: formData.fax || "",
+      email: formData.email || "",
+      website: formData.website || "",
+      dms_code: formData.dmsCode || "",
+      dms_number: formData.dmsNumber || "",
+    };
 
-    setIsSavingDealership(true)
-    setSaveDealershipError('')
-    setSaveDealershipSuccess(false)
+    setIsSavingDealership(true);
+    setSaveDealershipError("");
+    setSaveDealershipSuccess(false);
 
     try {
-      const response = await saveDealership(payload)
-      const savedDealership = response?.dealership
+      const response = await saveDealership(payload);
+      const savedDealership = response?.dealership;
 
       const savedName =
         savedDealership?.displayName ||
         savedDealership?.name ||
         payload.name ||
-        ''
+        "";
 
       if (savedName) {
-        setSelectedDealershipName(savedName)
+        setSelectedDealershipName(savedName);
       }
 
       if (savedDealership?.id) {
-        setSelectedDealershipId(String(savedDealership.id))
+        setSelectedDealershipId(String(savedDealership.id));
         setDealershipOptions((prev) => {
           const optionName =
             savedDealership.displayName ||
             savedDealership.name ||
-            `Dealership ${savedDealership.id}`
+            `Dealership ${savedDealership.id}`;
 
-          const newOption = { id: savedDealership.id, name: optionName }
+          const newOption = { id: savedDealership.id, name: optionName };
           const exists = prev.some(
             (option) => String(option.id) === String(savedDealership.id)
-          )
+          );
           return exists
             ? prev.map((option) =>
                 String(option.id) === String(savedDealership.id)
                   ? newOption
                   : option
               )
-            : [...prev, newOption]
-        })
+            : [...prev, newOption];
+        });
       }
 
-      setSaveDealershipSuccess(true)
-      showToast('success', 'Dealership saved successfully.')
+      setSaveDealershipSuccess(true);
+      showToast("success", "Dealership saved successfully.");
     } catch (error) {
-      console.error('Failed to save dealership', error)
-      setSaveDealershipError(error.message || 'Failed to save dealership')
-      showToast('error', `Error saving dealership: ${error.message || 'Unknown error'}`)
+      console.error("Failed to save dealership", error);
+      setSaveDealershipError(error.message || "Failed to save dealership");
+      showToast(
+        "error",
+        `Error saving dealership: ${error.message || "Unknown error"}`
+      );
     } finally {
-      setIsSavingDealership(false)
+      setIsSavingDealership(false);
     }
-  }
+  };
 
   const handleNext = () => {
     const updatedGeneralInfo = {
@@ -292,18 +304,18 @@ export default function Step1GeneralInfo() {
   };
 
   // Require at least Legal Name and Email
-  const isValid = formData.legalName && formData.email
+  const isValid = formData.legalName && formData.email;
   const canSaveDealership =
     (formData.legalName || formData.dbaName) &&
     formData.address1 &&
     formData.city &&
     formData.zipCode &&
-    formData.state
+    formData.state;
 
   return (
     <StepContainer
       stepNumber={1}
-      title="General Information"
+      title="Dealership Information"
       onNext={handleNext}
       canGoNext={isValid}
       headerActions={
@@ -371,15 +383,18 @@ export default function Step1GeneralInfo() {
           </Alert>
         )}
         {saveDealershipError && (
-          <Alert severity="error" onClose={() => setSaveDealershipError('')}>
+          <Alert severity="error" onClose={() => setSaveDealershipError("")}>
             {saveDealershipError}
           </Alert>
         )}
         {saveDealershipSuccess && (
-          <Alert severity="success" onClose={() => setSaveDealershipSuccess(false)}>
+          <Alert
+            severity="success"
+            onClose={() => setSaveDealershipSuccess(false)}
+          >
             {selectedDealershipName
               ? `Dealership "${selectedDealershipName}" saved successfully.`
-              : 'Dealership information saved successfully.'}
+              : "Dealership information saved successfully."}
           </Alert>
         )}
 
@@ -590,10 +605,10 @@ export default function Step1GeneralInfo() {
 
         <div className="border-t border-dark-border pt-6 space-y-3">
           <Stack
-            direction={{ xs: 'column', sm: 'row' }}
+            direction={{ xs: "column", sm: "row" }}
             spacing={2}
-            justifyContent={{ xs: 'flex-start', sm: 'flex-end' }}
-            alignItems={{ xs: 'stretch', sm: 'center' }}
+            justifyContent={{ xs: "flex-start", sm: "flex-end" }}
+            alignItems={{ xs: "stretch", sm: "center" }}
           >
             <Button
               variant="contained"
@@ -601,15 +616,15 @@ export default function Step1GeneralInfo() {
               color="primary"
               onClick={handleSaveDealership}
               disabled={
-                isSavingDealership ||
-                !canSaveDealership ||
-                isLoadingDealerships
+                isSavingDealership || !canSaveDealership || isLoadingDealerships
               }
               startIcon={
-                isSavingDealership ? <CircularProgress size={18} color="inherit" /> : null
+                isSavingDealership ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : null
               }
             >
-              {isSavingDealership ? 'Saving...' : 'Save Dealership'}
+              {isSavingDealership ? "Saving..." : "Save Dealership"}
             </Button>
           </Stack>
         </div>
@@ -618,14 +633,14 @@ export default function Step1GeneralInfo() {
         open={toastState.open}
         autoHideDuration={4000}
         onClose={handleToastClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         TransitionComponent={ToastTransition}
       >
         <Alert
           onClose={handleToastClose}
           severity={toastState.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {toastState.message}
         </Alert>

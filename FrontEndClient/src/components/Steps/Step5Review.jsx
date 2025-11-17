@@ -11,8 +11,8 @@ export default function Step5Review() {
   const products = useSelector((state) => state.products);
   const [toastState, setToastState] = useState({
     open: false,
-    message: '',
-    severity: 'success',
+    message: "",
+    severity: "success",
   });
 
   const showToast = (severity, message) => {
@@ -24,7 +24,7 @@ export default function Step5Review() {
   };
 
   const handleToastClose = (_, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setToastState((prev) => ({ ...prev, open: false }));
@@ -36,11 +36,12 @@ export default function Step5Review() {
     try {
       console.log("Submitting configuration:", config);
       // Simulate API call - replace with actual submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      showToast('success', 'Configuration submitted successfully!');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      showToast("success", "Configuration submitted successfully!");
     } catch (error) {
-      const errorMsg = error?.message || 'Failed to submit configuration. Please try again.';
-      showToast('error', errorMsg);
+      const errorMsg =
+        error?.message || "Failed to submit configuration. Please try again.";
+      showToast("error", errorMsg);
     }
   };
 
@@ -65,12 +66,12 @@ export default function Step5Review() {
           </div>
         </div>
 
-        {/* General Information Review */}
+        {/* Dealership Information Review */}
         <div className="bg-dark-bg rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-3 mb-4">
             <Building className="w-6 h-6 text-brand-focus" />
             <h3 className="text-xl font-semibold text-dark-text">
-              General Information
+              Dealership Information
             </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -215,14 +216,14 @@ export default function Step5Review() {
         open={toastState.open}
         autoHideDuration={4000}
         onClose={handleToastClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         TransitionComponent={ToastTransition}
       >
         <Alert
           onClose={handleToastClose}
           severity={toastState.severity}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {toastState.message}
         </Alert>
