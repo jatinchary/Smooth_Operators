@@ -42,6 +42,7 @@ export async function postProductsLogSummary(req, res, next) {
         ? context.productConfigurations
         : [],
       dealerId: context?.dealerId,
+      dealershipId: context?.dealershipId,
       productIntegration: context?.productIntegration,
     });
 
