@@ -38,7 +38,6 @@ npm install
 npm run dev
 ```
 
-- API health: `http://localhost:4000/api/health`
 - Web app: `http://localhost:5173`
 
 ## Environment variables

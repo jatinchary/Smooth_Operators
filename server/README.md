@@ -60,21 +60,6 @@ try {
 }
 ```
 
-## Health Check
-
-The `/api/health` endpoint now includes database health status:
-
-```json
-{
-  "status": "ok",
-  "service": "api",
-  "timestamp": "2025-11-15T...",
-  "database": {
-    "status": "healthy",
-    "connected": true
-  }
-}
-```
 
 ## Connection Details
 

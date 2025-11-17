@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import healthRoutes from "./routes/health.routes.js";
 import FIRoutes from "./routes/fi.routes.js";
 import dealershipRoutes from "./routes/dealerships.routes.js";
 import productRoutes from "./routes/products.routes.js";
@@ -41,7 +40,6 @@ app.use(express.json({ limit: "1mb" }));
 app.use(requestLoggingMiddleware);
 
 // Routes
-app.use("/api", healthRoutes);
 app.use("/api", FIRoutes);
 app.use("/api", dealershipRoutes);
 app.use("/api", productRoutes);
