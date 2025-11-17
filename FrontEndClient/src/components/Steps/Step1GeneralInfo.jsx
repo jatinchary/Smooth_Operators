@@ -603,18 +603,8 @@ export default function Step1GeneralInfo() {
           variant="outlined"
         />
 
-        {/* Row 3: Country, State, City, ZIP Code */}
+        {/* Row 3: State, City, ZIP Code */}
         <Grid container spacing={2} justifyContent="space-between">
-          <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
-            <TextField
-              label="Country"
-              name="country"
-              value={formData.country || ""}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-            />
-          </Grid>
           <Grid item xs={12} md sx={{ flex: 1, minWidth: 0 }}>
             <TextField
               select

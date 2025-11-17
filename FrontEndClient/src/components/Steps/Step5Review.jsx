@@ -86,7 +86,6 @@ export default function Step5Review() {
             <InfoItem label="City" value={config.generalInfo.city} />
             <InfoItem label="State" value={config.generalInfo.state} />
             <InfoItem label="ZIP Code" value={config.generalInfo.zipCode} />
-            <InfoItem label="Country" value={config.generalInfo.country} />
           </div>
         </div>
 
