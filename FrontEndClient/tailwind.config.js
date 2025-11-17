@@ -41,22 +41,22 @@ export default {
           text: '#e5e7eb',
           'text-secondary': '#9ca3af',
         },
-        // Brand colors with gradients - using CSS variables for dynamic theming
+        // Brand colors with gradients
         brand: {
-          primary: 'var(--theme-primary, #E7E9BB)',
-          'primary-dark': 'var(--theme-primary-dark, #403B4A)',
-          secondary: 'var(--theme-primary, #E7E9BB)',
-          accent: 'var(--theme-primary, #E7E9BB)',
-          focus: 'var(--theme-primary, #E7E9BB)',
+          primary: '#3b82f6',
+          'primary-dark': '#2563eb',
+          secondary: '#06b6d4',
+          accent: '#8b5cf6',
+          focus: '#E7E9BB',
         },
       },
       backgroundImage: {
-        'gradient-primary': 'var(--theme-gradient, linear-gradient(to right, #E7E9BB, #403B4A))',
-        'gradient-secondary': 'var(--theme-gradient-secondary, linear-gradient(135deg, #E7E9BB 0%, #403B4A 100%))',
-        'gradient-accent': 'var(--theme-gradient-secondary, linear-gradient(135deg, #E7E9BB 0%, #403B4A 100%))',
+        'gradient-primary': 'linear-gradient(to right, #E7E9BB, #403B4A)',
+        'gradient-secondary': 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+        'gradient-accent': 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
         'gradient-dark': 'linear-gradient(180deg, #1a1d25 0%, #252932 100%)',
-        'gradient-card': 'var(--theme-gradient-card, linear-gradient(135deg, rgba(231, 233, 187, 0.1) 0%, rgba(64, 59, 74, 0.05) 100%))',
-        'gradient-logo': 'var(--theme-gradient-logo, linear-gradient(to right, #E7E9BB, #403B4A))',
+        'gradient-card': 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)',
+        'gradient-logo': 'linear-gradient(to right, #E7E9BB, #403B4A)',
       },
       boxShadow: {
         'glow': '0 0 20px rgba(231, 233, 187, 0.3)',

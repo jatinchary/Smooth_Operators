@@ -54,8 +54,8 @@ export default function Step5Review() {
     >
       <div className="space-y-6">
         {/* Success Message */}
-        <div className="bg-gradient-card border border-brand-focus/30 rounded-lg p-6 flex items-start gap-4">
-          <CheckCircle className="w-6 h-6 text-brand-focus flex-shrink-0 mt-1" />
+        <div className="bg-gradient-card border border-green-500/30 rounded-lg p-6 flex items-start gap-4">
+          <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-1" />
           <div>
             <h3 className="text-lg font-semibold text-dark-text mb-2">
               Configuration Complete!
@@ -115,7 +115,7 @@ export default function Step5Review() {
               <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
                 RouteOne
                 {config.financeProviders.routeOneConfig.isConfigured && (
-                  <span className="px-2 py-1 bg-brand-focus/20 text-brand-focus text-xs rounded-full">
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
                     Configured
                   </span>
                 )}
@@ -135,7 +135,7 @@ export default function Step5Review() {
               <h4 className="font-semibold text-dark-text mb-3 flex items-center gap-2">
                 DealerTrack
                 {config.financeProviders.dealerTrackConfig.isConfigured && (
-                  <span className="px-2 py-1 bg-brand-focus/20 text-brand-focus text-xs rounded-full">
+                  <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">
                     Configured
                   </span>
                 )}

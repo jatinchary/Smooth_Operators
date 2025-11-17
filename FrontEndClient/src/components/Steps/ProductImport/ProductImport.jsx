@@ -129,12 +129,12 @@ const ProductImport = ({ onImportSuccess }) => {
       )}
 
       {importMutation.isSuccess && showImportedProducts && (
-        <div className="mb-4 p-4 bg-brand-focus/20 border border-brand-focus rounded-lg">
-          <div className="flex items-center gap-2 text-dark-text">
-            <CheckCircle className="w-5 h-5" style={{ color: '#22c55e' }} />
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2 text-green-700">
+            <CheckCircle className="w-5 h-5" />
             <span className="font-medium">Import Successful</span>
           </div>
-          <p className="text-dark-text-secondary mt-1">
+          <p className="text-green-600 mt-1">
             Found {importedProducts.length} products available for
             configuration.
           </p>
