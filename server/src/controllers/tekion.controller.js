@@ -28,7 +28,7 @@ export const getDealerSettingsController = async (req, res) => {
     if (dealershipId && dealerId) {
       // Insert tekion_dealer_id if not exists
       const existingTekion = await query(
-        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ?`,
+        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ? and deleted_at is null`,
         ["tekion_dealer_id", dealershipId]
       );
       if (!existingTekion.rows || existingTekion.rows.length === 0) {
@@ -51,7 +51,7 @@ export const getDealerSettingsController = async (req, res) => {
 
       // Insert dms_type if not exists
       const existingDmsType = await query(
-        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ?`,
+        `SELECT id FROM dealership_variables WHERE name = ? AND dealership_id = ? and deleted_at is null`,
         ["dms_type", dealershipId]
       );
       if (!existingDmsType.rows || existingDmsType.rows.length === 0) {
