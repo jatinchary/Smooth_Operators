@@ -70,6 +70,15 @@ export default function Step3Products() {
   });
 
   const handleLogProducts = () => {
+    // Validate that dealershipId is available
+    if (!generalInfo.selectedDealershipId) {
+      showToast(
+        "error",
+        "Please save a dealership in Step 1 before saving products."
+      );
+      return;
+    }
+
     const vendorSummaries = productsState.selectedVendors.map((vendor) => ({
       id: vendor.id,
       name: vendor.name,
@@ -122,12 +131,17 @@ export default function Step3Products() {
       },
     ];
 
+    // Convert dealershipId to number if it exists
+    const dealershipId = generalInfo.selectedDealershipId 
+      ? Number(generalInfo.selectedDealershipId) 
+      : null;
+
     logMutation.mutate({
       summary,
       context: {
         productIntegration: productsState.productIntegration,
         dealerId: productsState.dealerId,
-        dealershipId: generalInfo.selectedDealershipId || null,
+        dealershipId: dealershipId,
         vendors: vendorSummaries,
         products: selectedProductDetails,
         productConfigurations: configurationDetails,

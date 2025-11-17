@@ -377,6 +377,17 @@ export async function persistProductsSnapshot({
     return;
   }
 
+  // Validate that dealershipId is provided and is a valid number
+  if (!dealershipId || (typeof dealershipId !== 'number' && isNaN(Number(dealershipId)))) {
+    throw new Error('dealershipId is required and must be a valid number. Please save a dealership in Step 1 before saving products.');
+  }
+
+  // Ensure dealershipId is a number
+  const validDealershipId = typeof dealershipId === 'number' ? dealershipId : Number(dealershipId);
+  if (isNaN(validDealershipId) || validDealershipId <= 0) {
+    throw new Error('dealershipId must be a positive number.');
+  }
+
   await ensureSnapshotTables();
 
   const vendorRecords = normalizeVendorList(products);
@@ -443,7 +454,7 @@ export async function persistProductsSnapshot({
 
     const productId = await upsertProduct(product, {
       dealerId,
-      dealershipId,
+      dealershipId: validDealershipId,
       integration: productIntegration,
       primaryVendorId: primaryVendorTableId,
     });

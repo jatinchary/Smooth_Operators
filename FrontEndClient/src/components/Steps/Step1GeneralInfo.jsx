@@ -335,7 +335,8 @@ export default function Step1GeneralInfo() {
       }
 
       if (savedDealership?.id) {
-        setSelectedDealershipId(String(savedDealership.id));
+        const dealershipIdString = String(savedDealership.id);
+        setSelectedDealershipId(dealershipIdString);
         setDealershipOptions((prev) => {
           const optionName =
             savedDealership.displayName ||
@@ -354,6 +355,13 @@ export default function Step1GeneralInfo() {
               )
             : [...prev, newOption];
         });
+        
+        // Update Redux state immediately with the saved dealership ID
+        dispatch(updateGeneralInfo({
+          ...formData,
+          selectedDealershipId: dealershipIdString,
+          selectedDealershipName: savedName,
+        }));
       }
 
       setSaveDealershipSuccess(true);
