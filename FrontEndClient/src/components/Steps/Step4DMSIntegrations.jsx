@@ -8,18 +8,8 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Server, Download } from "lucide-react";
-import {
-  fetchDealerSettings,
-  fetchCreditAppLenders,
-} from "./helpers/tekionApi";
+import { Server } from "lucide-react";
+import { fetchDealerSettings } from "./helpers/tekionApi";
 
 const dmsSystems = [
   { value: "", label: "Select DMS System" },
@@ -46,8 +36,6 @@ export default function Step4DMSIntegrations() {
   });
   const [loading, setLoading] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
-  const [dmsLenders, setDmsLenders] = useState([]);
-  const [loadingLenders, setLoadingLenders] = useState(false);
   const showToast = (severity, message) => {
     setToastState({
       open: true,
@@ -90,36 +78,6 @@ export default function Step4DMSIntegrations() {
       showToast("error", errorMsg);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleImportDMSLenders = async () => {
-    // Check if DMS is configured (dealerId present)
-    if (!formData.dealerId) {
-      showToast(
-        "error",
-        "Please configure the Dealer ID first before importing DMS lenders."
-      );
-      return;
-    }
-
-    setLoadingLenders(true);
-
-    try {
-      // Fetch credit app lenders from DMS
-      const lenders = await fetchCreditAppLenders(formData.dealerId);
-      setDmsLenders(lenders);
-      showToast(
-        "success",
-        `Successfully imported ${lenders.length} lenders from DMS.`
-      );
-    } catch (error) {
-      const errorMsg =
-        error.message ||
-        "Failed to import DMS lenders. Please check and try again.";
-      showToast("error", errorMsg);
-    } finally {
-      setLoadingLenders(false);
     }
   };
 
@@ -222,85 +180,6 @@ export default function Step4DMSIntegrations() {
         >
           {buttonText}
         </Button>
-
-        {/* Import DMS Lenders Section */}
-        <div className="border-t border-dark-border pt-6 mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-dark-text">
-              Import DMS Lenders
-            </h3>
-            <Button
-              onClick={handleImportDMSLenders}
-              disabled={loadingLenders || !formData.dealerId}
-              variant="contained"
-              startIcon={<Download className="w-4 h-4" />}
-            >
-              {loadingLenders ? "Importing..." : "Import DMS Lenders"}
-            </Button>
-          </div>
-
-          {dmsLenders.length > 0 && (
-            <TableContainer
-              component={Paper}
-              sx={{ backgroundColor: "#1a1d25", marginTop: 2 }}
-            >
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      Name
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      Code
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      Lien Holder
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      City
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      State
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      Phone
-                    </TableCell>
-                    <TableCell sx={{ color: "#e4e4e7", fontWeight: "bold" }}>
-                      Hidden
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {dmsLenders.map((lender) => (
-                    <TableRow key={lender.id}>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.name}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.code || "-"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.lienHolder || "-"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.lienHolderAddress?.city || "-"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.lienHolderAddress?.state || "-"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.lienHolderAddress?.phoneNumber || "-"}
-                      </TableCell>
-                      <TableCell sx={{ color: "#e4e4e7" }}>
-                        {lender.hidden ? "Yes" : "No"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </div>
       </div>
       <Snackbar
         open={toastState.open}

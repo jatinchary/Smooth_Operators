@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { updateFinanceProviders } from "../../store/slices/configSlice";
@@ -9,11 +9,12 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
-import { Settings, Download } from "lucide-react";
+import Pagination from "@mui/material/Pagination";
+import InputAdornment from "@mui/material/InputAdornment";
+import { Settings, Download, Search } from "lucide-react";
 import { fetchCreditAppLenders } from "./helpers/tekionApi";
 
 const providers = ["RouteOne", "DealerTrack", "Both"];
@@ -34,6 +35,9 @@ export default function Step2FinanceProviders() {
   });
   const [showDMSLenders, setShowDMSLenders] = useState(false);
   const [dmsLendersDealerId, setDmsLendersDealerId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [toastState, setToastState] = useState({
     open: false,
     message: "",
@@ -205,6 +209,41 @@ export default function Step2FinanceProviders() {
 
     setDmsLendersDealerId(dmsDealerId);
     setShowDMSLenders(true);
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
+  // Filter and paginate lenders
+  const filteredLenders = useMemo(() => {
+    if (!dmsLenders) return [];
+
+    return dmsLenders.filter((lender) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        lender.name?.toLowerCase().includes(searchLower) ||
+        lender.lienHolder?.toLowerCase().includes(searchLower) ||
+        lender.code?.toLowerCase().includes(searchLower) ||
+        lender.lienHolderAddress?.city?.toLowerCase().includes(searchLower) ||
+        lender.lienHolderAddress?.state?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [dmsLenders, searchQuery]);
+
+  const paginatedLenders = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredLenders.slice(startIndex, endIndex);
+  }, [filteredLenders, currentPage]);
+
+  const totalPages = Math.ceil(filteredLenders.length / itemsPerPage);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handlePageChange = (_, value) => {
+    setCurrentPage(value);
   };
 
   const handleImportCreditAppLenders = async () => {
@@ -477,41 +516,112 @@ export default function Step2FinanceProviders() {
           </div>
 
           {showDMSLenders && (
-            <div className="space-y-2">
+            <div className="space-y-4">
               {dmsLendersLoading ? (
                 <div className="text-dark-text-secondary py-4">
                   Loading DMS lenders...
                 </div>
               ) : (
-                dmsLenders?.map((lender) => (
-                  <div
-                    key={lender.id}
-                    className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
-                  >
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={
-                            formData.dmsLenders?.some(
-                              (l) => l.id === lender.id
-                            ) || false
-                          }
-                          onChange={() => handleDMSLenderToggle(lender.id)}
-                        />
-                      }
-                      label={
-                        <div>
-                          <span className="text-dark-text font-medium">
-                            {lender.name}
-                          </span>
-                          <span className="text-dark-text-secondary text-sm ml-2">
-                            ({lender.lienHolder || lender.code || lender.id})
-                          </span>
-                        </div>
-                      }
-                    />
+                <>
+                  {/* Search Box */}
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Search lenders by name, lien holder, code, city, or state..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search className="w-5 h-5 text-dark-text-secondary" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  {/* Results Info */}
+                  <div className="text-dark-text-secondary text-sm">
+                    Showing {paginatedLenders.length} of{" "}
+                    {filteredLenders.length} lenders
+                    {searchQuery &&
+                      ` (filtered from ${dmsLenders?.length || 0} total)`}
                   </div>
-                ))
+
+                  {/* Lenders List */}
+                  <div className="space-y-2">
+                    {paginatedLenders.length > 0 ? (
+                      paginatedLenders.map((lender) => (
+                        <div
+                          key={lender.id}
+                          onClick={() => handleDMSLenderToggle(lender.id)}
+                          className="p-4 bg-dark-bg rounded-lg hover:bg-dark-surface-light transition-all"
+                        >
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formData.dmsLenders?.some(
+                                    (l) => l.id === lender.id
+                                  ) || false
+                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDMSLenderToggle(lender.id);
+                                }}
+                              />
+                            }
+                            onClick={() => handleDMSLenderToggle(lender.id)}
+                            label={
+                              <div>
+                                <div className="text-dark-text font-medium">
+                                  {lender.name}
+                                </div>
+                                <div className="text-dark-text-secondary text-sm">
+                                  {lender.lienHolder && (
+                                    <span className="mr-3">
+                                      Lien Holder: {lender.lienHolder}
+                                    </span>
+                                  )}
+                                  {lender.code && (
+                                    <span className="mr-3">
+                                      Code: {lender.code}
+                                    </span>
+                                  )}
+                                  {lender.lienHolderAddress?.city && (
+                                    <span className="mr-3">
+                                      {lender.lienHolderAddress.city}
+                                      {lender.lienHolderAddress?.state &&
+                                        `, ${lender.lienHolderAddress.state}`}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            }
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-dark-text-secondary text-center py-8">
+                        {searchQuery
+                          ? "No lenders found matching your search."
+                          : "No lenders available."}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center mt-4">
+                      <Pagination
+                        count={totalPages}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
