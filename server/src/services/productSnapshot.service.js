@@ -58,7 +58,9 @@ async function getTableSchema(tableName) {
   }
 
   try {
-    const { rows: columns = [] } = await query(`SHOW COLUMNS FROM ${tableName}`);
+    const { rows: columns = [] } = await query(
+      `SHOW COLUMNS FROM ${tableName}`
+    );
     const columnMap = new Map();
     const primaryKeys = [];
     for (const column of columns) {
@@ -71,7 +73,9 @@ async function getTableSchema(tableName) {
 
     let uniqueColumns = new Set();
     try {
-      const { rows: indexes = [] } = await query(`SHOW INDEX FROM ${tableName}`);
+      const { rows: indexes = [] } = await query(
+        `SHOW INDEX FROM ${tableName}`
+      );
       uniqueColumns = new Set(
         indexes
           .filter((index) => index.Non_unique === 0 && index.Column_name)
@@ -113,10 +117,15 @@ function hasUniqueConstraint(schema, columnName) {
   return schema.uniqueColumns.has(columnName.toLowerCase());
 }
 
-async function upsertProduct(product, { dealerId, integration, primaryVendorId }) {
+async function upsertProduct(
+  product,
+  { dealerId, integration, primaryVendorId }
+) {
   const schema = await getTableSchema("products");
   if (!schema) {
-    console.warn("Skipping product snapshot; unable to inspect products table schema.");
+    console.warn(
+      "Skipping product snapshot; unable to inspect products table schema."
+    );
     return null;
   }
 
@@ -175,23 +184,11 @@ async function upsertProduct(product, { dealerId, integration, primaryVendorId }
     "vendor_all_plans",
     "vendorallplans",
   ]);
-  const costColumn = resolveColumn(schema, [
-    "cost",
-  ]);
-  const taxableColumn = resolveColumn(schema, [
-    "taxable",
-  ]);
-  const typeIdColumn = resolveColumn(schema, [
-    "type_id",
-    "typeid",
-  ]);
-  const iconColumn = resolveColumn(schema, [
-    "icon",
-  ]);
-  const showGraphColumn = resolveColumn(schema, [
-    "show_graph",
-    "showgraph",
-  ]);
+  const costColumn = resolveColumn(schema, ["cost"]);
+  const taxableColumn = resolveColumn(schema, ["taxable"]);
+  const typeIdColumn = resolveColumn(schema, ["type_id", "typeid"]);
+  const iconColumn = resolveColumn(schema, ["icon"]);
+  const showGraphColumn = resolveColumn(schema, ["show_graph", "showgraph"]);
   const orderColumn = resolveColumn(schema, [
     "order",
     "display_order",
@@ -241,7 +238,7 @@ async function upsertProduct(product, { dealerId, integration, primaryVendorId }
   if (dealerFkColumn) {
     addColumn(dealerFkColumn, dealerId || 11);
   }
-  addColumn(integrationColumn, integration || null);
+  addColumn(integrationColumn, mapIntegrationToId(integration));
   if (vendorColumn && primaryVendorId != null) {
     addColumn(vendorColumn, primaryVendorId);
   }
@@ -311,15 +308,14 @@ async function upsertProduct(product, { dealerId, integration, primaryVendorId }
       ? schema.primaryKeys[0]
       : productIdColumn;
 
-  const selectSql = `SELECT ${formatColumn(primaryKeyColumn)} FROM products WHERE ${formatColumn(
-    productIdColumn
-  )} = ? LIMIT 1`;
+  const selectSql = `SELECT ${formatColumn(
+    primaryKeyColumn
+  )} FROM products WHERE ${formatColumn(productIdColumn)} = ? LIMIT 1`;
   const { rows } = await query(selectSql, [product.EX1ProductID]);
   if (!rows || rows.length === 0) {
-    console.warn(
-      "Unable to locate product row after snapshot insert/update.",
-      { productId: product.EX1ProductID }
-    );
+    console.warn("Unable to locate product row after snapshot insert/update.", {
+      productId: product.EX1ProductID,
+    });
     return null;
   }
   return rows[0][primaryKeyColumn];
@@ -350,6 +346,23 @@ function mapDealTypeCode(code) {
       return 3;
     default:
       return null;
+  }
+}
+
+function mapIntegrationToId(integration) {
+  if (!integration) return null;
+  const integrationStr = String(integration).toUpperCase().trim();
+  switch (integrationStr) {
+    case "F&I":
+    case "FI":
+    case "F AND I":
+      return 1;
+    case "PEN":
+      return 2;
+    default:
+      // If it's already a number, return it
+      const parsed = parseInt(integration, 10);
+      return isNaN(parsed) ? null : parsed;
   }
 }
 
@@ -492,10 +505,7 @@ async function upsertVendorIntegrationRow({
     "vendorid",
     "vendor",
   ]);
-  const externalIdColumn = resolveColumn(schema, [
-    "external_id",
-    "externalid",
-  ]);
+  const externalIdColumn = resolveColumn(schema, ["external_id", "externalid"]);
   const integrationColumn = resolveColumn(schema, [
     "integration",
     "product_integration",
@@ -514,7 +524,9 @@ async function upsertVendorIntegrationRow({
 
   try {
     const { rows } = await query(
-      `SELECT ${formatColumn(externalIdColumn)} FROM vendor_integrations WHERE ${formatColumn(
+      `SELECT ${formatColumn(
+        externalIdColumn
+      )} FROM vendor_integrations WHERE ${formatColumn(
         vendorColumn
       )} = ? AND ${formatColumn(externalIdColumn)} = ? LIMIT 1`,
       [vendorId, vendorExternalId]
@@ -526,7 +538,7 @@ async function upsertVendorIntegrationRow({
 
       if (integrationColumn) {
         updates.push(`${formatColumn(integrationColumn)} = ?`);
-        values.push(integration || null);
+        values.push(mapIntegrationToId(integration));
       }
       if (updatedAtColumn) {
         updates.push(`${formatColumn(updatedAtColumn)} = ?`);
@@ -562,7 +574,7 @@ async function upsertVendorIntegrationRow({
   if (integrationColumn) {
     columns.push(integrationColumn);
     placeholders.push("?");
-    values.push(integration || null);
+    values.push(mapIntegrationToId(integration));
   }
   if (createdAtColumn) {
     columns.push(createdAtColumn);
@@ -631,9 +643,11 @@ async function upsertProductVehicleTypeRow({
     if (rows && rows.length > 0) {
       if (updatedAtColumn) {
         await query(
-          `UPDATE product_vehicle_types SET ${formatColumn(updatedAtColumn)} = ? WHERE ${formatColumn(
-            productColumn
-          )} = ? AND ${formatColumn(vehicleColumn)} = ?`,
+          `UPDATE product_vehicle_types SET ${formatColumn(
+            updatedAtColumn
+          )} = ? WHERE ${formatColumn(productColumn)} = ? AND ${formatColumn(
+            vehicleColumn
+          )} = ?`,
           [timestamp, productId, vehicleTypeId]
         );
       }
@@ -679,11 +693,7 @@ async function upsertProductVehicleTypeRow({
   }
 }
 
-async function upsertDealTypeProductRow({
-  productId,
-  dealTypeId,
-  timestamp,
-}) {
+async function upsertDealTypeProductRow({ productId, dealTypeId, timestamp }) {
   const schema = await getTableSchema("deal_type_product");
   if (!schema) return;
 
@@ -717,9 +727,11 @@ async function upsertDealTypeProductRow({
     if (rows && rows.length > 0) {
       if (updatedAtColumn) {
         await query(
-          `UPDATE deal_type_product SET ${formatColumn(updatedAtColumn)} = ? WHERE ${formatColumn(
-            productColumn
-          )} = ? AND ${formatColumn(dealTypeColumn)} = ?`,
+          `UPDATE deal_type_product SET ${formatColumn(
+            updatedAtColumn
+          )} = ? WHERE ${formatColumn(productColumn)} = ? AND ${formatColumn(
+            dealTypeColumn
+          )} = ?`,
           [timestamp, productId, dealTypeId]
         );
       }
@@ -764,5 +776,3 @@ async function upsertDealTypeProductRow({
     });
   }
 }
-
-
