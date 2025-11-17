@@ -109,6 +109,61 @@ export default function Step1GeneralInfo() {
     WY: 56,
   };
 
+  // Reverse mapping: ID to abbreviation
+  const ID_TO_STATE_ABBREVIATION = {
+    1: "AL",
+    2: "AK",
+    4: "AZ",
+    5: "AR",
+    6: "CA",
+    8: "CO",
+    9: "CT",
+    10: "DE",
+    11: "DC",
+    12: "FL",
+    13: "GA",
+    15: "HI",
+    16: "ID",
+    17: "IL",
+    18: "IN",
+    19: "IA",
+    20: "KS",
+    21: "KY",
+    22: "LA",
+    23: "ME",
+    24: "MD",
+    25: "MA",
+    26: "MI",
+    27: "MN",
+    28: "MS",
+    29: "MO",
+    30: "MT",
+    31: "NE",
+    32: "NV",
+    33: "NH",
+    34: "NJ",
+    35: "NM",
+    36: "NY",
+    37: "NC",
+    38: "ND",
+    39: "OH",
+    40: "OK",
+    41: "OR",
+    42: "PA",
+    44: "RI",
+    45: "SC",
+    46: "SD",
+    47: "TN",
+    48: "TX",
+    49: "UT",
+    50: "VT",
+    51: "VA",
+    53: "WA",
+    54: "WV",
+    55: "WI",
+    56: "WY",
+  };
+
   useEffect(() => {
     setFormData(generalInfo);
   }, [generalInfo]);
@@ -184,8 +239,20 @@ export default function Step1GeneralInfo() {
 
     try {
       const details = await fetchDealershipDetails(selectedDealershipId);
+
+      // Convert stateId to state abbreviation if needed
+      let stateValue = details.state || "";
+      if (details.stateId && !stateValue) {
+        // If we have a stateId but no state abbreviation, convert it
+        stateValue = ID_TO_STATE_ABBREVIATION[details.stateId] || "";
+      } else if (stateValue && !isNaN(stateValue)) {
+        // If state contains a numeric ID, convert it to abbreviation
+        stateValue = ID_TO_STATE_ABBREVIATION[Number(stateValue)] || stateValue;
+      }
+
       const updatedFormData = {
         ...details,
+        state: stateValue,
         selectedDealershipId,
         selectedDealershipName: selectedOption?.name || "",
       };
