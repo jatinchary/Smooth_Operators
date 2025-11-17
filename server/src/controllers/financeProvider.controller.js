@@ -485,6 +485,36 @@ export async function saveCreditAppLenders(req, res) {
 
     console.log(`Fetched ${Object.keys(stateMap).length} states from database`);
 
+    // Fetch deal types (finance and lease) from database
+    const dealTypesResult = await query(
+      `SELECT id, name FROM deal_types WHERE deleted_at IS NULL AND (name LIKE '%finance%' OR name LIKE '%lease%')`
+    );
+
+    if (!dealTypesResult.rows || !dealTypesResult.rows.length) {
+      console.warn("No finance or lease deal types found in database");
+    }
+
+    // Create a map of deal type name to deal type ID
+    const dealTypeMap = {};
+    let financeDealTypeId = null;
+    let leaseDealTypeId = null;
+
+    for (const dealType of dealTypesResult.rows || []) {
+      const nameLower = dealType.name.toLowerCase();
+      dealTypeMap[nameLower] = dealType.id;
+
+      if (nameLower.includes("finance") && !leaseDealTypeId) {
+        financeDealTypeId = dealType.id;
+      }
+      if (nameLower.includes("lease")) {
+        leaseDealTypeId = dealType.id;
+      }
+    }
+
+    console.log(
+      `Fetched deal types - Finance ID: ${financeDealTypeId}, Lease ID: ${leaseDealTypeId}`
+    );
+
     // Get a connection for transaction
     connection = (await query.constructor.prototype.constructor.prototype
       .getConnection)
@@ -620,10 +650,54 @@ export async function saveCreditAppLenders(req, res) {
           );
         }
 
+        // Check if lender name contains "finance" or "lease" and create deal type relationships
+        const nameLower = name.toLowerCase();
+        const dealTypesToAssociate = [];
+
+        if (nameLower.includes("finance") && financeDealTypeId) {
+          dealTypesToAssociate.push({
+            dealTypeId: financeDealTypeId,
+            typeName: "finance",
+          });
+        }
+
+        if (nameLower.includes("lease") && leaseDealTypeId) {
+          dealTypesToAssociate.push({
+            dealTypeId: leaseDealTypeId,
+            typeName: "lease",
+          });
+        }
+
+        // Insert lender_deal_types relationships
+        for (const dealType of dealTypesToAssociate) {
+          const dealTypeRelResult = await query(
+            `SELECT id FROM lender_deal_types 
+             WHERE lender_id = ? AND deal_type_id = ? AND deleted_at IS NULL`,
+            [lenderId, dealType.dealTypeId]
+          );
+
+          if (!dealTypeRelResult.rows || dealTypeRelResult.rows.length === 0) {
+            await query(
+              `INSERT INTO lender_deal_types 
+               (lender_id, deal_type_id, created_at, updated_at)
+               VALUES (?, ?, NOW(), NOW())`,
+              [lenderId, dealType.dealTypeId]
+            );
+            console.log(
+              `Created lender_deal_types relationship for lender ID ${lenderId} with ${dealType.typeName} deal type`
+            );
+          } else {
+            console.log(
+              `Lender_deal_types relationship already exists for lender ID ${lenderId} with ${dealType.typeName} deal type`
+            );
+          }
+        }
+
         savedLenders.push({
           lenderId,
           dmsLenderId,
           name,
+          dealTypes: dealTypesToAssociate.map((dt) => dt.typeName),
         });
       } catch (lenderError) {
         console.error(`Error processing lender ${lender.id}:`, lenderError);
