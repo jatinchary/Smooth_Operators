@@ -214,20 +214,123 @@ export default function Step2FinanceProviders() {
     setCurrentPage(1);
   };
 
-  // Filter and paginate lenders
+  // Filter and paginate lenders with multi-field search support (comma-separated)
   const filteredLenders = useMemo(() => {
     if (!dmsLenders) return [];
+    if (!searchQuery.trim()) return dmsLenders;
 
-    return dmsLenders.filter((lender) => {
-      const searchLower = searchQuery.toLowerCase();
-      return (
-        lender.name?.toLowerCase().includes(searchLower) ||
-        lender.lienHolder?.toLowerCase().includes(searchLower) ||
-        lender.code?.toLowerCase().includes(searchLower) ||
-        lender.lienHolderAddress?.city?.toLowerCase().includes(searchLower) ||
-        lender.lienHolderAddress?.state?.toLowerCase().includes(searchLower)
-      );
-    });
+    // Parse search query - support field-specific searches (name:value) or general search
+    // Split by comma first, then process each part
+    const searchParts = searchQuery.split(',').map(part => part.trim()).filter(part => part.length > 0);
+    
+    if (searchParts.length === 0) return dmsLenders;
+    
+    // Check if any part is a field-specific search (e.g., "name:ABC" or "city:New York")
+    const fieldSpecificPattern = /^(\w+):(.+)$/;
+    const hasFieldSpecific = searchParts.some(part => fieldSpecificPattern.test(part.toLowerCase()));
+    
+    if (hasFieldSpecific) {
+      // Field-specific search - parse each comma-separated part
+      const fieldConditions = {};
+      const generalTerms = [];
+      
+      searchParts.forEach((part) => {
+        const partLower = part.toLowerCase();
+        const match = partLower.match(fieldSpecificPattern);
+        
+        if (match) {
+          const field = match[1];
+          const value = match[2].trim();
+          if (!fieldConditions[field]) {
+            fieldConditions[field] = [];
+          }
+          fieldConditions[field].push(value);
+        } else {
+          // General term - keep as is (e.g., "New York" as single term)
+          generalTerms.push(partLower);
+        }
+      });
+      
+      return dmsLenders.filter((lender) => {
+        // Check field-specific conditions
+        for (const [field, values] of Object.entries(fieldConditions)) {
+          let fieldMatches = false;
+          for (const value of values) {
+            switch (field) {
+              case 'name':
+                if (lender.name?.toLowerCase().includes(value)) {
+                  fieldMatches = true;
+                }
+                break;
+              case 'lienholder':
+              case 'lien':
+                if (lender.lienHolder?.toLowerCase().includes(value)) {
+                  fieldMatches = true;
+                }
+                break;
+              case 'code':
+                if (lender.code?.toLowerCase().includes(value)) {
+                  fieldMatches = true;
+                }
+                break;
+              case 'city':
+                if (lender.lienHolderAddress?.city?.toLowerCase().includes(value)) {
+                  fieldMatches = true;
+                }
+                break;
+              case 'state':
+                if (lender.lienHolderAddress?.state?.toLowerCase().includes(value)) {
+                  fieldMatches = true;
+                }
+                break;
+              default:
+                // If field not recognized, check all fields
+                if (
+                  lender.name?.toLowerCase().includes(value) ||
+                  lender.lienHolder?.toLowerCase().includes(value) ||
+                  lender.code?.toLowerCase().includes(value) ||
+                  lender.lienHolderAddress?.city?.toLowerCase().includes(value) ||
+                  lender.lienHolderAddress?.state?.toLowerCase().includes(value)
+                ) {
+                  fieldMatches = true;
+                }
+            }
+          }
+          if (!fieldMatches) return false;
+        }
+        
+        // Check general terms - each term must match at least one field
+        if (generalTerms.length > 0) {
+          for (const term of generalTerms) {
+            const termMatches =
+              lender.name?.toLowerCase().includes(term) ||
+              lender.lienHolder?.toLowerCase().includes(term) ||
+              lender.code?.toLowerCase().includes(term) ||
+              lender.lienHolderAddress?.city?.toLowerCase().includes(term) ||
+              lender.lienHolderAddress?.state?.toLowerCase().includes(term);
+            if (!termMatches) return false;
+          }
+        }
+        
+        return true;
+      });
+    } else {
+      // General search - comma-separated terms, each term must match at least one field
+      return dmsLenders.filter((lender) => {
+        // Each comma-separated term must match at least one field (AND logic)
+        return searchParts.every((part) => {
+          const partLower = part.toLowerCase();
+          // Check if the entire term matches any field
+          return (
+            lender.name?.toLowerCase().includes(partLower) ||
+            lender.lienHolder?.toLowerCase().includes(partLower) ||
+            lender.code?.toLowerCase().includes(partLower) ||
+            lender.lienHolderAddress?.city?.toLowerCase().includes(partLower) ||
+            lender.lienHolderAddress?.state?.toLowerCase().includes(partLower)
+          );
+        });
+      });
+    }
   }, [dmsLenders, searchQuery]);
 
   const paginatedLenders = useMemo(() => {
@@ -589,7 +692,7 @@ export default function Step2FinanceProviders() {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    placeholder="Search lenders by name, lien holder, code, city, or state..."
+                    placeholder="Search lenders (comma-separated: 'ABC, New York' or 'name:ABC, city:New York')..."
                     value={searchQuery}
                     onChange={handleSearchChange}
                     InputProps={{
