@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   currentStep: 1,
   completedSteps: [],
+  theme: 'gold', // 'gold' or 'blue'
   generalInfo: {
     legalName: '',
     dbaName: '',
@@ -65,6 +66,9 @@ const configSlice = createSlice({
     updateDMSIntegrations: (state, action) => {
       state.dmsIntegrations = { ...state.dmsIntegrations, ...action.payload }
     },
+    setTheme: (state, action) => {
+      state.theme = action.payload
+    },
     resetConfig: () => initialState,
   },
 })
@@ -75,6 +79,7 @@ export const {
   updateGeneralInfo,
   updateFinanceProviders,
   updateDMSIntegrations,
+  setTheme,
   resetConfig,
 } = configSlice.actions
 
